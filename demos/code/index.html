@@ -166,6 +166,7 @@
             <category name="Input/Output" colour="#134796">
 
                 <label text="Cout Output" web-class="labelCout"></label>
+
                 <block type="cout"></block>
 
                 <block type="cout_setprecision">
@@ -179,12 +180,13 @@
                 <label text="Cin Input" web-class="labelCin"></label>
 
                 <block type="cin_input"></block>
+
                 <block type="cin_getline">
                     <value name="valinp1">
-                        <shadow type="get_var">
+                        <shadow type="get_var"></shadow>
+                    </value>
                 </block>
-                </value>
-                </block>
+
                 <block type="printf">
                     <value name="valinp0">
                         <shadow type="get_input">
@@ -774,7 +776,8 @@
                     <block type="cin_input"></block>
                     <block type="cin_getline">
                         <value name="valinp1">
-                            <shadow type="get_var">
+                            <shadow type="get_var"></shadow>
+                        </value>
                     </block>
                     </value>
                     </block>
@@ -1329,79 +1332,75 @@
 <!-- Label Color Categories -->
 <style>
     .labelExamples > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #4DAF63;
     }
 
     .labelVariable > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #A55B80;
     }
 
     .labelCout > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #A57A5B;
     }
 
     .labelCin > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #A5995B;
     }
 
     .labelString > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5BA58C;
     }
 
     .labelMath > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5B67A5;
     }
 
     .labelLogic > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5B80A5;
     }
 
     .labelCCType > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5BA59F;
     }
 
     .labelSwitch > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #A5A55B;
     }
 
     .labelLoops > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5BA56D;
     }
 
     .labelFunction > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #80A55B;
     }
 
     .labelArray > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5BA5A5;
     }
 
     .labelVector > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5B93A5;
     }
 
     .labelPointer > .blocklyFlyoutLabelText {
-        font-style: bold;
+        font-weight: bold;
         fill: #5B93A5;
     }
 
-    .labelChapter1 > .blocklyFlyoutLabelText {
-        font-style: bold;
-        fill: #4DAF63;
-    }
 </style>
 
 
