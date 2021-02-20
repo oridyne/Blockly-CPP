@@ -1,25 +1,16 @@
 var term;
-var uid = 0;
+var uid;
+var codeRunning = false;
 
 $(function() {
     term = $('#terminal').terminal({
         input: async function(uinput) {
-            var request =  JSON.stringify({"id": uid,"input": uinput});
-            let res = await fetch(`http://localhost:4020/input`, { method:"POST", body: request});
-            return await res.text();
         },
     },{ prompt: '>', greetings: "Compiler Terminal" });
 });
 
 //use json objects for multiple blobs?
-async function sendCodeToServer() {
-    const r1 = await fetch(`http://localhost:4020/userid`, { method:"GET" });
-    if (!r1.ok) {    
-        const message = `An error has occured: ${r1.status}`;    
-        throw new Error(message);  
-    }
-    uid = await r1.text();
-
+async function runCode() {
 	var code = Blockly.C.workspaceToCode();
 	var codeArray = [];
 	codeArray.push(code);
@@ -29,9 +20,9 @@ async function sendCodeToServer() {
         const message = `An error has occured: ${r2.status}`;    
         throw new Error(message);  
     }
-    
     const res = await r2.json();
-    term.echo( res.gpp + "\n" + res.exe + "\n");
+    uid = res.uid;
+    term.echo( res.gpp + "\n");
 }
 
 async function stopCodeRun() {
