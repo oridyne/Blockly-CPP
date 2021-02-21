@@ -22,27 +22,27 @@ function heartbeat() {
 wss = new WebSocketServer({port: 4080});
 
 wss.on('connection', (ws) => {
-    ws.id =  intformat(generator.next(), 'hex', { prefix: '0x' });
-    ws.isAlive = true;
-    ws.on('pong', heartbeat);
-    ws.on('message', function(message) {
-      console.log('Received Message:', message);
-      if(message == 'do') {
-        const runCompile = execFile("./testprog",{cwd: __dirname});
-        runCompile.stdout.on("data", (data) => {
-          console.log(data);
-          ws.send(data);
-        });
-        runCompile.stderr.on("data", (data) => {
-          console.log(data);
-          ws.send(data);
-        });
-        runCompile.on("close", (code) => {
-          console.log(`main.exe exited with code ${code}`);
-          ws.send(`\nmain.exe exited with code ${code}`);
-        });
-      }
-    });
+  ws.id =  intformat(generator.next(), 'hex', { prefix: '0x' });
+  ws.isAlive = true;
+  ws.on('pong', heartbeat);
+  ws.on('message', function(message) {
+    console.log('Received Message:', message);
+    if(message == 'do') {
+      const runCompile = execFile("./testprog",{cwd: __dirname});
+      runCompile.stdout.on("data", (data) => {
+        console.log(data);
+        ws.send(data);
+      });
+      runCompile.stderr.on("data", (data) => {
+        console.log(data);
+        ws.send(data);
+      });
+      runCompile.on("close", (code) => {
+        console.log(`main.exe exited with code ${code}`);
+        ws.send(`\nmain.exe exited with code ${code}`);
+      });
+    }
+  });
 });
 
 const interval = setInterval(function ping() {

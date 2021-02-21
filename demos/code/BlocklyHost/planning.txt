@@ -4,4 +4,4 @@
 - limit one compile at a time per client
 - https 
 - handle user defined files for compilation
-- 
+- sending files one at a time with seperate requests to prevent too much data

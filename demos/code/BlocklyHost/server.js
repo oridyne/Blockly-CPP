@@ -1,19 +1,23 @@
 const http = require("http");
+const https = require('https');
+const url = require('url'); 
+const WebSocket = require('ws');
 const { spawn } = require("child_process");
 const execFile = require('child_process').execFile;
 const fs = require('fs');
 const path = require('path');
-const compilePath = __dirname+"/compile";
-const url = require('url'); 
-const https = require('https');
+const compilePath = __dirname+"\\compile";
+
 const flakeIDGen = require('flake-idgen'),
 intformat = require('biguint-format'),
 generator = new flakeIDGen();
 const processes = new Map();
+const crypto = require('crypto');
 
+var port = 4020;
+const wss = new WebSocket.Server({ noServer: true });
 var server = http.createServer(function (request, response) {
   const parsedURL = url.parse(request.url, true);
-
   if(parsedURL.pathname === '/compile' && request.method === 'POST') {
     serverCompile(request,response);
   }
@@ -23,7 +27,6 @@ var server = http.createServer(function (request, response) {
       body += chunk;
     });
     request.on('end', () => {
-      console.log(body);
       response.writeHead(200, {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin' : '*',
@@ -31,52 +34,36 @@ var server = http.createServer(function (request, response) {
         'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
       });
       if (processes.has(body)) {
+        if(!processes.get(body)){
+          processes.delete(body);
+          response.write(JSON.stringify({output:'program not running / not found', code:0}));
+          response.end();
+          return;
+        }
         processes.get(body).kill('SIGINT');
-        processes.delete(body);
-        response.write('program stopped');
+        response.write(JSON.stringify({output:'program stopped', code:1}));
         response.end();
-        clearDir(compilePath,body);
+        
       } else {
-        response.write('program not running / not found');
+        response.write(JSON.stringify({output:'program not running / not found', code:0}));
         response.end();
       }
     });
   }
-  else if(parsedURL.pathname === '/input' && request.method === 'POST') {
-    let body = '';
-    request.on('data', (chunk) => {
-      body += chunk;
-    });
-    request.on('end', () => {
-      console.log(body);
-      var proc = JSON.parse(body);
-      response.writeHead(200, {
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin' : '*',
-        'Access-Control-Allow-Headers' : 'Content-Type',
-        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
-      });
-      if (processes.has(proc.id)) {
-        processes.get(proc.id).stdin.write(proc.input + "\n");
-        response.write(proc.input);
-      } else {
-        response.write('program not running / not found');
-        response.end();
-      }
-    });
-  }
-}).listen(4020);
+});
+
+server.on('upgrade', function upgrade(request, socket, head) {
+  wss.handleUpgrade(request, socket, head, function done(ws) {
+    wss.emit('connection', ws, request);
+  });
+});
+
+server.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 
 function serverCompile(request, response) {
   // create new user id
   var id6 = intformat(generator.next(), 'hex', { prefix: '0x' });
   processes.set(id6);
-  response.writeHead(200, {
-    'Content-Type': 'text/plain',
-    'Access-Control-Allow-Origin' : '*',
-    'Access-Control-Allow-Headers' : 'Content-Type',
-    'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
-  });
   console.log("Uid made: " + id6);
   var compRes = {
     "compStatus" :"",
@@ -95,60 +82,57 @@ function serverCompile(request, response) {
         }
       });
       request.on("end", function() {
+        response.writeHead(200, {
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin' : '*',
+          'Access-Control-Allow-Headers' : 'Content-Type',
+          'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
+        });
         resolve(body);
       });
-    }); 
+    });
     if(requestPromise === 0) {
       return console.log('request too big');
     }
     var bodyJson = JSON.parse(requestPromise.toString());
+    console.log(bodyJson);
     //Write request body to file
-    fs.writeFile( compilePath + `/main-${id6}.cpp`, bodyJson.code, function (err) {
-      if (err) {
-        request.connection.destroy();
-        return console.log(err);
-      }
+    await new Promise((resolve,reject)=>{
+      fs.writeFile( compilePath + `/main${id6}.cpp`, bodyJson.code, function (err) {
+        if (err) {
+          resolve();
+          return console.log(err);
+        }
+        console.log(`file written id: ${id6}`);
+        resolve();
+      });
     });
     //Call g++
-    const gpp = spawn("g++", ["-o",`./main-${id6}.exe`,`./main-${id6}.cpp`,], {cwd: compilePath });
-    const compilePromise = new Promise((resolve,reject)=>{
+    var gppArg =  ["-o",`./main${id6}.exe`,`./main${id6}.cpp`,];
+    console.log(compilePath);
+    const gpp = spawn("g++",gppArg, {cwd: compilePath });    
+    const compilePromise = await new Promise((resolve,reject)=> {
       gpp.stdout.on("data", (data)=>{ 
         console.log(`g++ stdout: ${data}`);
-        compRes.gpp+=data;
+        compRes.gpp += data;
       });
       gpp.stderr.on("data", (data)=>{ 
         console.log(`g++ stderr: ${data}`);
-        compRes.gpp+=data;
+        compRes.gpp += data;
+      });
+      gpp.on("error",(error)=>{
+        console.log(error);
+        resolve(1);
       });
       gpp.on("close",(code)=>{
-        resolve (code);
+        resolve(code);
       });
     });
-    //Split into websocket server
     // when compile fails send failure and error messages else send back success
-    if(await compilePromise == 0) {
+    if(compilePromise == 0) {
       compRes.compStatus = 0;
       response.write(JSON.stringify(compRes, null, 3));
       response.end();
-      //   response.end();
-      // const runCompile = execFile("./main.exe",{cwd: compilePath});
-      // processes.set(bodyJson.id, runCompile);
-      // runCompile.stdout.on("data", (data) => {
-      //   console.log(data);
-      //   compRes.exe += data;
-      // });
-      // runCompile.stderr.on("data", (data) => {
-      //   console.log(data);
-      //   compRes.exe += data;
-      // });
-      // runCompile.on("close", (code) => {
-      //   console.log(`main.exe exited with code ${code}`);
-      //   compRes.exe += `\nmain.exe exited with code ${code}`;
-      //   response.write(JSON.stringify(compRes, null, 3));
-      //   response.end();
-      //   clearDir(compilePath);
-      //   processes.delete(bodyJson.id);
-      // });
     } else {
       compRes.compStatus = 1;
       response.write(JSON.stringify(compRes, null, 3));
@@ -170,3 +154,51 @@ function clearDir(dir,uid) {
     }
   });
 } 
+//let sockets = [];
+wss.on('connection', function connection(ws, req) {
+  //sockets.push(ws);
+  //msgType
+  // 1 id
+  // 2 input
+  ws.on('message', function message(msg) {
+    var msgJson = JSON.parse(msg);
+    switch(msgJson.msgType) {
+      case 1:
+        ws.send(JSON.stringify({id:`user id: ${msgJson.id}`}));
+        console.log(`Received message ${msgJson.id} from user`);
+        runProgram(ws, msgJson.id);
+        break;
+      case 2:
+        if (processes.has(msgJson.id)) {
+          processes.get(msgJson.id).stdin.write(msgJson.data + "\n");
+          console.log(`Received input ${msgJson.data} from user`);
+          //ws.send(msgJson.data);
+        } else {
+          ws.send(JSON.stringify({output:'process not running', stop:1}));
+        }
+        break;
+    }
+  });
+  ws.on('close', function close() {
+    console.log('disconnected');
+  });
+});
+
+function runProgram(ws,uid) {
+  const runCompile = execFile(`./main${uid}.exe`,{cwd: compilePath});
+  processes.set(uid, runCompile);
+  runCompile.stdout.on("data", (data) => {
+    console.log(data);
+    ws.send(JSON.stringify({output:data, stop:0}));
+  });
+  runCompile.stderr.on("data", (data) => {
+    console.log(data);
+    ws.send(JSON.stringify({output:data, stop:0}));
+  });
+  runCompile.on("close", (code) => {
+    ws.send(JSON.stringify({output:`Process exited with code ${code}`, stop:1}));
+    clearDir(compilePath,uid);
+    processes.delete(uid);
+    ws.terminate();
+  });
+}
