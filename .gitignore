@@ -17,3 +17,9 @@ local_build/local_*_compressed.js
 chromedriver
 typings/tmp/*
 dist/
+
+*.exe
+
+demos/code/BlocklyHost/serverexpress.js
+
+demos/code/BlocklyHost/package-lock.json

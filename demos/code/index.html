@@ -37,8 +37,13 @@
         <script src="Blocks/Chapter 8 - Pointers.js"></script>
 
         <!-- Include block type inputs -->
-        <script src="Blocks/Blocks - Type.js"></script>
-
+      <script src="Blocks/Blocks - Type.js"></script>
+      
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@devel/js/jquery.terminal.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
+      <script src="js/Terminal.js"></script>
+      
     </head>
 
     <body>
@@ -61,7 +66,14 @@
                         <input type="file" onchange="readFile(this)"
                                title="Load a blockly save into the program."></input>
                     </p>
+      
+                    <p align="left">
+                        <button onclick="runCode()">Run Code</button>
+                    </p>
 
+                    <p align="left">
+                        <button onclick="stopCodeRun()">Stop Code</button>
+                    </p>
                 </td>
                 <td class="farSide">
                     <select id="languageMenu"></select>
@@ -76,7 +88,8 @@
                             <td class="tabmin">&nbsp;</td>
                             <td id="tab_xml" class="taboff"></td>
                             <td class="tabmin">&nbsp;</td>
-
+                            <td id="tab_term" class="taboff">Terminal</td>
+                            <td class="tabmin">&nbsp;</td>
 
                             <td class="tabmax">
                                 <button id="trashButton" class="notext" title="...">
@@ -105,7 +118,9 @@
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
         <textarea id="content_xml" class="content" wrap="off"></textarea>
-
+        <pre id="content_term" class="content">
+            <div id="terminal" class="terminal"></div>
+        </pre>
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 
@@ -1328,7 +1343,6 @@
 
 </html>
 
-
 <!-- Label Color Categories -->
 <style>
     .labelExamples > .blocklyFlyoutLabelText {
@@ -1402,14 +1416,3 @@
     }
 
 </style>
-
-
-
-
-
-
-
-
-
-
-
