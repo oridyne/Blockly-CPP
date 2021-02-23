@@ -17,38 +17,30 @@ const crypto = require('crypto');
 var port = 4020;
 const wss = new WebSocket.Server({ noServer: true });
 var server = http.createServer(function (request, response) {
+  request.on('error', err => {
+    console.error(err);
+    // Handle error...
+    response.statusCode = 400;
+    response.end('400: Bad Request');
+    return;
+  });
+  response.on('error', err => {
+    console.error(err);
+    // Handle error...
+  });
   const parsedURL = url.parse(request.url, true);
-  if(parsedURL.pathname === '/compile' && request.method === 'POST') {
-    serverCompile(request,response);
-  }
-  else if(parsedURL.pathname === '/stop' && request.method === 'POST') {
-    let body = '';
-    request.on('data', (chunk) => {
-      body += chunk;
-    });
-    request.on('end', () => {
-      response.writeHead(200, {
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin' : '*',
-        'Access-Control-Allow-Headers' : 'Content-Type',
-        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
-      });
-      if (processes.has(body)) {
-        if(!processes.get(body)){
-          processes.delete(body);
-          response.write(JSON.stringify({output:'program not running / not found', code:0}));
-          response.end();
-          return;
-        }
-        processes.get(body).kill('SIGINT');
-        response.write(JSON.stringify({output:'program stopped', code:1}));
-        response.end();
-        
-      } else {
-        response.write(JSON.stringify({output:'program not running / not found', code:0}));
-        response.end();
-      }
-    });
+  if (request.method === 'POST') {
+    switch(parsedURL.pathname) {
+      case '/compile':
+        serverCompile(request, response);
+        break;
+      case '/stop':
+        stopProgram(request, response);
+        break;
+      default:
+        res.statusCode = 404;
+        res.end('404');
+    }
   }
 });
 
@@ -60,6 +52,35 @@ server.on('upgrade', function upgrade(request, socket, head) {
 
 server.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 
+function stopProgram(request, response) {
+  let body = '';
+  request.on('data', (chunk) => {
+    body += chunk;
+  });
+  request.on('end', () => {
+    response.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Headers' : 'Content-Type',
+      'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,OPTIONS'
+    });
+    if (processes.has(body)) {
+      if(!processes.get(body)){
+        processes.delete(body);
+        response.write(JSON.stringify({output:'program not running / not found', code:0}));
+        response.end();
+        return;
+      }
+      processes.get(body).kill('SIGINT');
+      response.write(JSON.stringify({output:'program stopped', code:1}));
+      response.end();
+      
+    } else {
+      response.write(JSON.stringify({output:'program not running / not found', code:0}));
+      response.end();
+    }
+  });
+}
 function serverCompile(request, response) {
   // create new user id
   var id6 = intformat(generator.next(), 'hex', { prefix: '0x' });
@@ -109,8 +130,7 @@ function serverCompile(request, response) {
     });
     //Call g++
     var gppArg =  ["-o",`./main${id6}.exe`,`./main${id6}.cpp`,];
-    console.log(compilePath);
-    const gpp = spawn("g++",gppArg, {cwd: compilePath });    
+    const gpp = spawn("g++", gppArg, {cwd: compilePath });    
     const compilePromise = await new Promise((resolve,reject)=> {
       gpp.stdout.on("data", (data)=>{ 
         console.log(`g++ stdout: ${data}`);
@@ -154,9 +174,11 @@ function clearDir(dir,uid) {
     }
   });
 } 
+
 //let sockets = [];
 wss.on('connection', function connection(ws, req) {
   //sockets.push(ws);
+
   //msgType
   // 1 id
   // 2 input
@@ -172,7 +194,6 @@ wss.on('connection', function connection(ws, req) {
         if (processes.has(msgJson.id)) {
           processes.get(msgJson.id).stdin.write(msgJson.data + "\n");
           console.log(`Received input ${msgJson.data} from user`);
-          //ws.send(msgJson.data);
         } else {
           ws.send(JSON.stringify({output:'process not running', stop:1}));
         }

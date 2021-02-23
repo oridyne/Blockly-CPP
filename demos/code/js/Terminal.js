@@ -21,7 +21,7 @@ async function runCode() {
     }
     const res = await response.json();    
     uid = res.uid;
-    term.echo( res.gpp + "\n");
+    term.echo(res.gpp + "\n");
     if (!res.compStatus) {
         codeRunning = true;
         startWebSocket();
