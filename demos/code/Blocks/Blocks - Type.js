@@ -187,6 +187,18 @@ Blockly.Blocks['get_var'] = {
 					}
 					
 				break;
+				case 'ds_member':
+					for (var i = 0; i < ptr.classVarPublic_.length; i++){
+						options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+						if (this.getVar_ === ptr.classVarPublic_[i][3]){
+							this.isConst_ = ptr.classVarPublic_[i][0];
+							this.typeName_ = ptr.classVarPublic_[i][1];
+							this.ptrType_ = ptr.classVarPublic_[i][2];
+						}
+					}
+				
+				
+				break;
 			}
 			
 			ptr = ptr.getSurroundParent();
