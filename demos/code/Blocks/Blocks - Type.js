@@ -199,10 +199,39 @@ Blockly.Blocks['get_var'] = {
 				
 				
 				break;
+	
+
+			}
+			switch (ptr.getDataStr()){
+				case 'isStruct':
+
+				for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+					options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+				}
+
+				break;
+
+				case 'isClass':
+				console.log(ptr);
+				for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+					options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+				}
+				
+				for(var i = 0; i < ptr.classVarPrivate_.length; ++i){
+					options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
+				}
+
+				break;
+				
+				
 			}
 			
+		
+			//console.log(ptr.type);
 			ptr = ptr.getSurroundParent();
 		}
+		
+		
 		
 		for(var i = 0; i < options.length; ++i){
 			this.paramNames_.push(options[i]);
@@ -235,20 +264,6 @@ Blockly.Blocks['get_var'] = {
 		
 					}
 		
-				break;
-	
-				case 'isStruct':
-
-				for(var i = 0; i < ptr.classVar_.length; ++i){
-					options.push([ptr.classVar_[i][3], ptr.classVar_[i][3]]);
-				}
-
-				break;
-
-				case 'isClass':
-				
-
-
 				break;
 			}
 	
@@ -321,11 +336,11 @@ Blockly.Blocks['get_var'] = {
 
 				case 'isStruct':
 
-				for(var i = 0; i < ptr.classVar_.length; ++i){
-					if(this.getVar_ === ptr.classVar_[i][3]){
-						this.isConst_ = ptr.classVar_[i][0];
-						this.typeName_ = ptr.classVar_[i][1];
-						this.ptrType_ = ptr.classVar_[i][2];
+				for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+					if(this.getVar_ === ptr.classVarPublic_[i][3]){
+						this.isConst_ = ptr.classVarPublic_[i][0];
+						this.typeName_ = ptr.classVarPublic_[i][1];
+						this.ptrType_ = ptr.classVarPublic_[i][2];
 						this.isInClass_ = true;
 					}
 				}
@@ -334,7 +349,23 @@ Blockly.Blocks['get_var'] = {
 
 				case 'isClass':
 
+				for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+					if(this.getVar_ === ptr.classVarPublic_[i][3]){
+						this.isConst_ = ptr.classVarPublic_[i][0];
+						this.typeName_ = ptr.classVarPublic_[i][1];
+						this.ptrType_ = ptr.classVarPublic_[i][2];
+						this.isInClass_ = true;
+					}
+				}
 
+				for(var i = 0; i < ptr.classVarPrivate_.length; ++i){
+					if(this.getVar_ === ptr.classVarPrivate_[i][3]){
+						this.isConst_ = ptr.classVarPrivate_[i][0];
+						this.typeName_ = ptr.classVarPrivate_[i][1];
+						this.ptrType_ = ptr.classVarPrivate_[i][2];
+						this.isInClass_ = true;
+					}
+				}
 
 				break;
 			}
@@ -429,8 +460,8 @@ Blockly.Blocks['get_var'] = {
 					switch(ptr.getDataStr()){
 						case 'isStruct':
 
-							for(var i = 0; i < ptr.classVar_.length; ++i){
-								if(this.getVar_ === ptr.classVar_[i][3]){
+							for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+								if(this.getVar_ === ptr.classVarPublic_[i][3]){
 									currentVarFound = true;
 									break;
 								}
@@ -839,12 +870,12 @@ Blockly.Blocks['get_func'] = {
 	allocateConstructors: function(block){
 		var options = [];
 		options.push(["" ,""]);
-		options.push([block.oldDS_, block.oldDS_]);
+		//options.push([block.classConProp_, block.classConProp_]);
 		
 		this.isConstructor_ = true;
 		
 		this.classConParam_ = block.classConParam_;
-		
+		console.log(options);
 		this.paramNames_ = options;
 	},
 	
