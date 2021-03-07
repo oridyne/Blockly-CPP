@@ -6,4 +6,4 @@
 - handle user defined files for compilation
 - sending files one at a time with seperate requests to prevent too much data 
 --made a function to allow for multi file save requests √
-- 
+- fix terminal file and requests to match new structure
