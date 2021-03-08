@@ -162,3 +162,29 @@ button {
 .run {
   background-position: -42px 0px;
 }
+fdropdown {
+    position: relative;
+    display: block;
+    border: none;
+}
+
+.filedropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 8%;
+    overflow: auto;
+    z-index: 300;
+    background-color: #eee;
+    height: auto;
+}
+.filedropdown-content a {
+    color: blue;
+    border: solid;
+    display: block;
+    border-top: none;
+    border-color: gray;
+    padding: 3px;
+}
+.fdropdown:hover .filedropdown-content {
+    display: block;
+}

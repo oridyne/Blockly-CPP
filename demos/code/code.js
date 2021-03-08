@@ -658,3 +658,83 @@ function autoInclude(libname, BlockScope, options) {
 		}
 
 }
+
+var allFiles = ["content_blocks",];
+//allFiles.push('content_blocks');
+function newFile() {
+    //create new anchor tag baseed on user input
+    var newFileName = prompt("Enter a file name:");
+    //check for repeat names
+    var isNameTaken = checkFileName(newFileName);
+    if (isNameTaken == true) {
+        return;
+    }
+    //create new file drop down anchor tag
+    var newFileTag = document.createElement('a');
+    newFileTag.href = "javascript:void(0)";
+    newFileTag.innerText = newFileName;
+    newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
+    document.getElementById("fileDropDown").appendChild(newFileTag);
+    //create new div
+    var newFileDiv = document.createElement('div');
+    newFileDiv.id = newFileName;
+    newFileDiv.className = "content";
+    var rtl = Code.isRtl();
+    document.body.insertBefore(newFileDiv, document.getElementById('content_blocks'));
+    //give new div workspace dimensions
+    var container = document.getElementById('content_area');
+    var bBox = Code.getBBox_(container);
+    newFileDiv.style.top = bBox.y + 'px';
+    newFileDiv.style.left = bBox.x + 'px';
+    newFileDiv.style.height = bBox.height + 'px';
+    newFileDiv.style.height = (2 * bBox.height - newFileDiv.offsetHeight) + 'px';
+    newFileDiv.style.width = bBox.width + 'px';
+    newFileDiv.style.width = (2 * bBox.width - newFileDiv.offsetWidth) + 'px';
+    newFileDiv.style.visibility = 'visible';
+    //inject blockly into new div
+    Code.workspace = Blockly.inject(newFileDiv, {
+        grid: {
+            spacing: 25,
+            length: 3,
+            colour: '#ccc',
+            snap: true
+        },
+        media: '../../media/',
+        rtl: rtl,
+        toolbox: document.getElementById('toolbox'),
+        zoom: {
+            controls: true,
+            wheel: true
+        }
+    });
+    allFiles.push(newFileName);
+    makeFileVisible(newFileName);
+    
+}
+
+function makeFileVisible(fileName) {
+    
+
+    for (var i = 0; i < allFiles.length; i++) {
+        var showOrHide = document.getElementById(allFiles[i]);
+        if (allFiles[i] == fileName) {
+            showOrHide.style.visibility = 'visible';
+        }
+        else {
+            showOrHide.style.visibility = 'hidden';
+        }
+    }
+
+}
+function checkFileName(newEntry) {
+
+    var projectedName = newEntry;
+    for (var i = 0; i < allFiles.length; i++) {
+        var currentFile = allFiles[i];
+        if (projectedName == currentFile) {
+            return true;
+        }
+    }
+    return false;
+
+}
