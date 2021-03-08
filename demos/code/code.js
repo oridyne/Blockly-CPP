@@ -734,6 +734,9 @@ function checkFileName(newEntry) {
         if (projectedName == currentFile) {
             return true;
         }
+        else if (projectedName == null) {
+            return true;
+        }
     }
     return false;
 
