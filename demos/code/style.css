@@ -162,10 +162,7 @@ button {
 .run {
   background-position: -42px 0px;
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 fdropdown {
     position: relative;
     display: block;
@@ -181,10 +178,8 @@ fdropdown {
     background-color: #eee;
     height: auto;
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
+
 .filedropdown-content a {
     color: blue;
     border: solid;
@@ -193,10 +188,7 @@ fdropdown {
     border-color: gray;
     padding: 3px;
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 .fdropdown:hover .filedropdown-content {
     display: block;
 }
