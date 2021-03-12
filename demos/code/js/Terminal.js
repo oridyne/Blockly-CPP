@@ -8,10 +8,10 @@ $(function () {
   );
 });
 
-//TODO Fix requests
 async function runCode() {
   if (codeRunning) return;
-
+  
+  ///GET ID///
   var response = await fetch(`http://localhost:3000/cppCompile/id`);
   if(!response.ok)  {
     const message = `An error has occured: ${response.status}`;
@@ -19,6 +19,8 @@ async function runCode() {
   }
   uid = await response.text();
   uid = uid.replace(/"/g,"");
+  
+  ///SEND FILES///
   var code = Blockly.C.workspaceToCode();
   var codeArray = [];
   codeArray.push(code);
@@ -27,12 +29,11 @@ async function runCode() {
     "filename": "main.cpp",
     "code": codeArray.toString(),
   });
-
   response = await fetch(`http://localhost:3000/cppCompile/saveFile`, {
     method: "POST",
     body: request,
     headers: {
-      "Content-Type":"text/plain"
+      "Content-Type": "text/plain"
     }
   });
   if(!response.ok)  {
@@ -45,15 +46,16 @@ async function runCode() {
     return;
   }
   
+  ///COMPILE PROGRAM///
   request = JSON.stringify({
-    id:uid,
-    filenames:["main.cpp"]
+    id: uid,
+    filenames: ["main.cpp"]
   }); 
   response = await fetch(`http://localhost:3000/cppCompile/compile`, {
     method: "POST",
     body: request,
     headers: {
-      "Content-Type":"text/plain"
+      "Content-Type": "text/plain"
     }
   });
   if (!response.ok) {
@@ -62,19 +64,21 @@ async function runCode() {
   }
   res = await response.json();
   term.echo(res.gpp + "\n");
+
   if (!res.compStatus) {
     codeRunning = true;
     startWebSocket();
   }
 }
 
+///STOP CODE///
 async function stopCodeRun() {
   if (!uid) return;
   const response = await fetch(`http://localhost:3000/cppCompile/stop`, {
     method: "POST",
     body: { id: uid.toString() },
     headers: {
-      "Content-Type" : "text/plain"
+      "Content-Type": "text/plain"
     }
   });
   if (!response.ok) {
@@ -85,9 +89,9 @@ async function stopCodeRun() {
   term.echo(res.output);
   codeRunning = res.code ? false : codeRunning;
 }
+
 //msgType
-//1 id
-//2 input
+//1 id | 2 input
 function startWebSocket() {
   const ws = new WebSocket(`ws://localhost:3001`, ["json", "xml"]);
   ws.addEventListener("open", () => {
@@ -108,12 +112,15 @@ function startWebSocket() {
   });
   (async () => {
     while (codeRunning) {
-      await term.read( "",
-          function (input) {
-            ws.send(JSON.stringify({ msgType: 2, data: input, id: uid }));
+      await term.read("", function (input) { 
+            ws.send(JSON.stringify({ 
+              msgType: 2, 
+              data: input, 
+              id: uid 
+            }));
           },
           function () {}).catch((e) => {
-          if (e) console.log(e);
+            if (e) console.log(e);
         });
     }
   })();

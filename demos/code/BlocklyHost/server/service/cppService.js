@@ -25,9 +25,21 @@ function getID(req, res) {
 
 //match correct file ext + more error checking
 function saveFile(req, res) {
+  console.log("reg ex 1:" +  req.filename.match(/\.(cpp|h)$/g));
+  console.log("reg ex 2:" +  req.filename.match(/^.+\.(?=(.+\.|\.))/g));
+  if((req.filename.match(/\.(cpp|h)$/g) === null) && (req.filename.match(/^.+\.(?=(.+\.|\.))/g) !== null)) {
+    res.setHeader('content-type',"application/json");
+    res.writeHead(200);
+    writeJsonRes(res, {
+      filename: req.filename,
+      status: "fail"
+    });
+    return console.log(`${req.filename} didn't save\next is wrong`);
+  }
   let filename = req.filename.replace(".", `${req.id}.`);
   fs.writeFile(compilePath + `/${filename}`, req.code, function (err) {
     if (err) {
+      res.setHeader('content-type',"application/json");
       res.writeHead(200);
       writeJsonRes(res,{file: req.filename, status: "fail" });
       return console.log(err);

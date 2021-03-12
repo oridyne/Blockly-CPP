@@ -49,14 +49,29 @@ describe("/POST SendFile", () => {
       id: "0x5df321a476c00000",
       code: '#include <iostream>\nint main() {\nstd::cout << "hi" << std::endl; \n}\n',
     };
-    chai
-      .request(address)
+    chai.request(address)
       .post("/cppCompile/saveFile").set('content-type', "application/json")
       .send((file))
       .end((err, res) => {
         res.should.have.status(200);
         res.body.should.be.a("object");
         res.body.should.have.property("status").eql("success");
+        console.log((res.body));
+        done();
+      });
+  });
+  it("file extention check", (done) => {
+    let file = {
+      filename: "main.cpp.exe",
+      id:"0x5df321a476c00230" ,
+      code:"int main() {}\n"  
+    }
+    chai.request(address)
+      .post("/cppCompile/saveFile").set('content-type', "application/json")
+      .send((file))
+      .end((err, res) => {
+        res.body.should.be.a("object");
+        res.body.should.have.property("status").eql("fail");
         console.log((res.body));
         done();
       });
@@ -70,8 +85,7 @@ describe("Compile and websocket", async () => {
       id:"0x5df321a476c00000" ,
       filenames: ["main.cpp"],
     };
-    chai
-      .request(address)
+    chai.request(address)
       .post("/cppCompile/compile")
       .send((compReq))
       .end((err, res) => {
