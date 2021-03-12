@@ -66,6 +66,10 @@ Blockly.Blocks['variable_declare'] = {
 	},
 	
 	allocateValues: function(){
+		// These values added by David Hazell to be compatible with pointers
+		this.const_ = ( this.getFieldValue('const') === 'const' );
+		this.type_ = this.getField('type').getText();
+		this.identifier_ = this.getField('myVarDec').getText();
 		///// Default the values
 		this.varProp_ = [];
 		

@@ -56,7 +56,7 @@
                     </p>
 
                     <p align="left">
-                        <button onclick="downloadXML()" title="Save your work.">Save</button>
+                        <button onclick="downloadXML()" title="Save your work." target="_blank">Save</button>
 
                         <input type="file" onchange="readFile(this)"
                                title="Load a blockly save into the program."></input>
@@ -109,7 +109,7 @@
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 
-            <category name="Include Directories" colour="#134796">
+            <category name="Include Directories" colour="#FBBC2A">
 
                 <block type="include_iostream"></block>
                 <block type="include_iomanip"></block>
@@ -124,7 +124,7 @@
 
             </category>
 
-            <category name="Main Function" colour="#134796">
+            <category name="Main Function" colour="#EA4335">
 
                 <block type="main"></block>
                 <block type="system_pause"></block>
@@ -132,7 +132,7 @@
             </category>
             <!-- end of Main Function blocks -->
 
-            <category name="Variables" colour="#134796">
+            <category name="Variables" colour="#4285F4">
 
                 <label text="Variable Declaration" web-class="labelVariable"></label>
 
@@ -163,12 +163,11 @@
             </category>
             <!-- end of variables blocks -->
 
-            <category name="Input/Output" colour="#134796">
+            <category name="Input/Output" colour="#34A853">
 
                 <label text="Cout Output" web-class="labelCout"></label>
 
                 <block type="cout"></block>
-
                 <block type="cout_setprecision">
                     <value name="valinp1">
                         <shadow type="get_num">
@@ -180,7 +179,6 @@
                 <label text="Cin Input" web-class="labelCin"></label>
 
                 <block type="cin_input"></block>
-
                 <block type="cin_getline">
                     <value name="valinp1">
                         <shadow type="get_var"></shadow>
@@ -1303,16 +1301,31 @@
 
                 </category>
 
-                <!-- Chapter 6.20                                                 -->
-                <!-- Pointers                                                     -->
-                <!-- variables that store the memory addresses of other variables -->
-                <category name="Pointers" colour="#134796">
+                <!-- Chapter 6 - Section 20                                                   -->
+                <!-- Pointers  - variables that store the memory addresses of other variables -->
+                <!-- Author    - David J Hazell                                               -->
+                <category name="Pointers" colour="#4285F4">
 
                     <label text="Pointer Declaration" web-class="labelPointer"></label>
+                    <block type="pointer_declare"></block>
 
+                    <label text="Pointer Initialization" web-class="labelPointer"></label>
+                    <block type="pointer_getter"></block>
+                    <block type="pointer_reference"></block>
                     <block type="pointer_null"></block>
+                    <block type="pointer_nullptr"></block>
 
-                    <label text="Pointer Reference" web-class="labelPointer"></label>
+                    <label text="Pointer Operators" web-class="labelPointer"></label>
+                    <block type="pointer_operator"></block>
+
+                    <!--
+                    <label text="Pointer Operators" web-class="labelPointer"></label>
+                    <block type="pointer_dereference"></block>
+
+                    <label text="Pointer Inputs" web-class="labelPointer"></label>
+                    <block type="pointer_null"></block>
+                    <block type="pointer_nullptr"></block>
+                    -->
 
                 </category>
 
@@ -1398,7 +1411,7 @@
 
     .labelPointer > .blocklyFlyoutLabelText {
         font-weight: bold;
-        fill: #5B93A5;
+        fill: #4285F4;
     }
 
 </style>
