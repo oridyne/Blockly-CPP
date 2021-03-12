@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
 
@@ -90,7 +90,15 @@
                             <td class="tabmin">&nbsp;</td>
                             <td id="tab_term" class="taboff">Terminal</td>
                             <td class="tabmin">&nbsp;</td>
-
+                            <td class="tabmin" align="left">
+                                <div class="fdropdown">
+                                    <button class="filedropdownbutton">Files...</button>
+                                    <div id="fileDropDown" class="filedropdown-content">
+                                        <a href="javascript:void(0)" onclick="newFile()">New File</a>
+                                        <a href="javascript:void(0)" onclick="makeFileVisible(content_blocks)">Blocks</a>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="tabmax">
                                 <button id="trashButton" class="notext" title="...">
                                     <img src='../../media/1x1.gif' class="trash icon21">
