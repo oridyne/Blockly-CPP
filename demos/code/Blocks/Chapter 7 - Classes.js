@@ -11,6 +11,10 @@ Blockly.Blocks["ds_class"] = {
 		
 		this.classVarPublic_ = [];
 		this.classVarPrivate_ = [];
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
+		this.classConProp_ = [];
+		this.classConParam_ = [];
 		
 		
 		this.appendDummyInput()
@@ -35,7 +39,6 @@ Blockly.Blocks["ds_class"] = {
 		this.allocateValues();
 		
 		
-		
 	},
 	
 	allocateValues: function() {
@@ -43,13 +46,31 @@ Blockly.Blocks["ds_class"] = {
 		
 		this.classVarPublic_ = [];
 		this.classVarPrivate_ = [];
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
+		this.classConProp_ = [];
+		this.classConParam_ = [];
 		
 		//public
 		let ptr = this.getInputTargetBlock("statePublic");
 		while (ptr) {
 			switch (ptr.getDataStr()){
+
 				case "isVar":
 				this.classVarPublic_.push(ptr.varProp_);
+				break;
+				
+				case 'isFunc':
+				//If the function is not a constructor
+				if(!ptr.isConstructor_){
+					this.classFuncProp_.push(ptr.funcProp_);
+					this.classFuncParam_.push(ptr.funcParam_);
+				}
+				//If the function is a constructor
+				else{
+					this.classConProp_.push(ptr.funcProp_);
+					this.classConParam_.push(ptr.funcParam_);
+				}
 				break;
 			}
 			ptr = ptr.nextConnection.targetBlock();
@@ -62,6 +83,19 @@ Blockly.Blocks["ds_class"] = {
 				case "isVar":
 				this.classVarPrivate_.push(ptr.varProp_);
 				break;
+
+				case 'isFunc':
+				//If the function is not a constructor
+				if(!ptr.isConstructor_){
+					this.classFuncProp_.push(ptr.funcProp_);
+					this.classFuncParam_.push(ptr.funcParam_);
+				}
+				//If the function is a constructor
+				else{
+					this.classConProp_.push(ptr.funcProp_);
+					this.classConParam_.push(ptr.funcParam_);
+				}
+				break;
 			}
 			ptr = ptr.nextConnection.targetBlock();
 		}
@@ -69,8 +103,6 @@ Blockly.Blocks["ds_class"] = {
 		console.log(this.classVarPublic_);		
 		console.log(this.classVarPrivate_);
 	}
-	
-	
 };
 
 Blockly.C["ds_class"] = function(block) {
@@ -90,7 +122,6 @@ Blockly.C["ds_class"] = function(block) {
 	
 	return code;
 };
-
 
 
 

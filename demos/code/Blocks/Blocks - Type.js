@@ -212,7 +212,6 @@ Blockly.Blocks['get_var'] = {
 				break;
 
 				case 'isClass':
-				console.log(ptr);
 				for(var i = 0; i < ptr.classVarPublic_.length; ++i){
 					options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
 				}
@@ -765,7 +764,7 @@ Blockly.Blocks['get_func'] = {
 		this.isConstructor_ = false;
 		
 		this.funcParam_ = [];
-		this.classConParam_ = [];
+		this.classConProp_ = [];
 		this.classConParam_ = [];
 		
 		//Find and stream variables
@@ -870,12 +869,39 @@ Blockly.Blocks['get_func'] = {
 	allocateConstructors: function(block){
 		var options = [];
 		options.push(["" ,""]);
-		//options.push([block.classConProp_, block.classConProp_]);
+		if (block.getField('DS').getText().length > 0){
+			options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
+		}
 		
+		var types = [];
+		
+		for (var i = 1; i <= this.paramCount_; ++i){
+			var ptr = this.getInputTargetBlock('valinp' + i);
+			
+			if (ptr) {
+				types.push(ptr.typeName_);
+			}
+		}
+		
+		for (var i = 0; i < block.classConParam_.length; ++i){
+			if (types.length === block.classConParam_[i].length){
+				var allEqual = true;
+				for (var j = 0; j < types.length; ++j){
+					if (types[j] !== block.classConParam_[i][j][1]){
+						allEqual = false;
+					}
+				}
+				if (allEqual) {
+					
+					this.funcParam_ = block.classConParam_[i];
+					break;
+				}
+			}
+		}
+			
 		this.isConstructor_ = true;
 		
 		this.classConParam_ = block.classConParam_;
-		console.log(options);
 		this.paramNames_ = options;
 	},
 	
@@ -901,10 +927,23 @@ Blockly.Blocks['get_func'] = {
 			
 		}
 		
-		//Check if the function has the correct amount of inputs
-		if( this.paramCount_ !== this.funcParam_.length ){
-			TT += 'Error, function has ' + this.paramCount_ + ' parameters but requires ' + this.funcParam_.length + '.\n';
+		//there is no constructor that has these parameters
+		if (this.isConstructor_) {
+			if( this.paramCount_ !== this.funcParam_.length ){
+				TT += 'There is no constructor which requires ' + this.paramCount_ + ' parameters.\n';
+			}
 		}
+		else {
+			if( this.paramCount_ !== this.funcParam_.length ){
+				TT += 'Error, function has ' + this.paramCount_ + ' parameters but requires ' + this.funcParam_.length + '.\n';
+			}
+		}
+		
+		
+		
+		//Check if the function has the correct amount of inputs
+		
+
 		
 		//Loop through all the parameter inputs to check the correct types
 		for(var i = 0; i < this.funcParam_.length; ++i){

@@ -225,6 +225,8 @@ Blockly.Blocks['user_function'] = {
 		
 		this.isConstructor_ = false;
 		
+		this.isDestructor_ = false;
+		
 	},
 
 	onchange: function(){
@@ -278,6 +280,10 @@ Blockly.Blocks['user_function'] = {
 				
 				if(this.getVar_ === ptr.getVar_){
 					this.isConstructor_ = true;
+				}
+				
+				if(this.getVar_ === ('~' + ptr.getVar_)){
+					this.isDestructor_ = true;
 				}
 				
 				break;
@@ -433,8 +439,8 @@ Blockly.C['user_function'] = function(block) {
 		std += 'std::';
 	}
 	
-	//If it's not a constructor
-	if(!block.isConstructor_){
+	//If it's not a constructor 
+	if(!block.isConstructor_ && !block.isDestructor_){
 		if(block.funcProp_[0]){
 			code += block.getField('const').getText() + ' ';
 		}

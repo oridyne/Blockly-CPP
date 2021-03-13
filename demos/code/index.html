@@ -1337,19 +1337,23 @@
 			
 			<category name = "Chapter 7" colour = "#134796" >
 
+					<label text="Class Declaration" web-class="labelClass"></label>
+					
+					<block type = "ds_class"></block>
+					
+					<label text="Object Declaration" web-class="labelClass"></label>
+
 					<block type = "ds_object"></block>
+					
+					<label text="Object Block" web-class="labelClass"></label>
 					
 					<block type = "ds_member"></block>
 					
-					<block type = "ds_class"></block>
+
 
 			</category>
 				
-            <!-- end of Chapter 7 blocks -->			
-			
-			
-			
-			
+            <!-- end of Chapter 7 blocks -->		
 
         </xml> <!-- toolbox -->
 
@@ -1431,5 +1435,10 @@
         font-weight: bold;
         fill: #5B93A5;
     }
+	
+	.labelClass > .blocklyFlyoutLabelText {
+		font-weight: bold;
+		fill: #A5925B	
+	}
 
 </style>
