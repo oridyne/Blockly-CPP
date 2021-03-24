@@ -275,16 +275,29 @@ Code.tabClick = function (clickedName) {
     for (var i = 0; i < Code.TABS_.length; i++) {
         var name = Code.TABS_[i];
         document.getElementById('tab_' + name).className = 'taboff';
-        document.getElementById('content_' + name).style.visibility = 'hidden';
+        if (name == 'blocks') {
+            document.getElementById(currentFile).style.visibility = 'hidden';
+        }
+        else {
+            document.getElementById('content_' + name).style.visibility = 'hidden';
+        }
     }
 	// Hao Loi: turn off c_text element
 	document.getElementById('c_text').style.visibility = 'hidden';
     // Select the active tab.
     Code.selected = clickedName;
-    document.getElementById('tab_' + clickedName).className = 'tabon';
-    // Show the selected pane.
-    document.getElementById('content_' + clickedName).style.visibility =
-        'visible';
+    if (clickedName == 'blocks') {
+        document.getElementById('tab_' + clickedName).className = 'tabon';
+        // Show the selected pane.
+        document.getElementById(currentFile).style.visibility =
+            'visible';
+    }
+    else {
+        document.getElementById('tab_' + clickedName).className = 'tabon';
+        // Show the selected pane.
+        document.getElementById('content_' + clickedName).style.visibility =
+            'visible';
+    }
     Code.renderContent();
     if (clickedName == 'blocks') {
         Code.workspace.setVisible(true);	
@@ -402,7 +415,26 @@ Code.init = function () {
 				el1.style.visibility = 'visible';
             }
         }
+        for (var i = 0; i < allFiles.length; i++) {
+            var el = document.getElementById(allFiles[i]);
+            el.style.top = bBox.y + 'px';
+            el.style.left = bBox.x + 'px';
+            el.style.height = bBox.height + 'px';
+            el.style.height = (2 * bBox.height - el.offsetHeight) + 'px';
+            el.style.width = bBox.width + 'px';
+            el.style.width = (2 * bBox.width - el.offsetWidth) + 'px';
+            var code_area = document.getElementById('code_area');
+            var bBox1 = Code.getBBox_(code_area);
+            var el1 = document.getElementById('c_text');
 
+            el1.style.top = bBox1.y + 'px';
+            el1.style.left = bBox1.x + 'px';
+            el1.style.height = bBox1.height + 'px';
+            el1.style.height = (2 * bBox1.height - el1.offsetHeight) + 'px';
+            el1.style.width = bBox1.width + 'px';
+            el1.style.width = (2 * bBox1.width - el1.offsetWidth) + 'px';
+            el1.style.visibility = 'visible';
+        }
         // Make the 'Blocks' tab line up with the toolbox.
         if (Code.workspace && Code.workspace.toolbox_.width) {
             document.getElementById('tab_blocks').style.minWidth =
@@ -505,6 +537,7 @@ Code.init = function () {
 	  var workspace = Code.workspace // your current workspace name what you given
 	  var blockName = "main" // Name of block to add
 
+      allWorkspaces.set("content_blocks", workspace);
 	  var newBlock = workspace.newBlock(blockName);
 	  newBlock.initSvg();
 	  newBlock.render();
@@ -660,12 +693,15 @@ function autoInclude(libname, BlockScope, options) {
 }
 
 var allFiles = ["content_blocks",];
+var currentFile = "content_blocks";
+var allWorkspaces = new Map();
 //allFiles.push('content_blocks');
 function newFile() {
     //create new anchor tag baseed on user input
     var newFileName = prompt("Enter a file name:");
     //check for repeat names
-    var isNameTaken = checkFileName(newFileName);
+    
+    var isNameTaken = checkFileName("content_"+newFileName);
     if (isNameTaken == true) {
         return;
     }
@@ -673,11 +709,11 @@ function newFile() {
     var newFileTag = document.createElement('a');
     newFileTag.href = "javascript:void(0)";
     newFileTag.innerText = newFileName;
-    newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
+    newFileTag.addEventListener('click', function () { makeFileVisible('content_'+newFileName) });
     document.getElementById("fileDropDown").appendChild(newFileTag);
     //create new div
     var newFileDiv = document.createElement('div');
-    newFileDiv.id = newFileName;
+    newFileDiv.id = "content_"+newFileName;
     newFileDiv.className = "content";
     var rtl = Code.isRtl();
     document.body.insertBefore(newFileDiv, document.getElementById('content_blocks'));
@@ -692,7 +728,7 @@ function newFile() {
     newFileDiv.style.width = (2 * bBox.width - newFileDiv.offsetWidth) + 'px';
     newFileDiv.style.visibility = 'visible';
     //inject blockly into new div
-    Code.workspace = Blockly.inject(newFileDiv, {
+    var newWorkspace = Blockly.inject(newFileDiv, {
         grid: {
             spacing: 25,
             length: 3,
@@ -707,21 +743,42 @@ function newFile() {
             wheel: true
         }
     });
-    allFiles.push(newFileName);
-    makeFileVisible(newFileName);
+    allWorkspaces.set("content_" + newFileName, newWorkspace);
+    allFiles.push("content_" +newFileName);
+    makeFileVisible("content_" + newFileName);
     
 }
 
 function makeFileVisible(fileName) {
-    
 
-    for (var i = 0; i < allFiles.length; i++) {
-        var showOrHide = document.getElementById(allFiles[i]);
-        if (allFiles[i] == fileName) {
-            showOrHide.style.visibility = 'visible';
+    if (document.getElementById('tab_c').className == "taboff") {
+        for (var i = 0; i < allFiles.length; i++) {
+            var showOrHide = document.getElementById(allFiles[i]);
+            if (allFiles[i] == fileName) {
+                showOrHide.style.visibility = 'visible';
+                currentFile = fileName;
+                Code.workspace = allWorkspaces.get(allFiles[i]);
+                Code.attemptCodeGeneration(Blockly.C);
+                Code.workspace.addChangeListener(Code.generateCode);
+                Blockly.svgResize(Code.workspace);
+            }
+            else {
+                showOrHide.style.visibility = 'hidden';
+            }
         }
-        else {
-            showOrHide.style.visibility = 'hidden';
+    }
+    else {
+        for (var i = 0; i < allFiles.length; i++) {
+            var showOrHide = document.getElementById(allFiles[i]);
+            if (allFiles[i] == fileName) {
+                showOrHide.style.visibility = 'hidden';
+                currentFile = fileName;
+                Code.workspace = allWorkspaces.get(allFiles[i]);
+                Code.attemptCodeGeneration(Blockly.C);
+                Code.workspace.addChangeListener(Code.generateCode);
+                Blockly.svgResize(Code.workspace);
+            }
+
         }
     }
 
@@ -734,7 +791,7 @@ function checkFileName(newEntry) {
         if (projectedName == currentFile) {
             return true;
         }
-        else if (projectedName == null) {
+        else if (projectedName == "content_null") {
             return true;
         }
     }
