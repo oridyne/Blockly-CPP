@@ -43,6 +43,7 @@
       <script src="https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@devel/js/jquery.terminal.min.js"></script>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
       <script src="js/Terminal.js"></script>
+      <script src="js/compilerOptions.js"></script>
       
     </head>
 
@@ -65,14 +66,6 @@
 
                         <input type="file" onchange="readFile(this)"
                                title="Load a blockly save into the program."></input>
-                    </p>
-      
-                    <p align="left">
-                        <button onclick="runCode()">Run Code</button>
-                    </p>
-
-                    <p align="left">
-                        <button onclick="stopCodeRun()">Stop Code</button>
                     </p>
                 </td>
                 <td class="farSide">
@@ -126,9 +119,31 @@
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
         <textarea id="content_xml" class="content" wrap="off"></textarea>
-        <pre id="content_term" class="content">
+        <div id="content_term" class="content">
+            <button onclick="runCode()" float="left">Run ▶</button>
+            <button onclick="stopCodeRun()" float="left">Stop ◼</button>
+            <button id="compOptBtn">Options</button>
+            <dialog open id="compOptDiv">
+                <form class="form" action="#" id="compOptForm">
+                    <div id="compOptHead">Compile Options</div>
+                    <hr />
+                    <p id="fileCompileLabel"><b>Compile List</b></p>
+                    <div id="fileCheckboxes"></div>
+                    <br />
+                    <p id="AdvancedOptions"><b>Advanced Options</b><br />leave these alone unless you know what they are</p>
+                    <p id="compilerOptmLevelLabel"><u>Compiler optimization level</u></p>
+                    <div id="compilerOptimRadios"></div>
+                    <p id="compilerVersionLabel"><u>C++ Version</u></p>
+                    <div id="compilerVersionRadios"></div>
+                    <p id="miscCompilerOptsLabel"><u>Misc Options</u></p>
+                    <div id="miscCompilerOptsCheckboxes"></div>
+                    <br />
+                    <button id="saveBtn">Save</button>
+                    <button id="cancelBtn">Cancel</button>
+                </form>
+            </dialog>
             <div id="terminal" class="terminal"></div>
-        </pre>
+        </div>
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 

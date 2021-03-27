@@ -4,12 +4,12 @@ const
     cppService = require('../service/cppService');
 
 async function requestHandler(req, res) {
-    var reqURL = url.parse(req.url);
-    var urlPath = reqURL.pathname.substring(1).split("/");
-    var reqBody;
-    var reqMethod = req.method;
-    const reqProm = new Promise((resolve,reject) => {
-        var reqRaw="";
+    const reqURL = url.parse(req.url);
+    const urlPath = reqURL.pathname.substring(1).split("/");
+    let reqBody;
+    const reqMethod = req.method;
+    const reqProm = new Promise((resolve) => {
+        let reqRaw = "";
         req.on('data',(data) => {
             reqRaw += data;
         }); 
@@ -51,7 +51,7 @@ async function requestHandler(req, res) {
     }
 }
 
-// seperate to make stuff more readable
+// separate to make stuff more readable
 function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     if(urlPath[1] === 'id' && reqMethod === 'GET' )  {
         cppService.getID(reqBody, res);

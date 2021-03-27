@@ -162,11 +162,8 @@ button {
 .run {
   background-position: -42px 0px;
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
-fdropdown {
+.fdropdown {
     position: relative;
     display: block;
     border: none;
@@ -181,10 +178,6 @@ fdropdown {
     background-color: #eee;
     height: auto;
 }
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 .filedropdown-content a {
     color: blue;
     border: solid;
@@ -193,10 +186,36 @@ fdropdown {
     border-color: gray;
     padding: 3px;
 }
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 .fdropdown:hover .filedropdown-content {
     display: block;
+}
+
+#compOptDiv {
+  opacity: 0.85;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  color: white;
+  display: none;
+}
+
+#compOptDiv #compOptForm {
+  width: 35%;
+  margin: auto;
+  position: absolute;
+  border: #fff;
+  border-width: 2px;
+  border-style: solid;
+  padding: 10px;
+}
+
+#compOptHead {
+  text-align: center;
+}
+
+#terminal {
+  width: 40%;
 }

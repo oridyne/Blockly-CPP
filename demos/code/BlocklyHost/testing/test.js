@@ -10,9 +10,9 @@ const chai = require("chai"),
   ws = require('ws'),
   chalk = require('chalk');
 server.create(config);
-var uid;
-var address = "http://localhost:3000";
-var expect = chai.expect;
+let uid;
+const address = "http://localhost:3000";
+const expect = chai.expect;
 let should = chai.should();
 chai.use(chaiHttp);
 
@@ -60,7 +60,7 @@ describe("/POST SendFile", () => {
         done();
       });
   });
-  it("file extention check", (done) => {
+  it("file extension check", (done) => {
     let file = {
       filename: "main.cpp.exe",
       id:"0x5df321a476c00230" ,
@@ -79,7 +79,7 @@ describe("/POST SendFile", () => {
 });
 
 describe("Compile and websocket", async () => {
-  const compile = new Promise((resolve,reject)=>{
+  const compile = new Promise((resolve)=>{
     it("it should compile test program", (done) => {
     let compReq = {
       id:"0x5df321a476c00000" ,
@@ -99,9 +99,9 @@ describe("Compile and websocket", async () => {
     });
   }); 
   await compile;
-  var websocket = new ws(`ws://localhost:3001`);
+    const websocket = new ws(`ws://localhost:3001`);
 
-  websocket.on('open', () => {
+    websocket.on('open', () => {
     console.log(chalk.keyword('orange')("connected"));
     const data = { msgType: 1, id: "0x5df321a476c00000", data: "" };
     const json = JSON.stringify(data);

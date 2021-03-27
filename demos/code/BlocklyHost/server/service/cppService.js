@@ -1,7 +1,6 @@
 const { spawn } = require("child_process");
 const execFile = require("child_process").execFile;
 const fs = require("fs");
-const url = require('url');
 const path = require("path");
 const compilePath = __dirname + "\\cppCompile";
 const flakeIDGen = require("flake-idgen"),
@@ -17,16 +16,15 @@ function writeJsonRes(res, obj) {
 
 function getID(req, res) {
   // create new user id
-  var id6 = intformat(generator.next(), "hex", { prefix: "0x" });
+  const id6 = intformat(generator.next(), "hex", {prefix: "0x"});
   console.log(chalk.green("Uid made: " + id6));
   res.writeHead(200);
   writeJsonRes(res, id6);
 }
 
-//match correct file ext + more error checking
 function saveFile(req, res) {
-  console.log("reg ex 1:" +  req.filename.match(/\.(cpp|h)$/g));
-  console.log("reg ex 2:" +  req.filename.match(/^.+\.(?=(.+\.|\.))/g));
+  //console.log("reg ex 1:" +  req.filename.match(/\.(cpp|h)$/g));
+  //console.log("reg ex 2:" +  req.filename.match(/^.+\.(?=(.+\.|\.))/g));
   if((req.filename.match(/\.(cpp|h)$/g) === null) && (req.filename.match(/^.+\.(?=(.+\.|\.))/g) !== null)) {
     res.setHeader('content-type',"application/json");
     res.writeHead(200);
@@ -37,7 +35,7 @@ function saveFile(req, res) {
     return console.log(`${req.filename} didn't save\next is wrong`);
   }
   let filename = req.filename.replace(".", `${req.id}.`);
-  fs.writeFile(compilePath + `/${filename}`, req.code, function (err) {
+  fs.writeFile(`${compilePath}\\${filename}`, req.code, function (err) {
     if (err) {
       res.setHeader('content-type',"application/json");
       res.writeHead(200);
@@ -53,18 +51,29 @@ function saveFile(req, res) {
 
 function compileProgram(req, res) {
   let gppOut = "";
-  var gppArg = ["-o", `./main${req.id}.exe`];
+  const gppArg = ["-o", `${compilePath}\\main${req.id}.exe`];
 
-  for (let i = 0; i < req.filenames.length; i++) {
-    let filename = req.filenames[i].replace(".", `${req.id}.`);
-    gppArg.push(`./${filename}`);
-    console.log(chalk.green(`File ${filename} added`));
-  }
-  
+  fs.readdir(dirPath, function (err, files) {
+    if (err) {
+        return console.log('Unable to scan dir ' + err);
+    } 
+    files.forEach(function (file) {
+      if(file.includes(req.id)) gppArg.push(file);  
+      console.log(file); 
+    });
+  });
+  req.args.forEach((arg) => {
+    gppArg.push(arg);
+  });
+  // for (let i = 0; i < req.filenames.length; i++) {
+  //   let filename = req.filenames[i].replace(".", `${req.id}.`);
+  //   gppArg.push(`${compilePath}\\${filename}`);
+  //    console.log(chalk.green(`File ${filename} added`));
+  // }
   //Call g++
   const gpp = spawn("g++", gppArg, { cwd: compilePath });
   (async () => {
-    const compilePromise = await new Promise((resolve, reject) => {
+    const compilePromise = await new Promise((resolve) => {
       gpp.stdout.on("data", (data) => {
         console.log(`g++ stdout: ${data}`);
         gppOut += data;
@@ -84,7 +93,7 @@ function compileProgram(req, res) {
     res.setHeader('content-type',"application/json");
     res.writeHead(200);
     writeJsonRes(res,{ gpp: gppOut, status: compilePromise});
-    if (compilePromise === 1) {
+    if (compilePromise !== 0) {
      clearDir(compilePath, req.id);
     } 
   })();
@@ -153,7 +162,7 @@ function wsInit(wss) {
       2 input
     */
     ws.on("message", function message(msg) {
-      var msgJson = JSON.parse(msg);
+      const msgJson = JSON.parse(msg);
       switch (msgJson.msgType) {
         case 1:
           ws.send(JSON.stringify({ id: `${msgJson.id}` }));

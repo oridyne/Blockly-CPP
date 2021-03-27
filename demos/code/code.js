@@ -276,21 +276,22 @@ Code.tabClick = function (clickedName) {
         var name = Code.TABS_[i];
         document.getElementById('tab_' + name).className = 'taboff';
         document.getElementById('content_' + name).style.visibility = 'hidden';
+        if(name !== "tab_blocks") document.getElementById('content_' + name).style.display = "none";
     }
-	// Hao Loi: turn off c_text element
-	document.getElementById('c_text').style.visibility = 'hidden';
+    // Hao Loi: turn off c_text element
+    document.getElementById('c_text').style.visibility = 'hidden';
     // Select the active tab.
     Code.selected = clickedName;
     document.getElementById('tab_' + clickedName).className = 'tabon';
     // Show the selected pane.
-    document.getElementById('content_' + clickedName).style.visibility =
-        'visible';
+    document.getElementById('content_' + clickedName).style.visibility = 'visible';
+    document.getElementById('content_' + clickedName).style.display = "block";
     Code.renderContent();
     if (clickedName == 'blocks') {
         Code.workspace.setVisible(true);	
 		// Hao Loi: turn on c_text element
 		document.getElementById('c_text').style.visibility = 'visible';		
-    }
+    } 
     Blockly.svgResize(Code.workspace);
 };
 
@@ -656,17 +657,17 @@ function autoInclude(libname, BlockScope, options) {
 			}
 			options.push(automate_library);
 		}
-
 }
 
 var allFiles = ["content_blocks",];
+var workspaces = new Map();
 //allFiles.push('content_blocks');
 function newFile() {
     //create new anchor tag baseed on user input
     var newFileName = prompt("Enter a file name:");
     //check for repeat names
     var isNameTaken = checkFileName(newFileName);
-    if (isNameTaken == true) {
+    if (isNameTaken == true || !newFileName) {
         return;
     }
     //create new file drop down anchor tag
@@ -692,7 +693,7 @@ function newFile() {
     newFileDiv.style.width = (2 * bBox.width - newFileDiv.offsetWidth) + 'px';
     newFileDiv.style.visibility = 'visible';
     //inject blockly into new div
-    Code.workspace = Blockly.inject(newFileDiv, {
+    var workspaceNew = Blockly.inject(newFileDiv, {
         grid: {
             spacing: 25,
             length: 3,
@@ -707,27 +708,28 @@ function newFile() {
             wheel: true
         }
     });
+    workspaces.set(newFileName, workspaceNew);
+    Code.workspace = workspaceNew;
     allFiles.push(newFileName);
     makeFileVisible(newFileName);
     
 }
 
 function makeFileVisible(fileName) {
-    
-
     for (var i = 0; i < allFiles.length; i++) {
         var showOrHide = document.getElementById(allFiles[i]);
         if (allFiles[i] == fileName) {
-            showOrHide.style.visibility = 'visible';
+            Code.workspace = workspaces.get(fileName);
+            showOrHide.style.display = 'block';
+            document.getElementById("content_term").style.display = 'none';
         }
         else {
-            showOrHide.style.visibility = 'hidden';
+            showOrHide.style.display = 'none';
         }
     }
 
 }
 function checkFileName(newEntry) {
-
     var projectedName = newEntry;
     for (var i = 0; i < allFiles.length; i++) {
         var currentFile = allFiles[i];
@@ -736,5 +738,4 @@ function checkFileName(newEntry) {
         }
     }
     return false;
-
 }
