@@ -165,18 +165,21 @@ button {
 
 fdropdown {
     position: relative;
-    display: block;
+    display: inline-block;
     border: none;
+    width:auto;
 }
 
 .filedropdown-content {
     display: none;
-    position: absolute;
-    min-width: 8%;
-    overflow: auto;
+    position: relative;
+    float:left;
+    min-width: 10%;
+    overflow: hidden;
     z-index: 300;
     background-color: #eee;
     height: auto;
+
 }
 
 
@@ -189,6 +192,32 @@ fdropdown {
     padding: 3px;
 }
 
+.filedropdown-delete {
+    float:right;
+    display: none;
+    max-width: 20px;
+    position:relative;
+    
+    z-index: 301;
+    background-color: #eee;
+    height: auto;
+    overflow: hidden;
+}
+.filedropdown-delete a {
+    color: red;
+    border: solid;
+    display: block;
+    border-top: none;
+    border-color: gray;
+    padding: 3px;
+    min-height:18px;
+}
+
+
+
 .fdropdown:hover .filedropdown-content {
+    display: block;
+}
+.fdropdown:hover .filedropdown-delete{
     display: block;
 }
