@@ -66,7 +66,7 @@
                         <input type="file" onchange="readFile(this)"
                                title="Load a blockly save into the program." multiple></input>
                     </p>
-      
+
                     <p align="left">
                         <button onclick="runCode()">Run Code</button>
                     </p>
@@ -82,6 +82,7 @@
             <tr>
                 <td colspan=2>
                     <table width="100%">
+
                         <tr id="tabRow" height="1em">
                             <td id="tab_blocks" class="tabon">...</td>
                             <td id="tab_c" class="taboff">C++</td> <!--Added C++ to the tab-->
@@ -92,20 +93,25 @@
                             <td class="tabmin">&nbsp;</td>
                             <td class="tabmin" align="left">
                                 <div class="fdropdown">
+
                                     <button class="filedropdownbutton">Files...</button>
+                                    <div>
                                     <div id="fileDropDown" class="filedropdown-content">
                                         <a href="javascript:void(0)" onclick="newFileName()">New File</a>
                                         <a href="javascript:void(0)" id="main_file" onclick="makeFileVisible('main')">Main</a>
-                                        
-                                    </div>
-                                    <div id="fileDropDownDelete" class="filedropdown-delete">
-                                        <a href="javascript:void(0)" style="border-left:none"</a>
-                                        <a href="javascript:void(0)" id="main_del" onclick="deleteFile('main')">X</a>
 
+
+                                        <div id="fileDropDownDelete" class="filedropdown-delete">
+                                            <a href="javascript:void(0)" style="border-left:none"</a>
+                                            <a href="javascript:void(0)" id="main_del" onclick="deleteFile('main')">X</a>
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
                             </td>
+                            
                             <td class="tabmax">
+
                                 <button id="trashButton" class="notext" title="...">
                                     <img src='../../media/1x1.gif' class="trash icon21">
                                 </button>
@@ -118,6 +124,7 @@
                             </td>
                         </tr>
                     </table>
+
                 </td>
             </tr>
             <tr>
