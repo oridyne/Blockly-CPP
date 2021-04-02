@@ -164,30 +164,30 @@ button {
 }
 
 .fdropdown {
-    position: relative;
-    display: block;
-    border: none;
+  position: relative;
+  display: block;
+  border: none;
 }
 
 .filedropdown-content {
-    display: none;
-    position: absolute;
-    min-width: 8%;
-    overflow: auto;
-    z-index: 300;
-    background-color: #eee;
-    height: auto;
+  display: none;
+  position: absolute;
+  min-width: 8%;
+  overflow: auto;
+  z-index: 300;
+  background-color: #eee;
+  height: auto;
 }
 .filedropdown-content a {
-    color: blue;
-    border: solid;
-    display: block;
-    border-top: none;
-    border-color: gray;
-    padding: 3px;
+  color: blue;
+  border: solid;
+  display: block;
+  border-top: none;
+  border-color: gray;
+  padding: 3px;
 }
 .fdropdown:hover .filedropdown-content {
-    display: block;
+  display: block;
 }
 
 #compOptDiv {
@@ -200,16 +200,14 @@ button {
   background: #000;
   color: white;
   display: none;
+  margin: auto;
 }
 
 #compOptDiv #compOptForm {
-  width: 35%;
-  margin: auto;
+  width: 25%;
   position: absolute;
-  border: #fff;
-  border-width: 2px;
-  border-style: solid;
   padding: 10px;
+  transform: translate(60%, 0);
 }
 
 #compOptHead {
@@ -217,5 +215,6 @@ button {
 }
 
 #terminal {
-  width: 40%;
+  width: 50%;
+   font-size: 14px;
 }

@@ -79,11 +79,14 @@ describe("/POST SendFile", () => {
 });
 
 describe("Compile and websocket", async () => {
-  const compile = new Promise((resolve)=>{
+  await new Promise((resolve)=>{
     it("it should compile test program", (done) => {
     let compReq = {
       id:"0x5df321a476c00000" ,
       filenames: ["main.cpp"],
+      args:[],
+      isTest: false,
+      exeName: "main"
     };
     chai.request(address)
       .post("/cppCompile/compile")
@@ -98,12 +101,10 @@ describe("Compile and websocket", async () => {
       });
     });
   }); 
-  await compile;
-    const websocket = new ws(`ws://localhost:3001`);
-
-    websocket.on('open', () => {
+  const websocket = new ws(`ws://localhost:3001`);
+  websocket.on('open', () => {
     console.log(chalk.keyword('orange')("connected"));
-    const data = { msgType: 1, id: "0x5df321a476c00000", data: "" };
+    const data = { msgType: 1, id: "0x5df321a476c00000", data: "main" };
     const json = JSON.stringify(data);
     websocket.send(json);
   });

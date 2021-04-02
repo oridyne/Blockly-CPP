@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha testing/test.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "testCxx": "mocha testing/testCxx.js --timeout 10000"
   },
   "author": "",
   "license": "ISC",

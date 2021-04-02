@@ -1,9 +1,9 @@
 var compileList = [];
 var compOptimLevels = ["0", "1", "2", "3", "s"];
 var setOptimLevels = ["s"];
-var cppVersions = ["98", "11", "14"];
+var cppVersions = ["99", "11", "14", "17", "20"];
 var setVersion = ["11"];
-var miscCompileOpts = ["-Wall", "-Werror"];
+var miscCompileOpts = ["-Wall", "-Werror", "-g", "-dryrun"];
 var setMiscOpts = [];
 var divList = [];
 
@@ -30,7 +30,7 @@ $(function () {
         }
         this.getChecked = function() {
             this.setList = [];
-            this.list.forEach((item)=>{
+            this.list.forEach((item) => {
                 let checked = $(`#compOptForm #${this.sectionName} #${item.replace(".","_").replace("=", "+")}`).is(":checked");
                 if(this.type === "radio") { 
                     if(this.setList.length === 0) { 

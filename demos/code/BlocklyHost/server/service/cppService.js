@@ -8,6 +8,7 @@ const flakeIDGen = require("flake-idgen"),
   generator = new flakeIDGen();
 const processes = new Map();
 const chalk = require('chalk');
+const { cpuUsage } = require("process");
 
 function writeJsonRes(res, obj) {
   res.write(JSON.stringify(obj));
@@ -23,8 +24,7 @@ function getID(req, res) {
 }
 
 function saveFile(req, res) {
-  //console.log("reg ex 1:" +  req.filename.match(/\.(cpp|h)$/g));
-  //console.log("reg ex 2:" +  req.filename.match(/^.+\.(?=(.+\.|\.))/g));
+  // Check file ext //
   if((req.filename.match(/\.(cpp|h)$/g) === null) && (req.filename.match(/^.+\.(?=(.+\.|\.))/g) !== null)) {
     res.setHeader('content-type',"application/json");
     res.writeHead(200);
@@ -34,7 +34,9 @@ function saveFile(req, res) {
     });
     return console.log(`${req.filename} didn't save\next is wrong`);
   }
+  // add uid to file
   let filename = req.filename.replace(".", `${req.id}.`);
+  // write the file to compile folder
   fs.writeFile(`${compilePath}\\${filename}`, req.code, function (err) {
     if (err) {
       res.setHeader('content-type',"application/json");
@@ -48,80 +50,105 @@ function saveFile(req, res) {
     writeJsonRes(res, {file: req.filename, status: "success" });
   });
 }
-
-function compileProgram(req, res) {
-  let gppOut = "";
-  const gppArg = ["-o", `${compilePath}\\main${req.id}.exe`];
-
-  fs.readdir(dirPath, function (err, files) {
-    if (err) {
-        return console.log('Unable to scan dir ' + err);
-    } 
-    files.forEach(function (file) {
-      if(file.includes(req.id)) gppArg.push(file);  
-      console.log(file); 
+// figure out how to make include statements in test files work with IDs (and also regular files)
+async function generateTest(req) {
+  let cxxArgs =  ["C:\\cygwin64\\cxxtest\\cxxtestgen.pl", "--error-printer", "-o", `runner${req.id}.cpp`];
+  for (let i = 0; i < req.filenames.length; i++) {
+    if(req.filenames[i].startsWith("test")) {
+      let filename = req.filenames[i].replace(".", `${req.id}.`);
+      filename = `${compilePath}\\${filename}`.replace(/\\/g, '\\\\');
+      console.log(chalk.keyword('lime')("Test file: " + filename));
+      cxxArgs.push(filename);
+    }
+  }
+  console.log(chalk.keyword('magenta')(cxxArgs.join(" ")));
+  const cxx = spawn("perl", cxxArgs,  { cwd: compilePath }); 
+  let genTestPromise = new Promise((resolve, reject) => {
+    cxx.stderr.on(("data"), (data) => console.log(data.toString()));
+    cxx.on("close", (code) => {
+      if(code === 0) { 
+        resolve(code);
+      } else { 
+        resolve(1);
+      }
     });
   });
-  req.args.forEach((arg) => {
-    gppArg.push(arg);
-  });
-  // for (let i = 0; i < req.filenames.length; i++) {
-  //   let filename = req.filenames[i].replace(".", `${req.id}.`);
-  //   gppArg.push(`${compilePath}\\${filename}`);
-  //    console.log(chalk.green(`File ${filename} added`));
-  // }
-  //Call g++
-  const gpp = spawn("g++", gppArg, { cwd: compilePath });
-  (async () => {
-    const compilePromise = await new Promise((resolve) => {
-      gpp.stdout.on("data", (data) => {
-        console.log(`g++ stdout: ${data}`);
-        gppOut += data;
-      });
-      gpp.stderr.on("data", (data) => {
-        console.log(`g++ stderr: ${data}`);
-        gppOut += data;
-      });
-      gpp.on("error", (error) => {
-        console.log(error);
-        resolve(1);
-      });
-      gpp.on("close", (code) => {
-        resolve(code);
-      });
-    }); 
-    res.setHeader('content-type',"application/json");
-    res.writeHead(200);
-    writeJsonRes(res,{ gpp: gppOut, status: compilePromise});
-    if (compilePromise !== 0) {
-     clearDir(compilePath, req.id);
-    } 
-  })();
+  return genTestPromise;
 }
 
-function runProgram(ws, uid) {
-  const runCompile = execFile(`./main${uid}.exe`, { cwd: compilePath });
-  processes.set(uid, runCompile);
-  runCompile.stdout.on("data", (data) => {
-    console.log(data);
-    ws.send(JSON.stringify({ output: data, stop: 0 }));
+async function compileProgram(req, res) {
+  let exeName = req.exeName; 
+  let gppOut = "";
+  let gppArg = ["-o", `${compilePath}\\${exeName}${req.id}.exe`];
+  var outArg = ["g++", "-o", `${exeName}.exe`];
+  // get args for g++
+  req.args.forEach((arg) => {
+    gppArg.push(arg);
+    outArg.push(arg);
   });
-  runCompile.stderr.on("data", (data) => {
-    console.log(data);
-    ws.send(JSON.stringify({ output: data, stop: 0 }));
-  });
-  runCompile.on("close", (code) => {
-    ws.send(
-      JSON.stringify({ output: `Process exited with code ${code}`, stop: 1 })
-    );
-    clearDir(compilePath, uid);
-    processes.delete(uid);
-    ws.terminate();
-  });
+  if(req.isTest) {
+    exeName = "runner";
+    let genCode = await generateTest(req);
+    switch(genCode) {
+      case 1:
+        res.setHeader('content-type',"application/json");
+        res.writeHead(200);
+        writeJsonRes(res,{ gpp: "error occured", status: 1});
+        clearDir(compilePath, req.uid);
+        return;  
+      case 2:
+        res.setHeader('content-type',"application/json");
+        res.writeHead(200);
+        writeJsonRes(res,{ gpp: "no test files provided", status: 1});
+        clearDir(compilePath, req.uid);
+        return;
+      case 0:
+        gppArg.push(`runner${req.id}.cpp`);
+        break;
+    }
+  }
+
+  // get filenames
+  for (let i = 0; i < req.filenames.length; i++) {
+    outArg.push(req.filenames[i]);
+    let filename = req.filenames[i].replace(".", `${req.id}.`);
+    gppArg.push(`${compilePath}\\${filename}`);
+     console.log(chalk.green(`File ${filename} added`));
+  }
+
+  console.log(outArg);
+  // Send command executed in response
+  gppOut += outArg.join(" ");
+  // call g++
+  const gpp = spawn("g++", gppArg, { cwd: compilePath });
+  const compilePromise = await new Promise((resolve) => {
+    gpp.stdout.on("data", (data) => {
+      console.log(`g++ stdout: ${data}`);
+      gppOut += data;
+    });
+    gpp.stderr.on("data", (data) => {
+      console.log(`g++ stderr: ${data}`);
+      gppOut += data;
+    });
+    gpp.on("error", (error) => {
+      console.log(error);
+      resolve(1);
+    });
+    gpp.on("close", (code) => {
+      resolve(code);
+    });
+  }); 
+  res.setHeader('content-type',"application/json");
+  res.writeHead(200);
+  writeJsonRes(res,{ gpp: gppOut, status: compilePromise});
+  if (compilePromise !== 0) {
+    clearDir(compilePath, req.id);
+  }
 }
 
 function stopProgram(req, res) {
   res.setHeader('content-type',"application/json");
+  // check if process list has the user process in it
   if (processes.has(req.id)) {
     if (!processes.get(req.id)) {
       processes.delete(req.id);
@@ -138,16 +165,32 @@ function stopProgram(req, res) {
   }
 }
 
-function clearDir(dir, uid) {
-  fs.readdir(dir, (err, files) => {
-    if (err) throw err;
-    for (const file of files) {
-      if (file.includes(uid)) {
-        fs.unlink(path.join(dir, file), (err) => {
-          if (err) throw err;
-        });
-      }
-    }
+function runProgram(ws, uid, exeName) {
+  if(processes.has(uid)) {
+    ws.send(JSON.stringify({output:"A program is still active\nStop it to run a new one", stop: 1}));
+    ws.terminate();
+    return;
+  }
+  const runCompile = execFile(`./${exeName}${uid}.exe`, { cwd: compilePath });
+  processes.set(uid, runCompile);
+  
+  runCompile.stdout.on("data", (data) => {
+    console.log(data);
+    ws.send(JSON.stringify({ output: data, stop: 0 }));
+  });
+  
+  runCompile.stderr.on("data", (data) => {
+    console.log(data);
+    ws.send(JSON.stringify({ output: data, stop: 0 }));
+  });
+  
+  runCompile.on("close", (code) => {
+    ws.send(
+      JSON.stringify({ output: `Process exited with code ${code}`, stop: 1 })
+    );
+    clearDir(compilePath, uid);
+    processes.delete(uid);
+    ws.terminate();
   });
 }
 
@@ -158,7 +201,7 @@ function wsInit(wss) {
     //sockets.push(ws.id);
     /*
       msgType
-      1 id
+      1 start
       2 input
     */
     ws.on("message", function message(msg) {
@@ -167,7 +210,7 @@ function wsInit(wss) {
         case 1:
           ws.send(JSON.stringify({ id: `${msgJson.id}` }));
           console.log(chalk.cyanBright(`Server received message ${msgJson.id} from user`));
-          runProgram(ws, msgJson.id);
+          runProgram(ws, msgJson.id, msgJson.data);
           break;
         case 2:
           if (processes.has(msgJson.id)) {
@@ -184,6 +227,19 @@ function wsInit(wss) {
         console.log(chalk.cyanBright(`Server: Client disconnected`));
         //sockets.splice(sockets.indexOf(msgJson.id), 1);
       });
+  });
+}
+
+function clearDir(dir, uid) {
+  fs.readdir(dir, (err, files) => {
+    if (err) throw err;
+    for (const file of files) {
+      if (file.includes(uid)) {
+        fs.unlink(path.join(dir, file), (err) => {
+          if (err) throw err;
+        });
+      }
+    }
   });
 }
 

@@ -7,12 +7,13 @@ $(function () {
     { prompt: ">", greetings: "Compiler Terminal" }
   );
 });
+
 //TODO add notif if code already running and add error reporting for user
 async function runCode() {
   let request;
   if (codeRunning) return;
-  
-  ///GET ID///
+
+  // Get Id //
   let response = await fetch(`http://localhost:3000/cppCompile/id`);
   if(!response.ok)  {
     const message = `An error has occurred: ${response.status}`;
@@ -21,8 +22,9 @@ async function runCode() {
   uid = await response.text();
   uid = uid.replace(/"/g,"");
   console.log("id made" + uid);
-  
-  ///SEND FILES///
+
+  // Send Files //  
+  let reqFiles = [];
   for (const filename of compileList) {
     const code = Blockly.C.workspaceToCode(workspaces.get(filename));
     request = JSON.stringify({
@@ -30,6 +32,7 @@ async function runCode() {
       "filename": filename,
       "code": code,
     });
+    console.log(request);
     response = await fetch(`http://localhost:3000/cppCompile/saveFile`, {
         method: "POST",
         body: request,
@@ -44,20 +47,28 @@ async function runCode() {
     var res = await response.json();
     if(res.status !== "success") {
         console.log("sending file failed");
-        continue;
+        return;
+    } else {
+      reqFiles.push(res.file);
     }
     console.log(res);
   }
-  
-  let argList = ["-O" + setOptimLevels[0], "-std="+setVersion[0]];
+
+  // Set Args //
+  let argList = ["-O" + setOptimLevels[0], "-std=c++"+setVersion[0]];
   setMiscOpts.forEach((opt) => {
     argList.push(opt);
   });
-  ///COMPILE PROGRAM///
+
+  // Compile Program //
   request = JSON.stringify({
     id: uid,
-    args: argList
+    args: argList,
+    filenames: reqFiles,
+    exeName: "main",
+    isTest: false,
   }); 
+
   response = await fetch(`http://localhost:3000/cppCompile/compile`, {
     method: "POST",
     body: request,
@@ -72,20 +83,21 @@ async function runCode() {
   res = await response.json();
   term.echo(res.gpp + "\n");
   console.log(res.gpp+"\n");
-  if (!res.compStatus) {
+
+  if (res.compStatus === 0) {
     codeRunning = true;
     startWebSocket();
   }
 }
 
-///STOP CODE///
+// Stop Code //
 async function stopCodeRun() {
   if (!uid) return;
   const response = await fetch(`http://localhost:3000/cppCompile/stop`, {
     method: "POST",
     body: { id: uid.toString() },
     headers: {
-      "Content-Type": "text/plain"
+      "Content-Type": "application/json"
     }
   });
   if (!response.ok) {
@@ -102,7 +114,7 @@ async function stopCodeRun() {
 function startWebSocket() {
   const ws = new WebSocket(`ws://localhost:3001`, ["json", "xml"]);
   ws.addEventListener("open", () => {
-    const data = { msgType: 1, id: uid, data: "" };
+    const data = { msgType: 1, id: uid, data: "main" };
     const json = JSON.stringify(data);
     ws.send(json);
   });
