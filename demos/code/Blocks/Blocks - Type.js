@@ -608,9 +608,17 @@ Blockly.Blocks['get_func'] = {
 
 		this.funcProp_ = [];
 		this.funcParam_ = [];
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
 		
 		this.classConProp_ = [];
 		this.classConParam_ = [];
+		
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+		
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
 
 		this.setMutator(new Blockly.Mutator(['get_func_add']));
 
@@ -620,6 +628,8 @@ Blockly.Blocks['get_func'] = {
 		this.isGetter_ = true;
 		
 		this.isConstructor_ = false;
+		
+		this.isInClass_ = false;
 		
 	},
 	
@@ -725,7 +735,7 @@ Blockly.Blocks['get_func'] = {
 		}
 		
 		this.allocateValues();
-		this.allocateVariables();
+		//this.allocateVariables();
 		
 		//If this block has a left connection
 		if(this.parentBlock_){
@@ -743,7 +753,7 @@ Blockly.Blocks['get_func'] = {
 					
 				//If it's any other block
 				default:
-				this.allocateVariables();
+				//this.allocateVariables();
 				break;
 			}
 		}
@@ -764,36 +774,72 @@ Blockly.Blocks['get_func'] = {
 		this.isConstructor_ = false;
 		
 		this.funcParam_ = [];
+		this.funcProp_ = [];
+		
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
+		
 		this.classConProp_ = [];
 		this.classConParam_ = [];
 		
-		//Find and stream variables
-		let ptr = this.parentBlock_;
-		while(ptr){
-			
-			if(ptr.getDataStr() === "isFunc" && this.getVar_ === ptr.getVar_){
-				this.typeName_ = ptr.typeName_;
-				this.value_ = ptr.value_;
-				
-				if(ptr.funcProp_){
-					//Stream values
-					this.isConst_ = ptr.funcProp_[0];
-					this.typeName_ = ptr.funcProp_[1];
-					this.ptrType_ = ptr.funcProp_[2];
-				}
-
-				if(ptr.funcParam_){
-					this.funcParam_ = ptr.funcParam_;
-				}
-				
-				if(ptr.funcProp_){
-					this.funcProp_ = ptr.funcProp_;
-				}
-
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+		
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
+		
+		this.isInClass_ = false;
+		
+		let ptr = this.getSurroundParent();
+		while (ptr){
+			switch(ptr.getDataStr()){
+				case 'isClass':
+				this.isInClass_ = true;
 				break;
 			}
 
-			ptr = ptr.parentBlock_;
+			ptr = ptr.getSurroundParent();
+		}
+		if (this.isInClass_){
+			//locating class block
+			
+		this.allocateClassFunctions();
+			
+		//Find and stream variables
+
+
+		}
+		else
+		{
+			this.allocateVariables();
+			//Find and stream variables
+			ptr = this.parentBlock_;
+			while(ptr){
+				
+				if(ptr.getDataStr() === "isFunc" && this.getVar_ === ptr.getVar_){
+					this.typeName_ = ptr.typeName_;
+					this.value_ = ptr.value_;
+					
+					if(ptr.funcProp_){
+						//Stream values
+						this.isConst_ = ptr.funcProp_[0];
+						this.typeName_ = ptr.funcProp_[1];
+						this.ptrType_ = ptr.funcProp_[2];
+					}
+
+					if(ptr.funcParam_){
+						this.funcParam_ = ptr.funcParam_;
+					}
+					
+					if(ptr.funcProp_){
+						this.funcProp_ = ptr.funcProp_;
+					}
+
+					break;
+				}
+
+				ptr = ptr.parentBlock_;
+			}
 		}
 	},
 	
@@ -866,6 +912,79 @@ Blockly.Blocks['get_func'] = {
 		}
 	},
 	
+	allocateClassFunctions: function(){
+		
+		var options = [];
+		options.push(["" ,""]);
+		
+		
+		
+		let ptr = this.getSurroundParent();
+		while(ptr){
+				
+			if(ptr.getDataStr() === "isClass"){
+				this.classFuncProp_ = ptr.classFuncProp_;
+				this.classFuncParam_ = ptr.classFuncParam_;
+					
+				this.classFuncPropPrivate_ = ptr.classFuncPropPrivate_;
+				this.classFuncParamPrivate_ = ptr.classFuncParamPrivate_;
+					
+				break;
+			}
+		
+			ptr = ptr.getSurroundParent();
+		}
+			
+		for (var i = 0; i < this.classFuncProp_.length; ++i){
+			options.push([this.classFuncProp_[i][3],this.classFuncProp_[i][3]]);
+			
+		}
+		
+		for (var i = 0; i < this.classFuncPropPrivate_.length; ++i){
+			options.push([this.classFuncPropPrivate_[i][3],this.classFuncPropPrivate_[i][3]]);
+			
+		}
+		
+		this.paramNames_ = options;
+		
+		var types = [];
+		
+		for (var i = 1; i <= this.paramCount_; ++i){
+			ptr = this.getInputTargetBlock('valinp' + i);
+			if (ptr) {
+				types.push(ptr.typeName_);
+				this.funcParam_.push
+					([ptr.isConst_ ,ptr.typeName_, ptr.ptrType_, ptr.getVar_, true]);
+			}
+		}
+		console.log(this.funcParam_);
+		
+		for (var i = 0; i < this.classFuncParam_.length; ++i){
+			if (this.getVar_ === this.classFuncProp_[i][3] && 
+					types.length === this.classFuncParam_[i].length){
+				var allEqual = true;
+				for (var j = 0; j < types.length; ++j){
+					if (types[j] !== this.classFuncParam_[i][j][1]){
+						allEqual = false;
+					}
+				}
+				if (allEqual) {
+					//this.funcParam_ = this.classFuncParam_[i];
+					console.log(this.classFuncParam_[i]);
+					break;
+				}
+				
+			}
+			
+		}
+		
+		console.log(this.funcParam_);
+		console.log(this.classFuncProp_);
+		console.log(this.classFuncParam_);		
+		console.log(this.classFuncPropPrivate_);		
+		console.log(this.classFuncParamPrivate_);		
+	},
+	
 	allocateConstructors: function(block){
 		var options = [];
 		options.push(["" ,""]);
@@ -882,7 +1001,6 @@ Blockly.Blocks['get_func'] = {
 				types.push(ptr.typeName_);
 			}
 		}
-		
 		for (var i = 0; i < block.classConParam_.length; ++i){
 			if (types.length === block.classConParam_[i].length){
 				var allEqual = true;

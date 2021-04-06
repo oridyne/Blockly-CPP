@@ -15,6 +15,7 @@
         <script src="js/Logic.js"></script>
         <script src="js/Include.js"></script>
         <script src="js/Scopes.js"></script>
+		<script src="js/Variable Management.js"></script>
 
         <script src="Blocks/FileSaver.js"></script>
         <script src="Blocks/filereader.js"></script>
@@ -1341,6 +1342,14 @@
 					
 					<block type = "ds_class"></block>
 					
+					<label text="Constructor/Destructor" web-class="labelClass"></label>
+					
+					<block type = "class_constructor"></block>
+					
+					<label text="Constructor Parameters" web-class="labelClass"></label>
+					
+					<block type = "class_parameters"></block>
+					
 					<label text="Object Declaration" web-class="labelClass"></label>
 
 					<block type = "ds_object"></block>
@@ -1349,7 +1358,11 @@
 					
 					<block type = "ds_member"></block>
 					
-
+					<block type="ds_member2">
+						<value name="valinp1">
+							<block type="ds_member"></block>
+						</value>
+					</block>
 
 			</category>
 				

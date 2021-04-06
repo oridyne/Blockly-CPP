@@ -130,7 +130,7 @@ Blockly.Blocks['ds_object'] = {
 		
 		this.setOutput(false);
 		this.setColour(classHue);
-		this.setTooltip("");
+		this.setTooltip("This block declares an object of a class type.");
 		this.setHelpUrl("");
 		
 		this.setPreviousStatement(true);
@@ -151,7 +151,6 @@ Blockly.Blocks['ds_object'] = {
 		this.allocateValues();
 		this.allocateWarnings();
 		
-		console.log(this);
 	},
 	
 	allocateVariables: function(){
@@ -225,8 +224,8 @@ Blockly.Blocks['ds_object'] = {
 		var TT = "";
 		
 		//If there is no option selected
-		if(this.getFieldValue('DS')){
-			
+		if(this.getFieldValue('DS').length < 1){
+			TT += 'Error, type class needed.\n';
 		}
 		
 		if(TT.length > 0){
@@ -288,6 +287,7 @@ Blockly.Blocks['ds_member'] = {
 		this.classVecPublic_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
+		this.funcParamClassMembers_ = [];
 		
 		this.isGetter_ = true;
 	},
@@ -309,6 +309,7 @@ Blockly.Blocks['ds_member'] = {
 		this.classVecPublic_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
+		this.funcParamClassMembers_ = [];
 		
 		let ptr = this.parentBlock_;
 		
@@ -356,9 +357,11 @@ Blockly.Blocks['ds_member'] = {
 		else {
 			this.setFieldValue('', 'operator');
 		}
-		console.log(this.classVarPublic_);
+		
+
 	},
 	
+
 	
 	allocateVariables: function(){
 		
@@ -378,7 +381,40 @@ Blockly.Blocks['ds_member'] = {
 			ptr = ptr.parentBlock_;
 		}
 		
+		ptr = this.getSurroundParent();
+		
+		while (ptr){
+			if (ptr.type === 'user_function' || ptr.type === 'class_constructor'){
+				if (ptr.funcParam_)
+				{
+					this.funcParamClassMembers_ = ptr.funcParamClassMembers_;
+					this.allocateMemberProperties();
+					for (var i = 0; i <ptr.funcParam_.length; ++i){
+						options.push([ptr.funcParam_[i][3],ptr.funcParam_[i][3]]);
+					}
+				}
+				break;
+			}
+			
+			ptr = ptr.getSurroundParent();
+		}
+		
+	
+		
 		this.paramNames_ = options;
+	},
+	
+	allocateMemberProperties: function() {
+		console.log(this.funcParamClassMembers_);
+		for (var i = 0; i < this.funcParamClassMembers_.length; ++i){
+			for (var j = 0; j < this.funcParamClassMembers_[i].length; ++j){
+				if (this.funcParamClassMembers_[i][j])
+				{
+					//this.classVarPublic_.push(this.funcParamClassMembers_[i][j]);
+				}
+				console.log(this.funcParamClassMembers_[i][j]);
+			}
+		}
 	},
 	
 	allocateObjDropdown: function(){
