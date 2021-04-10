@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha testing/test.js",
     "start": "node server.js",
-    "testCxx": "mocha testing/testCxx.js --timeout 10000"
+    "testCxx": "mocha testing/testCxx.js --timeout 30000"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
     "flake-idgen": "^1.4.0",
+    "fs-extra": "^9.1.0",
     "helmet": "^4.4.1",
     "ws": "^7.4.3"
   },

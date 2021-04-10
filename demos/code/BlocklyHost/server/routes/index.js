@@ -36,7 +36,7 @@ async function requestHandler(req, res) {
     if(await reqProm === 1) {
         res.writeHead(400);
         res.end();
-        console.log("request failed");
+        console.log(chalk.red("request failed"));
     } 
     
     switch (urlPath[0]) {
@@ -46,7 +46,7 @@ async function requestHandler(req, res) {
         default:
             res.writeHead(404);
             res.end();
-            console.log('endpoint does not exist')
+            console.log(chalk.red('endpoint does not exist'));
             break;
     }
 }
@@ -68,7 +68,7 @@ function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     else {
         res.writeHead(404);
         res.end();
-        console.log('cppCompile endpoint does not exist')
+        console.log(chalk.red('cppCompile endpoint does not exist'));
     }
 }
 

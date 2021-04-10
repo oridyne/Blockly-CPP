@@ -1,6 +1,3 @@
-const { resolve } = require("path");
-const { exit } = require("process");
-
 process.env.NODE_ENV = "test";
 const chai = require("chai"),
   chaiHttp = require("chai-http"),
@@ -9,125 +6,106 @@ const chai = require("chai"),
   path = require("path"),
   config = require("../config"),
   assert = require("assert"),
-  cppCompilePath = "./server/service/cppCompile",
   ws = require('ws'),
   chalk = require('chalk');
 server.create(config);
-let uid;
 const address = "http://localhost:3000";
 const expect = chai.expect;
 let should = chai.should();
 chai.use(chaiHttp);
+const testFileDir = `${__dirname}\\TestFiles`;
 
-const testFileContents = fs.readFileSync(`${__dirname}\\TestFiles\\test.h`).toString();
-const testCodeContents = fs.readFileSync(`${__dirname}\\TestFiles\\code.h`).toString();
-
-
-describe("CXX Test", async () => { 
-    
-    let testFilePromise = new Promise((resolve) => {
-        let testFile = {
-            filename: "test.h",
-            id:"0x5df321a476c00000",
-            code: testFileContents,
-        }
-
-        chai.request(address)
-                .post("/cppCompile/saveFile").set('content-type', "application/json")
-                .send((testFile))
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.should.have.property("status").eql("success");
-                    console.log(res.body);
-                    resolve(res.body.status);
-        });
-    });
-
-    let codeFilePromise = new Promise((resolve) => {
-        let codeFile = {
-       filename: "code.h",
-                id:"0x5df321a476c00000",
-                code: testCodeContents
-        }
+function sendTestFile(testFilename, uid, code) {
+    let testFile = {
+        filename: testFilename,
+        id: uid,
+        code: code,
+    }
+    let filePromise = new Promise((resolve) => {
         chai.request(address)
             .post("/cppCompile/saveFile").set('content-type', "application/json")
-            .send((codeFile))
+            .send((testFile))
             .end((err, res) => {
+                if(err) console.error(err);   
+                //console.log(res.body);
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 res.body.should.have.property("status").eql("success");
-                console.log(res.body);
                 resolve(res.body.status);
         });
     });
-      
-    await new Promise((resolve) => {
-        it("it should compile the code files", async () => {
-            await codeFilePromise;
-            await testFilePromise;
-            let compReq = {
-                id:"0x5df321a476c00000" ,
-                filenames: ["code.h", "test.h"],
-                args:[],
-                isTest: true,
-                exeName: "runner"
-            };
-            chai.request(address)
-            .post("/cppCompile/compile")
-            .send(compReq)
-            .end((err, res) => {
-                console.log(res.body);
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("status").eql(0);
-                resolve();
-            });
-        });
-    });
+    return filePromise;
+}
 
+function startWebsocket(id, exeName) {
     const websocket = new ws(`ws://localhost:3001`);
     websocket.on('open', () => {
-        //console.log(chalk.keyword('orange')("connected"));
-        const data = { msgType: 1, id: "0x5df321a476c00000", data: "runner" };
+        const data = { msgType: 1, id: id, data: exeName };
         const json = JSON.stringify(data);
         websocket.send(json);
     });
 
-    websocket.on('close', () => {
-        //clearDir(cppCompilePath,"0x5df321a476c00000" );
-        //console.log(chalk.keyword('orange')("client disconnected"));
-        exit(0);
-    });
-
     websocket.on('message', (m) => {
-        console.log(chalk.keyword('orange')("client recieved msg: " + m));
-    });
-
-    websocket.on('upgrade',(m) => {
-        //console.log(chalk.keyword('orange')("upgrade"));
+        let resObj = JSON.parse(m);
+        //console.log(chalk.keyword('orange')(`${id} recieved msg:  + ${m}`));
+        console.log(chalk.underline.keyword('orange')(resObj.output));
     });
 
     websocket.on('unexpected-response',(e)=>{
-        //console.log(e);
+        console.error(e);
     });
-
     websocket.on('error', (e) => {
-        console.log(e);
+        console.error(e);
+        throw(e);
     });
-    // it("run websocket", async (done) => {
-    // });
+}
+
+function requestCompile(uid, filenames, args, isTest, exeName) {
+    let compReq = {
+        id: uid,
+        filenames: filenames,
+        args: args,
+        isTest: isTest,
+        exeName: exeName
+    };
+    let compPromise = new Promise((resolve) => {
+        chai.request(address)
+        .post("/cppCompile/compile")
+        .send(compReq)
+        .end((err, res) => {
+            if(err)console.log(err);
+            console.log(res.body);
+            res.should.have.status(200);
+            res.body.should.be.a("object");
+            res.body.should.have.property("status").eql(0);
+            resolve();
+        });
+    });
+    return compPromise; 
+}
+
+describe("Basic CXX Test", () => {
+    const testCodeContents = fs.readFileSync(`${testFileDir}\\code.h`).toString();
+    const testFileContents = fs.readFileSync(`${testFileDir}\\test.h`).toString();
+    let uid = "0x5df321a476c00000"
+    it("it should compile the basic test", async () => {
+        await sendTestFile("test.h", uid, testFileContents);
+        await sendTestFile("code.h", uid, testCodeContents);
+        await requestCompile(uid, ["test.h", "code.h"], ["-O1"], true, "runner");
+        startWebsocket(uid, "runner"); 
+    });
 });
 
-function clearDir(dir, uid) {
-  fs.readdir(dir, (err, files) => {
-    if (err) throw err;
-    for (const file of files) {
-      if (file.includes(uid)) {
-        fs.unlink(path.join(dir, file), (err) => {
-          if (err) throw err;
-        });
-      }
-    }
-  });
-}
+describe("Advanced CXX Test", () => {
+    const conversionCpp = fs.readFileSync(`${testFileDir}\\BTDC\\Conversion.cpp`).toString();
+    const conversionH = fs.readFileSync(`${testFileDir}\\BTDC\\Conversion.h`).toString();
+    const testNew = fs.readFileSync(`${testFileDir}\\BTDC\\testNew.h`).toString();
+    let uid = "0x5df321a476c055540";
+    it("it should compile the advanced test", async () => {
+        await sendTestFile("Conversion.cpp", uid, conversionCpp);
+        await sendTestFile("Conversion.h", uid, conversionH);
+        await sendTestFile("testNew.h", uid, testNew);
+        await requestCompile(uid, ["Conversion.h", "Conversion.cpp", "testNew.h"], ["-O1"], true, "runner"); 
+        startWebsocket(uid, "runner");
+    });
+});

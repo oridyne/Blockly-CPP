@@ -1,9 +1,8 @@
 #ifndef NEWCXXTEST_H
 #define NEWCXXTEST_H
 
-
 #include "C:/cygwin64/cxxtest/cxxtest/TestSuite.h"
-#include "code0x5df321a476c00000.h"
+#include "code.h"
 
 class newCxxTest : public CxxTest::TestSuite {
     public:
