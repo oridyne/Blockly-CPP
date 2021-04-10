@@ -17,17 +17,36 @@ function downloadCode() {
 	saveAs(codeBlob, "main.cpp");
 }
 
-
+var yesNoCancelLoadBtn = 'Cancel';
 //function to load
-function readFile(input){
-
-	let files = input.files;
-	if (window.confirm("Replace existing files?")) {
-		deleteAllFiles();
-		var j = 0;
+function readFile(input) {
+	if (yesNoCancelLoadBtn == 'Cancel') {
+		return;
 	}
-	else {
-		var j = allFiles.length;
+	let files = input.files;
+	// Checks if user wants to clear existing workspaces.
+	if (yesNoCancelLoadBtn == 'Yes'){
+		deleteAllFiles();
+		var filesToRead = 0;
+	}
+	else if (yesNoCancelLoadBtn == 'No') {
+		// Checks if workspace names are already in use and removes existing if true.
+		do {
+			var wasFileDeleted = 0;
+			for (var i = 0; i < files.length; i++) {
+				for (var j = 0; j < allFiles.length; j++) {
+					let file = input.files[i];
+					var fileName = file.name;
+					fileName = fileName.substring(0, (fileName.length - 4));
+					var existingFile = allFiles[j];
+					if (fileName == existingFile) {
+						deleteFileConfirm(fileName);
+						wasFileDeleted++;
+					}
+				}
+			}
+		} while (wasFileDeleted != 0);
+		var filesToRead = allFiles.length;
 	}
 	for (var i = 0; i < files.length; i++) {
 		let file = input.files[i];
@@ -36,13 +55,14 @@ function readFile(input){
 		var fileName = file.name;
 		fileName = fileName.substring(0, (fileName.length - 4)) ;
 		newFile(fileName);
-
+		/// Reads files contents into new workspaces.
 		reader.onload = function () {
-			j++
-			Code.workspace = allWorkspaces.get(allFiles[j-1]);
+			filesToRead++
+			Code.workspace = allWorkspaces.get(allFiles[filesToRead-1]);
 			let saveXML = reader.result;
 			let textToDom = Blockly.Xml.textToDom(saveXML);
 			Blockly.Xml.domToWorkspace(textToDom, Code.workspace);
+			input.value = '';
         }
 		reader.onerror = function () {
 			console.log(reader.error);
@@ -52,7 +72,7 @@ function readFile(input){
 
 
 
-//Function to save
+// Reads code from workspace into XML.
 function downloadXML() {
 	//Grab the workspace XML
 	for (var i = 0; i < allFiles.length; i++) {
@@ -68,6 +88,7 @@ function downloadXML() {
 		saveAs(codeBlob, allFiles[i] + ".xml");
 	}
 }
+// Saves XML blob
 function saveAs(Blob, fName) {
 	if (window.navigator.msSaveOrOpenBlob) {
 		window.navigator.msSaveOrOpenBlob(Blob, fName);
