@@ -62,11 +62,20 @@
                     </p>
 
                     <p align="left">
-                        <button onclick="downloadXML()" title="Save your work.">Save</button>
-
-                        <input type="file" onchange="readFile(this)"
-                               title="Load a blockly save into the program."></input>
+                        <button onclick="saveFileCheck()" title="Save your work.">Save Files</button>
+                        <button onclick="loadFileBox()" title="Load your work.">Load Files</button>
+                        <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
+                               title="Load a blockly save into the program." multiple></input>
                     </p>
+
+                    <p align="left">
+                        <button onclick="runCode()">Run Code</button>
+                    </p>
+
+                    <p align="left">
+                        <button onclick="stopCodeRun()">Stop Code</button>
+                    </p>
+                    <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
                 <td class="farSide">
                     <select id="languageMenu"></select>
@@ -75,6 +84,7 @@
             <tr>
                 <td colspan=2>
                     <table width="100%">
+
                         <tr id="tabRow" height="1em">
                             <td id="tab_blocks" class="tabon">...</td>
                             <td id="tab_c" class="taboff">C++</td> <!--Added C++ to the tab-->
@@ -87,8 +97,12 @@
                                 <div class="fdropdown">
                                     <button class="filedropdownbutton">Files...</button>
                                     <div id="fileDropDown" class="filedropdown-content">
-                                        <a href="javascript:void(0)" onclick="newFile()">New File</a>
-                                        <a href="javascript:void(0)" onclick="makeFileVisible(content_blocks)">Blocks</a>
+                                        <a href="javascript:void(0)" onclick="newFileBox()">New File</a>
+                                        <a href="javascript:void(0)" id="Main.cpp_file" onclick="makeFileVisible('Main.cpp')">Main.cpp</a>
+                                    </div>
+                                    <div id="fileDropDownDelete" class="filedropdown-delete">
+                                        <a href="javascript:void(0)" style="padding-bottom:4px"</a>
+                                        <a href="javascript:void(0)" id="Main.cpp_del" onclick="deleteFile('Main.cpp')">X</a>
                                     </div>
                                 </div>
                             </td>
@@ -114,7 +128,7 @@
 
             </tr>
         </table>
-        <div id="content_blocks" class="content"></div>
+        <div id="Main.cpp" class="content"></div>
         <pre id="content_c" class="content prettyprint lang-c"></pre>
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
@@ -1358,8 +1372,6 @@
             <!-- end of Chapter 6 blocks -->
 
         </xml> <!-- toolbox -->
-
-
         <!-- <textarea id="content_xml" class="content" wrap="off"></textarea> -->
     </body>
 

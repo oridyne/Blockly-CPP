@@ -162,21 +162,22 @@ button {
 .run {
   background-position: -42px 0px;
 }
+/* File Menu. */
+fdropdown {
+    position: absolute;
+    display: inline-block;
+    border: none;
 
-.fdropdown {
-  position: relative;
-  display: block;
-  border: none;
 }
+.filedropdown-content{
 
-.filedropdown-content {
-  display: none;
-  position: absolute;
-  min-width: 8%;
-  overflow: auto;
-  z-index: 300;
-  background-color: #eee;
-  height: auto;
+    display: none;
+    position: absolute;
+    min-width: 8%;
+    overflow:auto;
+    z-index:300;
+    background-color:#eee;
+    margin-left:20px;
 }
 .filedropdown-content a {
   color: blue;
@@ -186,8 +187,28 @@ button {
   border-color: gray;
   padding: 3px;
 }
+.filedropdown-delete {
+    display: none;
+    position: absolute;
+    overflow: auto;
+    z-index: 301;
+    background-color: #eee;
+    min-width:25px;
+}
+.filedropdown-delete a {
+    color: red;
+    border: solid;
+    display: block;
+    border-top: none;
+    border-color: gray;
+    padding: 3px;
+    min-height:18px;
+}
 .fdropdown:hover .filedropdown-content {
   display: block;
+}
+.fdropdown:hover .filedropdown-delete{
+    display: block;
 }
 
 #compOptDiv {
