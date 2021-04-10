@@ -160,12 +160,12 @@
                 <div id="close-btn" class="close-btn" onclick="hideLoadBox()">&times;</div>
             </div>
             <div class="modal-content">
-                <p>Delete all current workspaces?</p>
-                <p>(Warning!!! All deleted workspaces will be lost.)</p>
-                <p>(Warning!!! Any exisiting workspaces with duplicate names will be overridden.)</p>
+                <p>Merge files/ Create new project?</p>
+                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved will be lost.)</p>
+                <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that has not been saved will be lost.)</p>
                 <div>
-                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Yes" />
-                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="No" />
+                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="New Project" />
+                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Merge Files" />
                     <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel" />
                 </div>
             </div>
