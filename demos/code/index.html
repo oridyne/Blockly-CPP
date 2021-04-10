@@ -72,9 +72,10 @@
                     <table width="100%">
                         <tr id="tabRow" height="1em">
                             <td id="tab_blocks" class="tabon">...</td>
+                            <td class="tabmin">&nbsp;</td>
                             <td id="tab_c" class="taboff">C++</td> <!--Added C++ to the tab-->
                             <td class="tabmin">&nbsp;</td>
-                            <td id="tab_xml" class="taboff"></td>
+                            <td id="tab_xml" class="taboff">XML</td>
                             <td class="tabmin">&nbsp;</td>
 
 
@@ -100,11 +101,18 @@
 
             </tr>
         </table>
+
+        <!-- C++ blocks tab display -->
         <div id="content_blocks" class="content"></div>
+
+        <!-- C++ code tab display -->
         <pre id="content_c" class="content prettyprint lang-c"></pre>
+
+        <!-- C++ blockly xml tab display -->
+        <textarea id="content_xml" class="content" wrap="off"></textarea>
+
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
-        <textarea id="content_xml" class="content" wrap="off"></textarea>
 
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
@@ -123,6 +131,7 @@
                 <block type="using_namespace_std"></block>
 
             </category>
+            <!-- end of Include Directories blocks -->
 
             <category name="Main Function" colour="#EA4335">
 
@@ -540,24 +549,15 @@
             <category name="Functions" colour="#134796">
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
+                <block type="function_declaration"></block>
+                <block type="function_parameters"></block>
+                <block type="function_return"></block>
 
-                <block type="user_function"></block>
-
-                <label text="Function parameters/return" web-class="labelFunction"></label>
-
-                <block type="func_parameters"></block>
-
-                <block type="func_return"></block>
+                <label text="Function Call" web-class="labelFunction"></label>
+                <block type="function_call"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
-                <block type="get_func"></block>
-
-                <label text="Void Function Getter" web-class="labelFunction"></label>
-                <block type="get_func_void">
-                    <value name="valinp1">
-                        <block type="get_func"></block>
-                    </value>
-                </block>
+                <block type="get_function"></block>
 
             </category>
             <!-- end of Function blocks -->
@@ -1129,24 +1129,15 @@
             <category name="Chapter 5" colour="#134796">
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
+                <block type="function_declaration"></block>
+                <block type="function_parameters"></block>
+                <block type="function_return"></block>
 
-                <block type="user_function"></block>
-
-                <label text="Function parameters/return" web-class="labelFunction"></label>
-
-                <block type="func_parameters"></block>
-
-                <block type="func_return"></block>
+                <label text="Function Call" web-class="labelFunction"></label>
+                <block type="function_call"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
-                <block type="get_func"></block>
-
-                <label text="Void Function Getter" web-class="labelFunction"></label>
-                <block type="get_func_void">
-                    <value name="valinp1">
-                        <block type="get_func"></block>
-                    </value>
-                </block>
+                <block type="get_function"></block>
 
             </category>
             <!-- end of Chapter 5 blocks -->
@@ -1301,9 +1292,11 @@
 
                 </category>
 
-                <!-- Chapter 6 - Section 20                                                   -->
-                <!-- Pointers  - variables that store the memory addresses of other variables -->
-                <!-- Author    - David J Hazell                                               -->
+                <!-- Chapter 6                                                               -->
+                <!-- Pointers - variables that store the memory addresses of other variables -->
+                <!--                                                                         -->
+                <!-- Author:   David J. Hazell                                               -->
+                <!-- Semester: Spring 2021                                                   -->
                 <category name="Pointers" colour="#4285F4">
 
                     <label text="Pointer Declaration" web-class="labelPointer"></label>
@@ -1315,17 +1308,17 @@
                     <block type="pointer_null"></block>
                     <block type="pointer_nullptr"></block>
 
+                    <label text="Pointer Assignment" web-class="labelPointer"></label>
+                    <block type="pointer_assignment">
+                        <value name="valinp1">
+                            <shadow type="pointer_getter">
+                                <field name="VAR"></field>
+                            </shadow>
+                        </value>
+                    </block>
+
                     <label text="Pointer Operators" web-class="labelPointer"></label>
                     <block type="pointer_operator"></block>
-
-                    <!--
-                    <label text="Pointer Operators" web-class="labelPointer"></label>
-                    <block type="pointer_dereference"></block>
-
-                    <label text="Pointer Inputs" web-class="labelPointer"></label>
-                    <block type="pointer_null"></block>
-                    <block type="pointer_nullptr"></block>
-                    -->
 
                 </category>
 
@@ -1333,7 +1326,6 @@
             <!-- end of Chapter 6 blocks -->
 
         </xml> <!-- toolbox -->
-
 
         <!-- <textarea id="content_xml" class="content" wrap="off"></textarea> -->
     </body>
