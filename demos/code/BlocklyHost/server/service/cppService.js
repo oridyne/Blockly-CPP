@@ -60,9 +60,7 @@ async function generateTest(req) {
   console.log(chalk.greenBright.bold(cxxArgs.join(" ")));
   const cxx = spawn("perl", cxxArgs,  { cwd: `${compilePath}\\${req.id}` });
   let genTestPromise = new Promise((resolve, reject) => {
-    let err;
     cxx.stderr.on(("data"), (data) => {
-      err += data.toString()
       console.log(data.toString());
     });
     cxx.on("close", (code) => {
@@ -112,9 +110,9 @@ async function compileProgram(req, res) {
     gpp.stderr.on("data", (data) => gppOut += data);
     gpp.on("error", (error) => {
       console.error(error);
-      resolve(1)
+      resolve(1);
     });
-    gpp.on("close", (code) => resolve(code));
+    gpp.on("close", code => resolve(code));
   }); 
   res.setHeader('content-type',"application/json");
   res.writeHead(200);
@@ -134,7 +132,7 @@ function stopProgram(req, res) {
     }
     processes.get(req.id).kill("SIGINT");
     res.writeHead(200);
-    res.writeJsonRes(res,{ output: "program stopped", code: 1,});
+    writeJsonRes(res,{ output: "program stopped", code: 1,});
   } else {
     res.writeHead(200);
     writeJsonRes(res,{ output: "program not running / not found", code: 0,});
@@ -147,8 +145,8 @@ function runProgram(ws, uid, exeName) {
     return;
   }
   const runCompile = execFile(`./${uid}\\${exeName}.exe`, { cwd: compilePath });
+  ws.send(JSON.stringify({output: `----Running Program----`, stop:0}));
   processes.set(uid, runCompile);
-
   runCompile.stdout.on("data", (data) => ws.send(JSON.stringify({ output: data, stop: 0 })));
   runCompile.stderr.on("data", (data) => ws.send(JSON.stringify({ output: data, stop: 0 })));
   runCompile.on("close", (code) => {
@@ -176,7 +174,7 @@ function wsInit(wss) {
         case 2:
           if (processes.has(msgJson.id)) {
             processes.get(msgJson.id).stdin.write(msgJson.data + "\n");
-            console.log(chalk.cyanBright(`Program input from ${msgJson.data}`));
+            console.log(chalk.cyanBright(`Program input: ${msgJson.data}`));
           } else {
             ws.send(JSON.stringify({ output: "process not running", stop: 1 }));
           }

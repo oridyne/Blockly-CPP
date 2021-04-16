@@ -4,7 +4,7 @@ let codeRunning = false;
 
 $(function () {
   term = $("#terminal").terminal({},
-    { prompt: ">", greetings: "Compiler Terminal" }
+    { prompt:"", greetings: "Compiler Terminal", outputLimit: 15 }
   );
 });
 
@@ -12,7 +12,10 @@ $(function () {
 async function runCode() {
   let request;
   if (codeRunning) return;
-
+  if(compileList.length === 0) {
+    term.echo("No files to compile, add them in the compiler options");
+    return;
+  }
   // Get Id //
   let response = await fetch(`http://localhost:3000/cppCompile/id`);
   if(!response.ok)  {
@@ -22,11 +25,10 @@ async function runCode() {
   uid = await response.text();
   uid = uid.replace(/"/g,"");
   console.log("id made" + uid);
-
   // Send Files //  
   let reqFiles = [];
   for (const filename of compileList) {
-    const code = Blockly.C.workspaceToCode(workspaces.get(filename));
+    const code = Blockly.C.workspaceToCode(allWorkspaces.get(filename));
     request = JSON.stringify({
       "id": uid,
       "filename": filename,
@@ -72,19 +74,18 @@ async function runCode() {
   response = await fetch(`http://localhost:3000/cppCompile/compile`, {
     method: "POST",
     body: request,
-    headers: {
-      "Content-Type": "text/plain"
-    }
+    headers: { "Content-Type": "text/plain" }
   });
   if (!response.ok) {
     const message = `An error has occurred: ${response.status}`;
     throw new Error(message);
   }
-  res = await response.json();
-  term.echo(res.gpp + "\n");
-  console.log(res.gpp+"\n");
-
-  if (res.compStatus === 0) {
+  res = await response.json();  
+  term.echo(res.gpp);
+  console.log(res.gpp);
+  //console.log(res.status);
+  if (res.status === 0) {
+    console.log("webserver running");
     codeRunning = true;
     startWebSocket();
   }
@@ -92,13 +93,14 @@ async function runCode() {
 
 // Stop Code //
 async function stopCodeRun() {
-  if (!uid) return;
-  const response = await fetch(`http://localhost:3000/cppCompile/stop`, {
+  if (!uid || !codeRunning) {
+    term.echo("No code running");
+    return;
+  };
+  const response = await fetch("http://localhost:3000/cppCompile/stop" , {
     method: "POST",
-    body: { id: uid.toString() },
-    headers: {
-      "Content-Type": "application/json"
-    }
+    body: JSON.stringify({ id: uid.toString() }),
+    headers: { "Content-Type": "text/plain" }
   });
   if (!response.ok) {
     const message = `An error has occurred: ${response.status}`;
@@ -123,9 +125,7 @@ function startWebSocket() {
     console.log(data);
     if (data.output) {
       codeRunning = data.stop ? false : codeRunning;
-      if (!codeRunning) {
-        term.pop();
-      }
+      if (!codeRunning) term.pop();
       term.echo(data.output);
     }
   });

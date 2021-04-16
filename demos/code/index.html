@@ -57,8 +57,8 @@
                         <span id="title"></span>
                         <!--<span id = "version">Beta 1.7</span>-->
                     </h1>
-
                     <p align="left">
+                    </br>
                         <button onclick="downloadCode()">Download C++ Code</button>
                         <!-- button onclick="updateLog(this)">Download C++</button -->
                     </p>
@@ -69,17 +69,10 @@
                         <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
                                title="Load a blockly save into the program." multiple></input>
                     </p>
-
-                    <p align="left">
-                        <button onclick="runCode()">Run Code</button>
-                    </p>
-
-                    <p align="left">
-                        <button onclick="stopCodeRun()">Stop Code</button>
-                    </p>
                     <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
                 <td class="farSide">
+                </br>
                     <select id="languageMenu"></select>
                 </td>
             </tr>
@@ -159,6 +152,40 @@
                 </form>
             </dialog>
             <div id="terminal" class="terminal"></div>
+        </div>
+        <div id="newFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideModal()">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p>Please enter a valid file name.</p>
+                <input type="text" id="fileTypeName" name="FileTypeName" />
+                <div style="display:inline-block">
+                    <input type="radio" id="fileTypeH" name="fileTypeButton" value=".h">
+                    <label for="fileTypeh">Header(.h)</label><br>
+                    <input type="radio" name="fileTypeButton" value=".cpp">
+                    <label for="fileTypec">Class(.cpp)</label><br>
+                </div>
+                <div style="float:right">
+                    <input type="button" style="padding:3px" onclick="newFileName()" value="Create File" />
+                    <input type="button" style="padding:3px" onclick="hideModal()" value="Cancel" />
+                </div>
+            </div>
+        </div>
+        <div id="loadFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideLoadBox()">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p>Merge files/ Create new project?</p>
+                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved will be lost.)</p>
+                <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that has not been saved will be lost.)</p>
+                <div>
+                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="New Project" />
+                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Merge Files" />
+                    <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel" />
+                </div>
+            </div>
         </div>
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">

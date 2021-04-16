@@ -62,7 +62,7 @@ function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     else if(urlPath[1] === 'compile' && reqMethod === 'POST') {
         cppService.compileProgram(reqBody, res);
     }
-    else if(urlPath[1] === 'stopProgram' && reqMethod === 'POST') {
+    else if(urlPath[1] === 'stop') {
         cppService.stopProgram(reqBody,res);
     }
     else {

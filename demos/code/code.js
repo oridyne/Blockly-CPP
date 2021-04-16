@@ -277,7 +277,6 @@ Code.tabClick = function (clickedName) {
         document.getElementById('tab_' + name).className = 'taboff';
         if (name == 'blocks') {
             for (var j = 0; j < allFiles.length; j++) {
-
                 document.getElementById(allFiles[j]).style.visibility = 'hidden';
             }
         }
@@ -786,7 +785,7 @@ function makeFileVisible(fileName) {
             Blockly.svgResize(Code.workspace);
         }
         else {
-            showOrHide.style.display = 'none';
+            showOrHide.visibility = 'hidden';
         }
     }
     // Simulates click on tab 'blocks'
@@ -908,18 +907,26 @@ function deleteAllFiles() {
 function newFileBox() {
     var modal = document.querySelector(".modal");
     modal.style.display = "block";
+    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
+    toolbox.style.display = "none";
 }
 // Hides the New File pop out box
 function hideModal() {
     var modal = document.querySelector(".modal");
+    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
+    toolbox.style.display = "block";
     modal.style.display = "none";
 }
 function loadFileBox() {
     var modal = document.getElementById("loadFilePopUp");
+    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
+    toolbox.style.display = "none";
     modal.style.display = "block";
 }
 function hideLoadBox() {
     var modal = document.getElementById("loadFilePopUp");
+    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
+    toolbox.style.display = "block";
     modal.style.display = "none";
 }
 function saveFileCheck() {
