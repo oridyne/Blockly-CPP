@@ -1,4 +1,4 @@
-var includeHUE = 70;
+var includeHUE = 125;
 
 Blockly.Blocks['include_iostream'] = {
 	init: function() {
