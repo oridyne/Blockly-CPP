@@ -17,3 +17,6 @@ local_build/local_*_compressed.js
 chromedriver
 typings/tmp/*
 dist/
+
+*.exe
+

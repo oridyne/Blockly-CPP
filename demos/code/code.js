@@ -238,7 +238,7 @@ Code.LANG = Code.getLang();
  * List of tab names.
  * @private
  */
-Code.TABS_ = ['blocks', 'c', 'xml']; // Added C
+Code.TABS_ = ['blocks', 'c', 'term']; // Added C
 
 Code.selected = 'blocks';
 

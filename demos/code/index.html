@@ -35,10 +35,16 @@
         <script src="Blocks/Chapter 6 - Vectors.js"></script>
         <script src="Blocks/Chapter 6 - Pointers.js"></script>
         <script src="Blocks/Chapter 7 - Classes.js"></script>
+        
 
         <!-- Include block type inputs -->
-        <script src="Blocks/Blocks - Type.js"></script>
-
+      <script src="Blocks/Blocks - Type.js"></script>
+      
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@devel/js/jquery.terminal.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
+      <script src="js/Terminal.js"></script>
+      
     </head>
 
     <body>
@@ -56,10 +62,18 @@
                     </p>
 
                     <p align="left">
-                        <button onclick="downloadXML()" title="Save your work." target="_blank">Save</button>
+                        <button onclick="downloadXML()" title="Save your work.">Save</button>
 
                         <input type="file" onchange="readFile(this)"
                                title="Load a blockly save into the program."></input>
+                    </p>
+      
+                    <p align="left">
+                        <button onclick="runCode()">Run Code</button>
+                    </p>
+
+                    <p align="left">
+                        <button onclick="stopCodeRun()">Stop Code</button>
                     </p>
 
                 </td>
@@ -72,12 +86,12 @@
                     <table width="100%">
                         <tr id="tabRow" height="1em">
                             <td id="tab_blocks" class="tabon">...</td>
-                            <td class="tabmin">&nbsp;</td>
                             <td id="tab_c" class="taboff">C++</td> <!--Added C++ to the tab-->
                             <td class="tabmin">&nbsp;</td>
-                            <td id="tab_xml" class="taboff">XML</td>
+                            <td id="tab_xml" class="taboff"></td>
                             <td class="tabmin">&nbsp;</td>
-
+                            <td id="tab_term" class="taboff">Terminal</td>
+                            <td class="tabmin">&nbsp;</td>
 
                             <td class="tabmax">
                                 <button id="trashButton" class="notext" title="...">
@@ -102,22 +116,18 @@
             </tr>
         </table>
 
-        <!-- C++ blocks tab display -->
         <div id="content_blocks" class="content"></div>
-
-        <!-- C++ code tab display -->
         <pre id="content_c" class="content prettyprint lang-c"></pre>
-
-        <!-- C++ blockly xml tab display -->
-        <textarea id="content_xml" class="content" wrap="off"></textarea>
-
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
-
+        <textarea id="content_xml" class="content" wrap="off"></textarea>
+        <pre id="content_term" class="content">
+            <div id="terminal" class="terminal"></div>
+        </pre>
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 
-            <category name="Include Directories" colour="#FBBC2A">
+            <category name="Include Directories" colour="#134796">
 
                 <block type="include_iostream"></block>
                 <block type="include_iomanip"></block>
@@ -131,9 +141,8 @@
                 <block type="using_namespace_std"></block>
 
             </category>
-            <!-- end of Include Directories blocks -->
 
-            <category name="Main Function" colour="#EA4335">
+            <category name="Main Function" colour="#134796">
 
                 <block type="main"></block>
                 <block type="system_pause"></block>
@@ -141,7 +150,7 @@
             </category>
             <!-- end of Main Function blocks -->
 
-            <category name="Variables" colour="#4285F4">
+            <category name="Variables" colour="#134796">
 
                 <label text="Variable Declaration" web-class="labelVariable"></label>
 
@@ -172,11 +181,12 @@
             </category>
             <!-- end of variables blocks -->
 
-            <category name="Input/Output" colour="#34A853">
+            <category name="Input/Output" colour="#134796">
 
                 <label text="Cout Output" web-class="labelCout"></label>
 
                 <block type="cout"></block>
+
                 <block type="cout_setprecision">
                     <value name="valinp1">
                         <shadow type="get_num">
@@ -188,6 +198,7 @@
                 <label text="Cin Input" web-class="labelCin"></label>
 
                 <block type="cin_input"></block>
+
                 <block type="cin_getline">
                     <value name="valinp1">
                         <shadow type="get_var"></shadow>
@@ -549,15 +560,24 @@
             <category name="Functions" colour="#134796">
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
-                <block type="function_declaration"></block>
-                <block type="function_parameters"></block>
-                <block type="function_return"></block>
 
-                <label text="Function Call" web-class="labelFunction"></label>
-                <block type="function_call"></block>
+                <block type="user_function"></block>
+
+                <label text="Function parameters/return" web-class="labelFunction"></label>
+
+                <block type="func_parameters"></block>
+
+                <block type="func_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
-                <block type="get_function"></block>
+                <block type="get_func"></block>
+
+                <label text="Void Function Getter" web-class="labelFunction"></label>
+                <block type="get_func_void">
+                    <value name="valinp1">
+                        <block type="get_func"></block>
+                    </value>
+                </block>
 
             </category>
             <!-- end of Function blocks -->
@@ -1129,15 +1149,24 @@
             <category name="Chapter 5" colour="#134796">
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
-                <block type="function_declaration"></block>
-                <block type="function_parameters"></block>
-                <block type="function_return"></block>
 
-                <label text="Function Call" web-class="labelFunction"></label>
-                <block type="function_call"></block>
+                <block type="user_function"></block>
+
+                <label text="Function parameters/return" web-class="labelFunction"></label>
+
+                <block type="func_parameters"></block>
+
+                <block type="func_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
-                <block type="get_function"></block>
+                <block type="get_func"></block>
+
+                <label text="Void Function Getter" web-class="labelFunction"></label>
+                <block type="get_func_void">
+                    <value name="valinp1">
+                        <block type="get_func"></block>
+                    </value>
+                </block>
 
             </category>
             <!-- end of Chapter 5 blocks -->
@@ -1292,7 +1321,7 @@
 
                 </category>
 
-                <!-- Chapter 6                                                               -->
+                <<!-- Chapter 6                                                               -->
                 <!-- Pointers - variables that store the memory addresses of other variables -->
                 <!--                                                                         -->
                 <!-- Author:   David J. Hazell                                               -->
@@ -1327,12 +1356,12 @@
 
         </xml> <!-- toolbox -->
 
+
         <!-- <textarea id="content_xml" class="content" wrap="off"></textarea> -->
     </body>
 
 
 </html>
-
 
 <!-- Label Color Categories -->
 <style>
@@ -1407,14 +1436,3 @@
     }
 
 </style>
-
-
-
-
-
-
-
-
-
-
-
