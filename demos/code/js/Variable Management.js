@@ -17,6 +17,7 @@ C_Var.get.parameters = function(block){
 		if (ptr.paramProp_)
 		{
 			options.push(ptr.paramProp_);
+			console.log(options);
 			
 		}
 		

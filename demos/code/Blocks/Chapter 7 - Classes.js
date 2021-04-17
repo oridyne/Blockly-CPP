@@ -12,11 +12,12 @@ Blockly.Blocks["ds_class"] = {
 		this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/classes/");
 		
 		this.classVarPublic_ = [];
-		this.classVarPrivate_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
 		this.classConProp_ = [];
 		this.classConParam_ = [];
+		
+		this.classVarPrivate_ = [];
 		this.classFuncPropPrivate_ = [];
 		this.classFuncParamPrivate_ = [];
 		this.classConPropPrivate_ = [];
@@ -117,8 +118,10 @@ Blockly.Blocks["ds_class"] = {
 };
 
 Blockly.C["ds_class"] = function(block) {
-	var codeStatePublic = Blockly.C.statementToCode(block, "statePublic");
-	var codestatePrivate = Blockly.C.statementToCode(block, "statePrivate");
+	var codeStatePublic = 
+	Blockly.C.statementToCode(block, "statePublic");
+	var codestatePrivate = 
+	Blockly.C.statementToCode(block, "statePrivate");
 	
 	var code = "";
 	code += "class " + this.getVar_ + "{\n";
@@ -238,6 +241,8 @@ Blockly.Blocks['class_constructor'] = {
 		var CV_manage = C_Var;
 		
 		this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
+		console.log(this.funcParam_);
+		
 		
 		this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
 		console.log(this.funcParamClassMembers_);
@@ -374,13 +379,15 @@ Blockly.Blocks['class_parameters'] = {
 		let ptr = this.parentBlock_;
 		
 		while (ptr){		
-		console.log(ptr.getDataStr());
+
 		console.log(this.typeName_ + " " + ptr.getVar_);
 			if (ptr.getDataStr() === 'isClass' && this.typeName_ === ptr.getVar_){
+				console.log(ptr.getDataStr());
 				this.classVarPublic_ = ptr.classVarPublic_;
 				this.classFuncProp_ = ptr.classFuncProp_;
 				this.classFuncParam_ = ptr.classFuncParam_;
 				console.log(this.classVarPublic_);
+				console.log(ptr.classVarPublic_);
 				console.log(this.classFuncProp_);
 				console.log(this.classFuncParam_);
 			}
