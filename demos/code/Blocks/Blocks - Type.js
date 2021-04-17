@@ -436,7 +436,7 @@ Blockly.Blocks['get_var'] = {
 	}
 	
 };
-Blockly.C['.getVar_'] = function(block) {
+Blockly.C['get_var'] = function(block) {
 	var code = '';
 	
 	for(var i = 0; i < this.ptrLevel_; ++i){
