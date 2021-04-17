@@ -107,7 +107,7 @@ Blockly.C['get_input'] = function(block) {
 	return [code, Blockly.C.ORDER_NONE];
 };
 
-Blockly.Blocks['get_var'] = {
+Blockly.Blocks['.getVar_'] = {
 	init: function() {
 
 		this.paramNames_ = [["", ""]];
@@ -295,7 +295,7 @@ Blockly.Blocks['get_var'] = {
 					//get values from function parameter
 					if(ptr.funcParam_){
 						for(var i = 0; i < ptr.funcParam_.length; ++i){
-							if(this.get_var_ === ptr.funcParam_[i][3]){
+							if(this..getVar__ === ptr.funcParam_[i][3]){
 								this.isConst_ = ptr.funcParam_[i][0];
 								this.typeName_ = ptr.funcParam_[i][1];
 								this.ptrType_ = ptr.funcParam_[i][2];
@@ -306,7 +306,7 @@ Blockly.Blocks['get_var'] = {
 					break;
 				case 'isStruct':
 					for(var i = 0; i < ptr.classVar_.length; ++i){
-						if(this.get_var_ === ptr.classVar_[i][3]){
+						if(this..getVar__ === ptr.classVar_[i][3]){
 							this.isConst_ = ptr.classVar_[i][0];
 							this.typeName_ = ptr.classVar_[i][1];
 							this.ptrType_ = ptr.classVar_[i][2];
@@ -329,7 +329,7 @@ Blockly.Blocks['get_var'] = {
 				case 'isVar':
 				
 				//Stream data from var declaration block
-				if(this.get_var_ === ptr.get_var_){
+				if(this..getVar__ === ptr..getVar__){
 
 					this.typeName_ = ptr.typeName_;
 					//stream input value
@@ -437,7 +437,7 @@ Blockly.Blocks['get_var'] = {
 	}
 	
 };
-Blockly.C['get_var'] = function(block) {
+Blockly.C['.getVar_'] = function(block) {
 	var code = '';
 	
 	for(var i = 0; i < this.ptrLevel_; ++i){
@@ -766,7 +766,7 @@ Blockly.Blocks['get_arr'] = {
 		this.setHelpUrl("");
 		
 		this.typeName_ = "";
-		this.get_var_ = "";
+		this..getVar__ = "";
 		
 		this.paramCount_ = 0;
 
@@ -803,10 +803,10 @@ Blockly.Blocks['get_arr'] = {
 	},
 
 	allocateValues: function(){
-		this.get_var_ = "";
+		this..getVar__ = "";
 
 		if(this.getFieldValue('VAR') && this.getFieldValue('VAR').length > 0){
-			this.get_var_ = this.getFieldValue('VAR');
+			this..getVar__ = this.getFieldValue('VAR');
 		}
 
 	},
@@ -822,7 +822,7 @@ Blockly.Blocks['get_arr'] = {
 		
 		while(ptr){
 			
-			if(this.get_var_ === ptr.get_var_){
+			if(this..getVar__ === ptr..getVar__){
 				this.isInitialized_ = ptr.isInitialized_;
 				this.size_ = ptr.size_;
 			}
@@ -830,14 +830,14 @@ Blockly.Blocks['get_arr'] = {
 			switch(ptr.getDataStr()){
 				case 'isArr':
 				
-				(ptr && ptr.get_var_ ) ? (options.push([ptr.get_var_, ptr.get_var_])) : (0);
+				(ptr && ptr..getVar__ ) ? (options.push([ptr..getVar__, ptr..getVar__])) : (0);
 
 				break;
 				
 				case 'isVar':
 
 				(ptr && ptr.typeName_ === "string" ) ? 
-					(options.push([ptr.get_var_, ptr.get_var_]))
+					(options.push([ptr..getVar__, ptr..getVar__]))
 					: (0);
 
 				break;
@@ -886,7 +886,7 @@ Blockly.Blocks['get_arr'] = {
 			switch(ptr.getDataStr()){
 				case 'isArr':
 				
-				if(this.get_var_ === ptr.get_var_){
+				if(this..getVar__ === ptr..getVar__){
 					this.typeName_ = ptr.typeName_;
 					return;
 				}
@@ -911,7 +911,7 @@ Blockly.Blocks['get_arr'] = {
 		}
 
 		if(this.size_ < 1){
-			//TT += 'Warning, attempting to return uninitialized array "' + this.get_var_ + '".\n';
+			//TT += 'Warning, attempting to return uninitialized array "' + this..getVar__ + '".\n';
 		}
 		
 		if(TT.length > 0){
@@ -926,7 +926,7 @@ Blockly.Blocks['get_arr'] = {
 Blockly.C['get_arr'] = function(block) {
 	var code = '';
 	
-	code += this.get_var_;
+	code += this..getVar__;
 	
 	return [code, Blockly.C.ORDER_NONE];
 };
@@ -945,7 +945,7 @@ Blockly.Blocks['get_vec'] = {
 		this.setHelpUrl("");
 		
 		this.typeName_ = "";
-		this.get_var_ = "";
+		this..getVar__ = "";
 		
 		this.paramCount_ = 0;
 
@@ -968,10 +968,10 @@ Blockly.Blocks['get_vec'] = {
 	allocateValues: function(){
 
 		if(this.getFieldValue('VAR') && this.getFieldValue('VAR').length > 0){
-			this.get_var_ = this.getFieldValue('VAR');
+			this..getVar__ = this.getFieldValue('VAR');
 		}
 		else {
-			this.get_var_ = "";
+			this..getVar__ = "";
 		}
 		
 	},
@@ -987,14 +987,14 @@ Blockly.Blocks['get_vec'] = {
 		
 		while(ptr){
 			
-			if(this.get_var_ === ptr.get_var_){
+			if(this..getVar__ === ptr..getVar__){
 				this.isInitialized_ = ptr.isInitialized_;
 			}
 
 			switch(ptr.getDataStr()){
 				case 'isVec':
 				
-				(ptr && ptr.get_var_ ) ? (options.push([ptr.get_var_, ptr.get_var_])) : (0);
+				(ptr && ptr..getVar__ ) ? (options.push([ptr..getVar__, ptr..getVar__])) : (0);
 
 				break;
 			}
@@ -1015,7 +1015,7 @@ Blockly.Blocks['get_vec'] = {
 			switch(ptr.getDataStr()){
 				case 'isVec':
 				
-				if(this.get_var_ === ptr.get_var_){
+				if(this..getVar__ === ptr..getVar__){
 					this.typeName_ = ptr.typeName_;
 					return;
 				}
@@ -1050,7 +1050,7 @@ Blockly.Blocks['get_vec'] = {
 Blockly.C['get_vec'] = function(block) {
 	var code = '';
 	
-	code += this.get_var_;
+	code += this..getVar__;
 	
 	return [code, Blockly.C.ORDER_NONE];
 };
@@ -1071,7 +1071,7 @@ Blockly.Blocks['get_objects'] = {
 		this.setHelpUrl("");
 		
 		this.typeName_ = "";
-		this.get_var_ = "";
+		this..getVar__ = "";
 		
 		this.paramCount_ = 0;
 
@@ -1107,7 +1107,7 @@ Blockly.Blocks['get_objects'] = {
 				case 'isStruct':
 				case 'isClass':
 				
-				options.push([ptr.get_var_, ptr.get_var_]);
+				options.push([ptr..getVar__, ptr..getVar__]);
 				
 				break;
 			}
