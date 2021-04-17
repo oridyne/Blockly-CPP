@@ -451,7 +451,7 @@ Blockly.C['function_parameters'] = function(block){
 	return [code, Blockly.C.ORDER_NONE];
 };
 
-Blockly.Blocks['func_return'] = {
+Blockly.Blocks['function_return'] = {
 	init: function() {
 		
 		this.appendValueInput("valinp1")
@@ -583,7 +583,7 @@ Blockly.Blocks['func_return'] = {
 		
 	}
 };
-Blockly.C['func_return'] = function(block) {
+Blockly.C['function_return'] = function(block) {
 	var code = '';
 	
 	code += 'return';
