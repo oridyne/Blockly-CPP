@@ -3,30 +3,30 @@ const pointerBlockHue = 200;
 /* Pointer Declaration */
 Blockly.Blocks['pointer_declare'] = {
 	init: function() {
-		// HELPER VARIABLES
+
+		// Initialize helper variables
 		this.isPointer_ = true;
 		this.setDataStr("isVar", true);
 		this.types_ = [
-			["int", "int"],
-			["size_t", "size_t"],
-			["double", "double"],
-			["char", "char"],
-			["string", "string"],
-			["bool", "bool"],
-			["short", "short"],
-			["long", "long"],
+			["int",       "int"],
+			["size_t",    "size_t"],
+			["double",    "double"],
+			["char",      "char"],
+			["string",    "string"],
+			["bool",      "bool"],
+			["short",     "short"],
+			["long",      "long"],
 			["long long", "long long"]
 		];
 
-		// BLOCKLY PROPERTIES
+		// Blockly properties
 		this.setColour(pointerBlockHue);
 		this.setTooltip("Pointer declaration\n\nConstant");
 		this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/pointers/");
 		this.setPreviousStatement(true, null);
 		this.setNextStatement(true, null);
 
-		// INPUT
-		// OUTPUT <-- BLOCK <-- INPUT
+		// Input
 		this.appendValueInput("valueInput")
 			.appendField(new Blockly.FieldDropdown([["",""], ["const","const"]]),
 				"const")
@@ -39,8 +39,7 @@ Blockly.Blocks['pointer_declare'] = {
 			.appendField(" = ")
 			.setCheck(null);
 
-		// OUTPUT
-		// OUTPUT <-- BLOCK <-- INPUT
+		// Output
 		this.setOutput(false);
 	},
 
@@ -49,11 +48,11 @@ Blockly.Blocks['pointer_declare'] = {
 		this.allocateWarnings();
 	},
 
-	allocateValues: function(){
-		// Get values from block
-		this.const_      = ( this.getFieldValue('const') === 'const' );
-		this.type_       = this.getField('type').getText();
-		this.operator_   = this.getField('operator').getText();
+	allocateValues: function() {
+		// Store values from block
+		this.const_ = (this.getFieldValue('const') === 'const');
+		this.type_ = this.getField('type').getText();
+		this.operator_ = this.getField('operator').getText();
 		this.identifier_ = this.getField('identifier').getText();
 		
 		// The variables below are used across the project for variable declarations
@@ -80,18 +79,15 @@ Blockly.Blocks['pointer_declare'] = {
 				this.pointerLevel_ = 3;
 				break;
 			default:
+				console.error("Operator '" + this.operator_ + "' not recognized");
 				break;
 		}
-
-		console.debug("pointer_declare: identifier_   = " + this.identifier_);
-		console.debug("pointer_declare: pointerLevel_ = " + this.pointerLevel_);
 
 		let inputBlock = this.getInputTargetBlock('valueInput');
 		let inputBlockCode = Blockly.C.valueToCode(this, 'valueInput', Blockly.C.ORDER_ATOMIC);
 		
 		if (inputBlock) {
 			this.value_ = inputBlock.value_;
-			//If it's null
 			this.isNull_ = inputBlock.isNull_;
 		}
 
@@ -124,7 +120,7 @@ Blockly.Blocks['pointer_declare'] = {
 		// Check if identifier has already been declared in current scope
 		let parentBlock = this.parentBlock_;
 		while(parentBlock){
-			if(parentBlock.getDataStr() === "isVar" && parentBlock.identifier_ === this.identifier_){
+			if(parentBlock.getDataStr() === "isVar" && parentBlock.getVar_ === this.identifier_){
 				warningText += 'Error, variable "' + this.identifier_ + '" has already been declared in this scope.\n';
 				break;
 			}
@@ -136,11 +132,12 @@ Blockly.Blocks['pointer_declare'] = {
 		if (inputBlock) {
 			warningText += C_Logic.logic.type_check(this.type_, inputBlock.type_);
 
-			if (inputBlock.pointerLevel_ !== this.pointerLevel_) {
-				warningText += "error: cannot convert '" + inputBlock.type_ + inputBlock.operator_ + "' to '"
-				+ this.type_ + this.operator_ + "' in initialization";
+			if (!inputBlock.isNull_) {
+				if (inputBlock.pointerLevel_ !== this.pointerLevel_) {
+					warningText += "error: cannot convert '" + inputBlock.type_ + inputBlock.operator_ + "' to '"
+						+ this.type_ + this.operator_ + "' in initialization";
+				}
 			}
-
 		}
 
 		if (this.type_ === "string") {
@@ -210,16 +207,17 @@ Blockly.C['pointer_declare'] = function(block) {
 		code += "std::";
 	}
 
-	code += block.type_ + " " + block.operator_ + " " + block.identifier_;
+	code += block.type_ + " " + block.operator_ + " " + block.getVar_;
 
     if (inputBlock) {
-    	return code += " = " + Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC) + ";\n";
+    	code += " = " + Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC) + ";\n";
+    	return code;
 	} else {
-		return code += ";\n";
+		code += ";\n";
+    	return code;
 	}
 
 };
-
 
 /* Pointer Initialization */
 
@@ -264,6 +262,7 @@ Blockly.Blocks['pointer_getter'] = {
 	},
 
 	allocateValues: function(){
+		this.identifier_ = this.getFieldValue('identifier');
 		this.getVar_ = this.getFieldValue('identifier');
 		this.typegetVar_ = "";
 		this.value_ = "";
@@ -416,7 +415,7 @@ Blockly.Blocks['pointer_getter'] = {
 			switch(parentBlock.getDataStr()){
 				case 'isVar':
 					if (parentBlock.isPointer_ === true) {
-						options.push([parentBlock.identifier_, parentBlock.identifier_]);
+						options.push([parentBlock.getVar_, parentBlock.getVar_]);
 					}
 					this.paramCount_ = parentBlock.paramCount_;
 					break;
@@ -944,7 +943,6 @@ Blockly.Blocks['pointer_nullptr'] = {
 		this.setHelpUrl("");
 
 		this.isNull_ = true;
-
 	},
 
 	onchange: function(){
@@ -980,329 +978,7 @@ Blockly.C['pointer_nullptr'] = function() {
 };
 
 /* Pointer Assignment */
-/*
-Blockly.Blocks['pointer_assignment'] = {
-	init: function() {
 
-		// Initialize helper variables
-		this.isPointer_ = true;
-		this.isConst_ = false;
-		this.isInitialized_ = false;
-		this.isGetter_ = true;
-		this.isInClass_ = false;
-		this.value_ = "";
-		this.paramCount_ = 0;
-		this.paramNames_ = [["", ""]];
-
-		// BLOCKLY PROPERTIES
-		this.setColour(pointerBlockHue);
-		this.setTooltip("Pointer variable getter");
-		this.setHelpUrl("");
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-
-		// INPUT
-		// BLOCK <-- INPUT
-		this.appendValueInput("valueInput")
-			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)),
-				"identifier")
-			.appendField(" = ")
-			.setCheck(null);
-
-		// OUTPUT
-		// OUTPUT <-- BLOCK
-		this.setOutput(false);
-
-	},
-
-	onchange: function(){
-		this.allocateValues();
-		this.allocateVariableParameters();
-		this.allocateVariables();
-		this.allocateScope();
-		this.allocateWarnings();
-	},
-
-	allocateValues: function(){
-		this.identifier_ = this.getFieldValue('identifier');
-		this.getVar_ = this.getFieldValue('identifier');
-		this.typegetVar_ = "";
-		this.value_ = "";
-		this.isConst_ = false;
-		this.ptrType_ = "";
-		this.isNull_ = false;
-		this.paramNames_ = [["", ""]];
-		this.isInClass_ = false;
-
-		//Check function parameters using getSurroundParent()
-		let ptr = this.getSurroundParent();
-
-		while(ptr){
-			switch(ptr.getDataStr()){
-				case 'isFunc':
-					//get values from function parameter
-					if(ptr.funcParam_){
-						for(var i = 0; i < ptr.funcParam_.length; ++i){
-							if(this.getVar_ === ptr.funcParam_[i][3]){
-								this.isConst_ = ptr.funcParam_[i][0];
-								this.typegetVar_ = ptr.funcParam_[i][1];
-								this.ptrType_ = ptr.funcParam_[i][2];
-								this.isInitialized_ = ptr.funcParam_[i][4];
-							}
-						}
-					}
-					break;
-				case 'isStruct':
-					for(var i = 0; i < ptr.classVar_.length; ++i){
-						if(this.getVar_ === ptr.classVar_[i][3]){
-							this.isConst_ = ptr.classVar_[i][0];
-							this.typegetVar_ = ptr.classVar_[i][1];
-							this.ptrType_ = ptr.classVar_[i][2];
-							this.isInClass_ = true;
-						}
-					}
-					break;
-				case 'isClass':
-					break;
-			}
-
-			ptr = ptr.getSurroundParent();
-		}
-
-		//Set typegetVar_
-		ptr = this.parentBlock_;
-		while(ptr){
-
-			switch(ptr.getDataStr()){
-				case 'isVar':
-
-					//Stream data from var declaration block
-					if(this.getVar_ === ptr.getVar_){
-
-						this.typegetVar_ = ptr.typegetVar_;
-						//stream input value
-						this.value_ = ptr.value_;
-
-						this.isInitialized_ = ptr.isInitialized_;
-
-						this.isNull_ = ptr.isNull_;
-
-						this.ptrType_ = ptr.ptrType_;
-
-						//stream const option
-						this.isConst_ = ptr.isConst_;
-
-						return;
-					}
-
-					break;
-			}
-
-			ptr = ptr.parentBlock_;
-		}
-	},
-
-	allocateVariables: function(){
-		let options = [];
-		options.push(["", ""]);
-
-		//Previous declaration
-		let parentBlock = this.parentBlock_;
-		while(parentBlock){
-
-			switch(parentBlock.getDataStr()){
-				case 'isVar':
-					if (parentBlock.isPointer_ === true) {
-						options.push([parentBlock.identifier_, parentBlock.identifier_]);
-					}
-					this.paramCount_ = parentBlock.paramCount_;
-					break;
-			}
-			parentBlock = parentBlock.parentBlock_;
-		}
-
-		parentBlock = this.getSurroundParent();
-		while(parentBlock){
-			switch(parentBlock.type){
-
-				case 'loop_for':
-				case 'loop_range':
-					options.push([parentBlock.getVar_, parentBlock.getVar_]);
-					if(this.getVar_ === parentBlock.getVar_){
-						this.typegetVar_ = parentBlock.typegetVar_;
-					}
-					break;
-			}
-			parentBlock = parentBlock.getSurroundParent();
-		}
-
-		for(let i = 0; i < options.length; ++i){
-			this.paramNames_.push(options[i]);
-		}
-	},
-
-	allocateVariableParameters: function(){
-		var options = [];
-		options.push(["", ""]);
-
-		//Loop through to get function variables
-		let ptr = this.getSurroundParent();
-
-		while(ptr){
-
-			switch( ptr.getDataStr() ){
-				case 'isFunc':
-
-					if(ptr.funcParam_){
-
-						//Loop through the function array to get the names of parameters
-						for(var i = 0; i < ptr.funcParam_.length; ++i){
-							options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-
-							if(this.getVar_ === ptr.funcParam_[i][3]){
-								this.isConst_ = ptr.funcParam_[i][0];
-								this.typegetVar_ = ptr.funcParam_[i][1];
-							}
-						}
-
-					}
-
-					break;
-
-				case 'isStruct':
-
-					for(var i = 0; i < ptr.classVar_.length; ++i){
-						options.push([ptr.classVar_[i][3], ptr.classVar_[i][3]]);
-					}
-
-					break;
-
-				case 'isClass':
-
-
-
-					break;
-			}
-
-			ptr = ptr.getSurroundParent();
-		}
-
-		for(var i = 0; i < options.length; ++i){
-			this.paramNames_.push(options[i]);
-		}
-
-	},
-
-	allocateScope: function(){
-
-		//Get Scope variable
-
-		let ptr = this.getSurroundParent();
-
-		while(ptr){
-
-			switch(ptr.getDataStr()){
-				case 'isFunc':
-
-					for(var i = 0; ptr.paramCount_ && i < ptr.paramCount_; ++i){
-						(ptr && ptr.paramNames_[i]) ? (this.paramNames_.push([ptr.paramNames_[i], ptr.paramNames_[i]])) : (0);
-					}
-
-					break;
-			}
-
-			ptr = ptr.getSurroundParent();
-		}
-
-	},
-
-	allocateDropdown: function(){
-		//Delete any repeating elements in the 2d array
-		var temp = [];
-		var temp2 = [];
-
-		//grab the data from the matrix
-		for(var i = 0; i < this.paramNames_.length; ++i){
-			temp.push(this.paramNames_[i][1]);
-		}
-
-		this.paramNames_ = [];
-
-		for(var i = 0; i < temp.length; ++i){
-			if(temp2.indexOf(temp[i]) == -1){
-				temp2.push(temp[i]);
-			}
-		}
-
-		for(var i = 0; i < temp2.length; ++i){
-			this.paramNames_.push([temp2[i], temp2[i]]);
-		}
-
-		return this.paramNames_;
-	},
-
-	allocateWarnings: function(){
-		var TT = "";
-		C = C_Logic;
-
-		if(!this.parentBlock_){
-			TT += "Block warning, this block has a return and must be connected.\n";
-		}
-
-		//Errors if a variable exists
-		if(this.getVar_.length > 0){
-
-			var currentVarFound = false;
-
-			for(var i = 1; i < this.paramNames_.length; ++i){
-				if(this.getFieldValue('identifier') === this.paramNames_[i][1]){
-					currentVarFound = true;
-					break;
-				}
-			}
-
-			if(this.isInClass_){
-				let ptr = this.getSurroundParent();
-
-				while(ptr){
-					switch(ptr.getDataStr()){
-						case 'isStruct':
-
-							for(var i = 0; i < ptr.classVar_.length; ++i){
-								if(this.getVar_ === ptr.classVar_[i][3]){
-									currentVarFound = true;
-									break;
-								}
-							}
-
-							break;
-					}
-					ptr = ptr.getSurroundParent();
-				}
-
-			}
-
-
-			if(!currentVarFound){
-				TT += 'Block warning, variable "' + this.getVar_ + '" is not declared in this scope.\n';
-			}
-		}
-
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-	}
-
-};
-Blockly.C['pointer_assignment'] = function(block) {
-	let code = 'test';
-	//code += this.getVar_;
-	return [code, Blockly.C.ORDER_NONE];
-};
-*/
 Blockly.Blocks['pointer_assignment'] = {
 	init: function() {
 
@@ -1357,10 +1033,6 @@ Blockly.Blocks['pointer_assignment'] = {
 					break;
 			}
 
-			console.debug("pointer_assignment: identifier_   = " + this.identifier_);
-			console.debug("pointer_assignment: pointerLevel_ = " + this.pointerLevel_);
-			console.debug("");
-
 		}
 	},
 
@@ -1376,10 +1048,13 @@ Blockly.Blocks['pointer_assignment'] = {
 		//To compare values, the second block must have an input
 		if(block[1]){
 
-			if(block[0].type_ !== block[1].type_){
-				TT += 'Error, first input is of type "' + block[0].type_ + '", second input is of type "' + block[1].type_ + '".\n';
-			}
+			console.debug("block[1].isNull_ = " + block[1].isNull_);
 
+			if (!block[1].isNull_) {
+				if (block[0].type_ !== block[1].type_) {
+					TT += 'Error, first input is of type "' + block[0].type_ + '", second input is of type "' + block[1].type_ + '".\n';
+				}
+			}
 		}
 
 
@@ -1499,3 +1174,6 @@ Blockly.C['pointer_operator'] = function(block) {
 	this.getVar_ = code;
 	return [code, Blockly.C.ORDER_NONE];
 };
+
+
+
