@@ -385,12 +385,14 @@ Blockly.Blocks['ds_member'] = {
 		
 		while (ptr){
 			if (ptr.type === 'user_function' || ptr.type === 'class_constructor'){
-				if (ptr.funcParam_)
+				console.log(ptr.funcParamClassMembers_);
+				if (ptr.funcParamClassMembers_)
 				{
 					this.funcParamClassMembers_ = ptr.funcParamClassMembers_;
-					this.allocateMemberProperties();
-					for (var i = 0; i <ptr.funcParam_.length; ++i){
-						options.push([ptr.funcParam_[i][3],ptr.funcParam_[i][3]]);
+					//this.allocateMemberProperties();
+					for (var i = 0; i <ptr.funcParamClassMembers_.length; ++i){
+						console.log(ptr.funcParam_);
+						options.push([ptr.funcParamClassMembers_[i][3],ptr.funcParamClassMembers_[i][3]]);
 					}
 				}
 				break;

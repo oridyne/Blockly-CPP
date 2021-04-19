@@ -199,6 +199,17 @@ Blockly.Blocks['get_var'] = {
 				
 				
 				break;
+				case 'class_constructor':
+				console.log(ptr.funcParam_);
+					for (var i = 0; i < ptr.funcParam_.length; i++){
+						options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
+						if (this.getVar_ === ptr.funcParam_[i][3]){
+							this.isConst_ = ptr.funcParam_[i][0];
+							this.typeName_ = ptr.funcParam_[i][1];
+							this.ptrType_ = ptr.funcParam_[i][2];
+						}
+					}
+				break;
 	
 
 			}
