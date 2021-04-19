@@ -15,6 +15,7 @@
         <script src="js/Logic.js"></script>
         <script src="js/Include.js"></script>
         <script src="js/Scopes.js"></script>
+		<script src="js/Variable Management.js"></script>
 
         <script src="Blocks/FileSaver.js"></script>
         <script src="Blocks/filereader.js"></script>
@@ -33,6 +34,7 @@
         <script src="Blocks/Chapter 6 - Arrays.js"></script>
         <script src="Blocks/Chapter 6 - Arrays (2D).js"></script>
         <script src="Blocks/Chapter 6 - Vectors.js"></script>
+		<script src="Blocks/Chapter 7 - Structs.js"></script>
         <script src="Blocks/Chapter 7 - Classes.js"></script>
         <script src="Blocks/Chapter 8 - Pointers.js"></script>
 
@@ -1333,6 +1335,38 @@
 
             </category>
             <!-- end of Chapter 6 blocks -->
+			
+			<category name = "Chapter 7" colour = "#134796" >
+
+					<label text="Class Declaration" web-class="labelClass"></label>
+					
+					<block type = "ds_class"></block>
+					
+					<label text="Constructor/Destructor" web-class="labelClass"></label>
+					
+					<block type = "class_constructor"></block>
+					
+					<label text="Constructor Parameters" web-class="labelClass"></label>
+					
+					<block type = "class_parameters"></block>
+					
+					<label text="Object Declaration" web-class="labelClass"></label>
+
+					<block type = "ds_object"></block>
+					
+					<label text="Object Block" web-class="labelClass"></label>
+					
+					<block type = "ds_member"></block>
+					
+					<block type="ds_member2">
+						<value name="valinp1">
+							<block type="ds_member"></block>
+						</value>
+					</block>
+
+			</category>
+				
+            <!-- end of Chapter 7 blocks -->		
 
         </xml> <!-- toolbox -->
 
@@ -1414,5 +1448,10 @@
         font-weight: bold;
         fill: #5B93A5;
     }
+	
+	.labelClass > .blocklyFlyoutLabelText {
+		font-weight: bold;
+		fill: #A5925B	
+	}
 
 </style>

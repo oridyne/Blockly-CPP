@@ -74,6 +74,7 @@ Blockly.Blocks['func_parameters'] = {
 
 	},
 
+
 	allocateWarnings: function(){
 		var TT = "";
 		
@@ -82,7 +83,7 @@ Blockly.Blocks['func_parameters'] = {
 		if(!this.parentBlock_){
 			TT += 'Error, this block has a return and must be connected.\n';
 		}
-		else if(ptr.type !== "func_parameters" && ptr.type !== "user_function"){
+		else if(ptr.type !== "func_parameters" && ptr.type !== "user_function" && ptr.type !== "class_constructor" && ptr.type !== "class_parameters"){
 			TT += 'Error, parameter block must be connected to a parameter block or a function block.\n';
 		}
 
@@ -217,13 +218,15 @@ Blockly.Blocks['user_function'] = {
 		 * 
 		 * Example:
 		 * 
-		 * [0] = ["int", "*", "myParam1", true]
+		 * [0] = [false, "int", "*", "myParam1", true]
 		 * 
-		 * [1] = ["string", "&", "myParam2", false]
+		 * [1] = [true, "string", "&", "myParam2", false]
 		 */
 		this.funcParam_ = [];
 		
 		this.isConstructor_ = false;
+		
+		this.isDestructor_ = false;
 		
 	},
 
@@ -231,6 +234,7 @@ Blockly.Blocks['user_function'] = {
 		
 		this.allocateValues();
 		this.allocateWarnings();
+		console.log(this.funcParam_);
 	},
 
 	allocateValues: function(){
@@ -238,6 +242,7 @@ Blockly.Blocks['user_function'] = {
 		this.getVar_ = this.getFieldValue('myFuncVar');
 		this.isConst_ = ( this.getFieldValue('const') == "const" );
 		this.isConstructor_ = false;
+		this.isDestructor_ = false;
 
 		//Allocate function properties
 		this.funcProp_[0] = this.isConst_;
@@ -253,7 +258,7 @@ Blockly.Blocks['user_function'] = {
 		//Loop through the parameters
 		while(ptr){
 			//If an incorrect block is asserted
-			if(ptr.type !== "func_parameters"){
+			if(ptr.type !== "func_parameters" && ptr.type !== "class_parameters"){
 				return;
 			}
 
@@ -280,9 +285,13 @@ Blockly.Blocks['user_function'] = {
 					this.isConstructor_ = true;
 				}
 				
+				if(this.getVar_ === ('~' + ptr.getVar_)){
+					this.isDestructor_ = true;
+				}
+				
 				break;
 			}
-			ptr = ptr.parentBlock_;
+			ptr = ptr.getSurroundParent();
 		}
 		
 	},
@@ -381,7 +390,7 @@ Blockly.Blocks['user_function'] = {
 		
 		while(ptr){
 			
-			if(ptr.type !== "func_parameters"){
+			if(ptr.type !== "func_parameters" && ptr.type !== "class_parameters"){
 				TT += 'Error, only the function parameter block is allowed in the function parameter.\n';
 				break;
 			}
@@ -433,8 +442,8 @@ Blockly.C['user_function'] = function(block) {
 		std += 'std::';
 	}
 	
-	//If it's not a constructor
-	if(!block.isConstructor_){
+	//If it's not a constructor 
+	if(!block.isConstructor_ && !block.isDestructor_){
 		if(block.funcProp_[0]){
 			code += block.getField('const').getText() + ' ';
 		}
