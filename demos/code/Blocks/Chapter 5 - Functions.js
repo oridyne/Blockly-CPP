@@ -88,13 +88,15 @@ Blockly.Blocks['function_declaration'] = {
 		 *
 		 * Example:
 		 *
-		 * [0] = ["int", "*", "myParam1", true]
+		 * [0] = [false, "int", "*", "myParam1", true]
 		 *
-		 * [1] = ["string", "&", "myParam2", false]
+		 * [1] = [true, "string", "&", "myParam2", false]
 		 */
 		this.funcParam_ = [];
 
 		this.isConstructor_ = false;
+
+		this.isDestructor_ = false;
 
 	},
 
@@ -119,6 +121,7 @@ Blockly.Blocks['function_declaration'] = {
 		this.getVar_ = this.getFieldValue('identifier');
 		this.isConst_ = ( this.getFieldValue('const') === "const" );
 		this.isConstructor_ = false;
+		this.isDestructor_ = false
 
 		//Allocate function properties
 		this.funcProp_[0] = this.isConst_;
@@ -133,7 +136,7 @@ Blockly.Blocks['function_declaration'] = {
 
 		while(inputBlock){
 			//If an incorrect block is asserted
-			if(inputBlock.type !== "function_parameters"){
+			if(inputBlock.type !== "function_parameters" && inputBlock.type !== "class_parameters"){
 				return;
 			}
 
@@ -153,14 +156,15 @@ Blockly.Blocks['function_declaration'] = {
 			switch(inputBlock.getDataStr()){
 				case 'isStruct':
 				case 'isClass':
-				
-				if(this.getVar_ === ptr.getVar_){
-					this.isConstructor_ = true;
-				}
-				
-				break;
+					if (this.getVar_ === inputBlock.getVar_) {
+						this.isConstructor_ = true;
+					}
+					if (this.getVar_ === ('~' + inputBlock.getVar_)) {
+						this.isDestructor_ = true;
+					}
+					break;
 			}
-			inputBlock = inputBlock.parentBlock_;
+			inputBlock = inputBlock.getSurroundParent();
 		}
 
 	},
@@ -255,16 +259,15 @@ Blockly.Blocks['function_declaration'] = {
 		//Check if a function has been redeclared
 
 		//Check function parameter blocks
-		ptr = this.getInputTargetBlock('valueInput');
+		let inputBlock = this.getInputTargetBlock('valueInput');
+		while(inputBlock){
 
-		while(ptr){
-
-			if(ptr.type !== "function_parameters" && ptr.type !== "pointer_operator"){
+			if(inputBlock.type !== "function_parameters" && inputBlock.type !== "pointer_operator" && inputBlock.type !== "class_parameters"){
 				TT += 'Error, only the function parameter block is allowed in the function parameter.\n';
 				break;
 			}
 
-			ptr = ptr.childBlocks_[0];
+			inputBlock = inputBlock.childBlocks_[0];
 		}
 
 		//Function parameter block end
@@ -306,12 +309,14 @@ Blockly.C['function_declaration'] = function(block) {
 	let statementInput = Blockly.C.statementToCode(block, 'statementInput');
 	let code = '';
 
-	if (block.isConst_) {
-		code += "const ";
-	}
+	if(!block.isConstructor_ && !block.isDestructor_) {
+		if (block.isConst_) {
+			code += "const ";
+		}
 
-	if(block.type_ === "string" && !C_Include.using.std(block)){
-		code += "std::";
+		if (block.type_ === "string" && !C_Include.using.std(block)) {
+			code += "std::";
+		}
 	}
 
 	code += block.type_ + " " + block.identifier_ + " (" + valueInput + ") {\n"
@@ -409,7 +414,7 @@ Blockly.Blocks['function_parameters'] = {
 
 		if (!this.parentBlock_) {
 			TT += 'Error, this block has a return and must be connected.\n';
-		} else if (!["function_parameters", "function_declaration", "pointer_operator"].includes(ptr.type)) {
+		} else if (!["function_parameters", "function_declaration", "pointer_operator", "class_constructor", "class_parameters"].includes(ptr.type)) {
 			TT += 'Error, parameter block must be connected to a parameter block or a function block.\n';
 		}
 
