@@ -34,10 +34,10 @@
         <script src="Blocks/Chapter 6 - Arrays.js"></script>
         <script src="Blocks/Chapter 6 - Arrays (2D).js"></script>
         <script src="Blocks/Chapter 6 - Vectors.js"></script>
-		<script src="Blocks/Chapter 7 - Structs.js"></script>
+        <script src="Blocks/Chapter 6 - Pointers.js"></script>
+		    <script src="Blocks/Chapter 7 - Structs.js"></script>
         <script src="Blocks/Chapter 7 - Classes.js"></script>
-        <script src="Blocks/Chapter 8 - Pointers.js"></script>
-
+        
         <!-- Include block type inputs -->
       <script src="Blocks/Blocks - Type.js"></script>
       
@@ -609,13 +609,13 @@
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
 
-                <block type="user_function"></block>
+                <block type="function_declaration"></block>
 
                 <label text="Function parameters/return" web-class="labelFunction"></label>
 
-                <block type="func_parameters"></block>
+                <block type="function_parameters"></block>
 
-                <block type="func_return"></block>
+                <block type="function_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
                 <block type="get_func"></block>
@@ -1198,13 +1198,13 @@
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
 
-                <block type="user_function"></block>
+                <block type="function_declaration"></block>
 
                 <label text="Function parameters/return" web-class="labelFunction"></label>
 
-                <block type="func_parameters"></block>
+                <block type="function_parameters"></block>
 
-                <block type="func_return"></block>
+                <block type="function_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
                 <block type="get_func"></block>
@@ -1369,16 +1369,33 @@
 
                 </category>
 
-                <!-- Chapter 6.20                                                 -->
-                <!-- Pointers                                                     -->
-                <!-- variables that store the memory addresses of other variables -->
+                <<!-- Chapter 6                                                               -->
+                <!-- Pointers - variables that store the memory addresses of other variables -->
+                <!--                                                                         -->
+                <!-- Author:   David J. Hazell                                               -->
+                <!-- Semester: Spring 2021                                                   -->
                 <category name="Pointers" colour="#134796">
 
                     <label text="Pointer Declaration" web-class="labelPointer"></label>
+                    <block type="pointer_declare"></block>
 
+                    <label text="Pointer Initialization" web-class="labelPointer"></label>
+                    <block type="pointer_getter"></block>
+                    <block type="pointer_reference"></block>
                     <block type="pointer_null"></block>
+                    <block type="pointer_nullptr"></block>
 
-                    <label text="Pointer Reference" web-class="labelPointer"></label>
+                    <label text="Pointer Assignment" web-class="labelPointer"></label>
+                    <block type="pointer_assignment">
+                        <value name="valinp1">
+                            <shadow type="pointer_getter">
+                                <field name="VAR"></field>
+                            </shadow>
+                        </value>
+                    </block>
+
+                    <label text="Pointer Operators" web-class="labelPointer"></label>
+                    <block type="pointer_operator"></block>
 
                 </category>
 
