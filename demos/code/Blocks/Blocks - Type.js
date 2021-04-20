@@ -2,7 +2,7 @@
 //A block that can be used for types
 Blockly.Blocks['get_type'] = {
 	init: function() {
-		
+
 		this.types = [
 			["int", "int"],
 			["size_t", "size_t"],
@@ -14,28 +14,28 @@ Blockly.Blocks['get_type'] = {
 			["long", "long"],
 			["long long", "long long"]
 		];
-		
+
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldDropdown(this.types), 'type');
-		
+
 		this.setOutput(true);
 		this.setColour(0);
 		this.setTooltip("text");
 		this.setHelpUrl("");
-		
+
 		//If this block gets a variable
 		this.isGetter_ = true;
 	},
-	
+
 	onchange: function(){
 		this.allocateValues();
 		this.allocateWarnings();
 	},
-	
+
 	allocateValues: function(){
 		this.typeName_ = this.getFieldValue('type');
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
 
@@ -51,7 +51,7 @@ Blockly.C['get_type'] = function(block) {
 	var code = '';
 
 	code += this.typeName_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
@@ -60,13 +60,13 @@ Blockly.Blocks['get_input'] = {
 	init: function() {
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldTextInput(""), "input");
-		
+
 		this.setOutput(true);
 		this.setColour(stringHUE);
 		this.setTooltip("This block is used for text in a printf.");
 		this.setHelpUrl("");
 	},
-	
+
 	onchange: function(){
 
 		this.allocateValues();
@@ -88,8 +88,8 @@ Blockly.Blocks['get_input'] = {
 				TT += 'Block Error, this block is used for printf text.\n';
 			}
 		}
-		
-		
+
+
 
 		if(TT.length > 0){
 			this.setWarningText(TT);
@@ -103,7 +103,7 @@ Blockly.C['get_input'] = function(block) {
 	var code = '';
 
 	code += this.value_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
@@ -111,7 +111,7 @@ Blockly.Blocks['get_var'] = {
 	init: function() {
 
 		this.paramNames_ = [["", ""]];
-		
+
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "VAR");
 		this.setOutput(true, null);
@@ -121,7 +121,7 @@ Blockly.Blocks['get_var'] = {
 
 		this.paramCount_ = 0;
 
-		//value 
+		//value
 		this.value_ = "";
 
 		//If this is a const
@@ -129,143 +129,180 @@ Blockly.Blocks['get_var'] = {
 
 		//If the main variable has been initialized
 		this.isInitialized_ = false;
-		
+
 		//If this block gets a variable
 		this.isGetter_ = true;
 
 		this.isInClass_ = false;
-		
+
 	},
-	
+
 	onchange: function(){
 		this.allocateValues();
 		this.allocateVariableParameters();
-		
+
 		this.allocateVariables();
-		
+
 		this.allocateScope();
 		this.allocateWarnings();
 	},
-	
+
 	allocateVariables: function(){
 		let C = C_Logic;
-		
+
 		var options = [];
 		options.push(["", ""]);
-		
+
 		//Previous declaration
 		let ptr = this.parentBlock_;
-		
+
 		while(ptr){
-	
+
 			switch(ptr.getDataStr()){
 				case 'isVar':
 					if (ptr.isPointer_ != true) {
 						options.push([ptr.getVar_, ptr.getVar_]);
 					}
-					
+
 					this.paramCount_ = ptr.paramCount_;
-	
-				break;
+
+					break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
-		
+
 		ptr = this.getSurroundParent();
-		
+
 		while(ptr){
 			switch(ptr.type){
-	
+
 				case 'loop_for':
 				case 'loop_range':
 					options.push([ptr.getVar_, ptr.getVar_]);
-					
+
 					if(this.getVar_ === ptr.getVar_){
 						this.typeName_ = ptr.typeName_;
 					}
-					
-				break;
+
+					break;
+				case 'ds_member':
+					for (var i = 0; i < ptr.classVarPublic_.length; i++){
+						options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+						if (this.getVar_ === ptr.classVarPublic_[i][3]){
+							this.isConst_ = ptr.classVarPublic_[i][0];
+							this.typeName_ = ptr.classVarPublic_[i][1];
+							this.ptrType_ = ptr.classVarPublic_[i][2];
+						}
+					}
+
+
+					break;
+				case 'class_constructor':
+					console.log(ptr.funcParam_);
+					for (var i = 0; i < ptr.funcParam_.length; i++){
+						options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
+						if (this.getVar_ === ptr.funcParam_[i][3]){
+							this.isConst_ = ptr.funcParam_[i][0];
+							this.typeName_ = ptr.funcParam_[i][1];
+							this.ptrType_ = ptr.funcParam_[i][2];
+						}
+					}
+					break;
+
+
 			}
-			
+			switch (ptr.getDataStr()){
+				case 'isStruct':
+
+					for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+						options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+					}
+
+					break;
+
+				case 'isClass':
+					for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+						options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+					}
+
+					for(var i = 0; i < ptr.classVarPrivate_.length; ++i){
+						options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
+					}
+
+					break;
+
+
+			}
+
+
+			//console.log(ptr.type);
 			ptr = ptr.getSurroundParent();
 		}
-		
+
+
+
 		for(var i = 0; i < options.length; ++i){
 			this.paramNames_.push(options[i]);
 		}
 	},
-	
+
 	allocateVariableParameters: function(){
 		var options = [];
 		options.push(["", ""]);
 
 		//Loop through to get function variables
 		let ptr = this.getSurroundParent();
-	
+
 		while(ptr){
-	
+
 			switch( ptr.getDataStr() ){
 				case 'isFunc':
-		
+
 					if(ptr.funcParam_){
-		
+
 						//Loop through the function array to get the names of parameters
 						for(var i = 0; i < ptr.funcParam_.length; ++i){
 							options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-							
+
 							if(this.getVar_ === ptr.funcParam_[i][3]){
 								this.isConst_ = ptr.funcParam_[i][0];
 								this.typeName_ = ptr.funcParam_[i][1];
 							}
 						}
-		
+
 					}
-		
-				break;
-	
-				case 'isStruct':
 
-				for(var i = 0; i < ptr.classVar_.length; ++i){
-					options.push([ptr.classVar_[i][3], ptr.classVar_[i][3]]);
-				}
-
-				break;
-
-				case 'isClass':
-				
-
-
-				break;
+					break;
 			}
-	
+
 			ptr = ptr.getSurroundParent();
 		}
-		
+
 		for(var i = 0; i < options.length; ++i){
 			this.paramNames_.push(options[i]);
 		}
-		
+
 	},
 
 	allocateScope: function(){
-		
+
 		//Get Scope variable
-		
+
 		let ptr = this.getSurroundParent();
-		
+
 		while(ptr){
-			
+
 			switch(ptr.getDataStr()){
 				case 'isFunc':
-				
-				for(var i = 0; ptr.paramCount_ && i < ptr.paramCount_; ++i){
-					(ptr && ptr.paramNames_[i]) ? (this.paramNames_.push([ptr.paramNames_[i], ptr.paramNames_[i]])) : (0);
-				}
-				
-				break;
+
+					for(var i = 0; ptr.paramCount_ && i < ptr.paramCount_; ++i){
+						(ptr && ptr.paramNames_[i]) ? (this.paramNames_.push([ptr.paramNames_[i], ptr.paramNames_[i]])) : (0);
+					}
+
+					break;
 			}
-			
+
 			ptr = ptr.getSurroundParent();
 		}
 
@@ -304,82 +341,97 @@ Blockly.Blocks['get_var'] = {
 					}
 					break;
 				case 'isStruct':
-					for(var i = 0; i < ptr.classVar_.length; ++i){
-						if(this.getVar_ === ptr.classVar_[i][3]){
-							this.isConst_ = ptr.classVar_[i][0];
-							this.typeName_ = ptr.classVar_[i][1];
-							this.ptrType_ = ptr.classVar_[i][2];
+					for(var i = 0; i < ptr.classVarPublic_.length; ++i) {
+						if (this.getVar_ === ptr.classVarPublic_[i][3]) {
+							this.isConst_ = ptr.classVarPublic_[i][0];
+							this.typeName_ = ptr.classVarPublic_[i][1];
+							this.ptrType_ = ptr.classVarPublic_[i][2];
 							this.isInClass_ = true;
 						}
 					}
 					break;
 				case 'isClass':
+					for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+						if(this.getVar_ === ptr.classVarPublic_[i][3]){
+							this.isConst_ = ptr.classVarPublic_[i][0];
+							this.typeName_ = ptr.classVarPublic_[i][1];
+							this.ptrType_ = ptr.classVarPublic_[i][2];
+							this.isInClass_ = true;
+						}
+					}
+
+					for(var i = 0; i < ptr.classVarPrivate_.length; ++i){
+						if(this.getVar_ === ptr.classVarPrivate_[i][3]){
+							this.isConst_ = ptr.classVarPrivate_[i][0];
+							this.typeName_ = ptr.classVarPrivate_[i][1];
+							this.ptrType_ = ptr.classVarPrivate_[i][2];
+							this.isInClass_ = true;
+						}
+					}
 					break;
+
 			}
-			
 			ptr = ptr.getSurroundParent();
 		}
 
 		//Set typeName_
 		ptr = this.parentBlock_;
 		while(ptr){
-			
+
 			switch(ptr.getDataStr()){
 				case 'isVar':
-				
-				//Stream data from var declaration block
-				if(this.getVar_ === ptr.getVar_){
 
-					this.typeName_ = ptr.typeName_;
-					//stream input value
-					this.value_ = ptr.value_;
+					//Stream data from var declaration block
+					if(this.getVar_ === ptr.getVar_){
 
-					this.isInitialized_ = ptr.isInitialized_;
-					
-					this.isNull_ = ptr.isNull_;
-					
-					this.ptrType_ = ptr.ptrType_;
-					
-					//stream const option
-					this.isConst_ = ptr.isConst_;
+						this.typeName_ = ptr.typeName_;
+						//stream input value
+						this.value_ = ptr.value_;
 
-					return;
-				}
+						this.isInitialized_ = ptr.isInitialized_;
 
-				break;
+						this.isNull_ = ptr.isNull_;
+
+						this.ptrType_ = ptr.ptrType_;
+
+						//stream const option
+						this.isConst_ = ptr.isConst_;
+
+						return;
+					}
+
+					break;
 			}
-
-
 
 			ptr = ptr.parentBlock_;
 		}
 	},
-	
+
 	allocateDropdown: function(){
 		//Delete any repeating elements in the 2d array
 		var temp = [];
 		var temp2 = [];
-		
+
 		//grab the data from the matrix
 		for(var i = 0; i < this.paramNames_.length; ++i){
 			temp.push(this.paramNames_[i][1]);
 		}
-		
+
 		this.paramNames_ = [];
-		
+
 		for(var i = 0; i < temp.length; ++i){
 			if(temp2.indexOf(temp[i]) == -1){
 				temp2.push(temp[i]);
 			}
 		}
-		
+
 		for(var i = 0; i < temp2.length; ++i){
 			this.paramNames_.push([temp2[i], temp2[i]]);
 		}
-		
+
 		return this.paramNames_;
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
 		C = C_Logic;
@@ -407,14 +459,14 @@ Blockly.Blocks['get_var'] = {
 					switch(ptr.getDataStr()){
 						case 'isStruct':
 
-							for(var i = 0; i < ptr.classVar_.length; ++i){
-								if(this.getVar_ === ptr.classVar_[i][3]){
+							for(var i = 0; i < ptr.classVarPublic_.length; ++i){
+								if(this.getVar_ === ptr.classVarPublic_[i][3]){
 									currentVarFound = true;
 									break;
 								}
 							}
 
-						break;
+							break;
 					}
 					ptr = ptr.getSurroundParent();
 				}
@@ -426,7 +478,7 @@ Blockly.Blocks['get_var'] = {
 				TT += 'Block warning, variable "' + this.getVar_ + '" is not declared in this scope.\n';
 			}
 		}
-		
+
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
@@ -434,17 +486,17 @@ Blockly.Blocks['get_var'] = {
 			this.setWarningText(null);
 		}
 	}
-	
+
 };
 Blockly.C['get_var'] = function(block) {
 	var code = '';
-	
+
 	for(var i = 0; i < this.ptrLevel_; ++i){
 		code += '*';
 	}
-	
+
 	code += this.getVar_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
@@ -477,18 +529,18 @@ Blockly.Blocks['get_func_void'] = {
 			block.setDeletable(false);
 		}
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		let block = this.getInputTargetBlock('valinp1');
-		
+
 		if(block){
 			if(block.typeName_ !== "void"){
 				TT += 'Warning, non-void function return is ignored.\n';
 			}
 		}
-		
+
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
@@ -524,7 +576,7 @@ Blockly.Blocks['get_func_add'] = {
 	init: function(){
 		this.setColour(funcHUE);
 		this.appendDummyInput().appendField('add');
-		
+
 		this.setPreviousStatement(true);
 		this.setNextStatement(true);
 		this.setTooltip('');
@@ -555,6 +607,12 @@ Blockly.Blocks['get_func'] = {
 
 		this.classConProp_ = [];
 		this.classConParam_ = [];
+
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
 
 		this.classFuncPropPrivate_ = [];
 		this.classFuncParamPrivate_ = [];
@@ -751,8 +809,7 @@ Blockly.Blocks['get_func'] = {
 
 
 		}
-		else
-		{
+		else {
 			this.allocateVariables();
 			//Find and stream variables
 			ptr = this.parentBlock_;
@@ -896,6 +953,7 @@ Blockly.Blocks['get_func'] = {
 			if (ptr) {
 				types.push(ptr.typeName_);
 				this.funcParam_.push
+
 				([ptr.isConst_ ,ptr.typeName_, ptr.ptrType_, ptr.getVar_, true]);
 			}
 		}
@@ -915,9 +973,7 @@ Blockly.Blocks['get_func'] = {
 					console.log(this.classFuncParam_[i]);
 					break;
 				}
-
 			}
-
 		}
 
 		console.log(this.funcParam_);
@@ -927,32 +983,31 @@ Blockly.Blocks['get_func'] = {
 		console.log(this.classFuncParamPrivate_);
 	},
 
-	allocateConstructors: function(block){
+	allocateConstructors: function (block) {
 		var options = [];
-		options.push(["" ,""]);
-		if (block.getField('DS').getText().length > 0){
+		options.push(["", ""]);
+		if (block.getField('DS').getText().length > 0) {
 			options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
 		}
 
 		var types = [];
 
-		for (var i = 1; i <= this.paramCount_; ++i){
+		for (var i = 1; i <= this.paramCount_; ++i) {
 			var ptr = this.getInputTargetBlock('valinp' + i);
 
 			if (ptr) {
 				types.push(ptr.typeName_);
 			}
 		}
-		for (var i = 0; i < block.classConParam_.length; ++i){
-			if (types.length === block.classConParam_[i].length){
+		for (var i = 0; i < block.classConParam_.length; ++i) {
+			if (types.length === block.classConParam_[i].length) {
 				var allEqual = true;
-				for (var j = 0; j < types.length; ++j){
-					if (types[j] !== block.classConParam_[i][j][1]){
+				for (var j = 0; j < types.length; ++j) {
+					if (types[j] !== block.classConParam_[i][j][1]) {
 						allEqual = false;
 					}
 				}
 				if (allEqual) {
-
 					this.funcParam_ = block.classConParam_[i];
 					break;
 				}
@@ -999,11 +1054,7 @@ Blockly.Blocks['get_func'] = {
 			}
 		}
 
-
-
 		//Check if the function has the correct amount of inputs
-
-
 
 		//Loop through all the parameter inputs to check the correct types
 		for(var i = 0; i < this.funcParam_.length; ++i){
@@ -1033,28 +1084,25 @@ Blockly.Blocks['get_func'] = {
 		}
 	},
 };
-Blockly.C['get_func'] = function(block) {
+Blockly.C['get_func'] = function (block) {
 	var code = '';
 
-	if(this.getVar_.length > 0){
-		if(!this.isConstructor_){
+	if (this.getVar_.length > 0) {
+		if (!this.isConstructor_) {
 			code += this.getVar_;
 		}
 		code += '(';
 
-		for(var i = 1; i <= this.paramCount_; ++i){
+		for (var i = 1; i <= this.paramCount_; ++i) {
 			var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
 
 			code += arg;
 
-			if(i < this.paramCount_){
+			if (i < this.paramCount_) {
 				code += ", ";
 			}
-
 		}
-
 		code += ')';
-
 	}
 
 	return [code, Blockly.C.ORDER_NONE];
@@ -1075,7 +1123,7 @@ Blockly.Blocks['get_num'] = {
 		//The type
 		this.typeName_ = "int";
 	},
-	
+
 	/**
 	 * Is called upon every change
 	 */
@@ -1099,7 +1147,7 @@ Blockly.Blocks['get_num'] = {
 
 		//Deduce its type, never assume size_t can be 0,
 		//because it's used to measure containers.
-		//A container can never be 0 unless it is 
+		//A container can never be 0 unless it is
 		//uncreated or uninitialized.
 
 		if(valueInt % 1 == 0){
@@ -1108,15 +1156,15 @@ Blockly.Blocks['get_num'] = {
 		else {
 			this.typeName_ = "double";
 		}
-		
-		
+
+
 	},
 	/**
 	 * Sets all the warnings
 	 */
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		//If there is a non number somewhere
 		for(var i = 0; i < this.value_.length; ++i){
 			if( !( this.value_[i] >= '0' && this.value_[i] <= '9' )){
@@ -1126,7 +1174,7 @@ Blockly.Blocks['get_num'] = {
 				}
 			}
 		}
-		
+
 		//If this block's return is not connected
 		if(this.parentBlock_ === null){
 			TT += 'Block warning, this block has a return and must be connected.\n';
@@ -1165,7 +1213,7 @@ Blockly.Blocks['get_char'] = {
 		//The type
 		this.typeName_ = "char";
 	},
-	
+
 	/**
 	 * Is called upon every change
 	 */
@@ -1174,27 +1222,27 @@ Blockly.Blocks['get_char'] = {
 		this.allocateValues();
 		this.allocateWarnings();
 	},
-	
+
 	/**
 	 * Sets all the variables needed
 	 */
 	allocateValues: function(){
-		
+
 		//Get input from myChar
 		this.value_ = this.getFieldValue("myChar");
 	},
-	
+
 	/**
 	 * Sets all the warnings
 	 */
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		let C = C_Logic;
-		
+
 		//Char formatting warnings and errors
 		TT += C.logic.char_format(this.value_);
-		
+
 		//If this block's return is not connected
 		if(!this.parentBlock_){
 			TT += 'Block warning, this block has a return and must be connected.\n';
@@ -1209,9 +1257,9 @@ Blockly.Blocks['get_char'] = {
 	}
 };
 Blockly.C['get_char'] = function(block) {
-	
+
 	var code = "'" + this.value_ + "'";
-	
+
 
 	return [code, Blockly.C.ORDER_NONE];
 };
@@ -1233,7 +1281,7 @@ Blockly.Blocks['get_str'] = {
 		//The type
 		this.typeName_ = "string";
 	},
-	
+
 	/**
 	 * Is called upon every change
 	 */
@@ -1248,18 +1296,18 @@ Blockly.Blocks['get_str'] = {
 	allocateValues: function(){
 		this.value_ = this.getFieldValue("myStr");
 	},
-	
+
 	/**
 	 * Sets all the warnings
 	 */
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		let C = C_Logic;
-		
+
 		//String format warnings and errors
 		TT += C.logic.string_format(this.value_);
-		
+
 		//If this block's return is not connected
 		if(!this.parentBlock_){
 			TT += 'Block warning, this block has a return and must be connected.\n';
@@ -1274,42 +1322,42 @@ Blockly.Blocks['get_str'] = {
 	}
 };
 Blockly.C['get_str'] = function(block) {
-	
+
 	var code = '"' + this.value_ + '"';
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
 Blockly.Blocks['get_arr'] = {
 	init: function() {
-		
+
 		this.paramNames_ = [["", ""]];
-		
+
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "VAR");
 		this.setOutput(true, null);
 		this.setColour(arrayHUE);
 		this.setTooltip("");
 		this.setHelpUrl("");
-		
+
 		this.typeName_ = "";
 		this.getVar_ = "";
-		
+
 		this.paramCount_ = 0;
 
 		this.isInitialized_ = false;
 		this.size_ = 0;
-		
+
 		this.objArr_ = [];
-		
+
 		//If this block gets a variable
 		this.isGetter_ = true;
 	},
-	
+
 	onchange: function(){
-		
+
 		let block = this.parentBlock_;
-		
+
 		//If the left block is a ds_member block
 		if(block){
 			if(block.type === "ds_member" || (block.parentBlock_ && block.parentBlock_.type === "ds_member") ){
@@ -1322,8 +1370,8 @@ Blockly.Blocks['get_arr'] = {
 		else {
 			this.paramNames_ = [["", ""]];
 		}
-	
-		
+
+
 		this.allocateType();
 		this.allocateValues();
 		this.allocateWarnings();
@@ -1337,18 +1385,18 @@ Blockly.Blocks['get_arr'] = {
 		}
 
 	},
-	
+
 	allocateVariables: function(){
 		var options = [];
-		
+
 		options.push(["", ""]);
-		
+
 		//Previous declaration
-		
+
 		let ptr = this.parentBlock_;
-		
+
 		while(ptr){
-			
+
 			if(this.getVar_ === ptr.getVar_){
 				this.isInitialized_ = ptr.isInitialized_;
 				this.size_ = ptr.size_;
@@ -1356,36 +1404,36 @@ Blockly.Blocks['get_arr'] = {
 
 			switch(ptr.getDataStr()){
 				case 'isArr':
-				
-				(ptr && ptr.getVar_ ) ? (options.push([ptr.getVar_, ptr.getVar_])) : (0);
 
-				break;
-				
+					(ptr && ptr.getVar_ ) ? (options.push([ptr.getVar_, ptr.getVar_])) : (0);
+
+					break;
+
 				case 'isVar':
 
-				(ptr && ptr.typeName_ === "string" ) ? 
-					(options.push([ptr.getVar_, ptr.getVar_]))
-					: (0);
+					(ptr && ptr.typeName_ === "string" ) ?
+						(options.push([ptr.getVar_, ptr.getVar_]))
+						: (0);
 
-				break;
+					break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
 		this.paramNames_ = options;
 
 	},
-	
+
 	allocateMembers: function(){
 		var options = [];
 		options.push(["", ""]);
-		
+
 		let ptr = this.parentBlock_;
-		
+
 		var j = 1;
-		
+
 		while(ptr){
-			
+
 			if(ptr.type === "ds_member"){
 				this.objArr_ = ptr.classArr_;
 				for(var i = 0; ptr.classArr_ && i < ptr.classArr_.length; ++i){
@@ -1393,15 +1441,15 @@ Blockly.Blocks['get_arr'] = {
 				}
 				j++;
 			}
-			
-			
+
+
 			if(j > 2){
 				break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
-		
+
 		this.paramNames_ = options;
 	},
 
@@ -1409,30 +1457,30 @@ Blockly.Blocks['get_arr'] = {
 		//Set typeName_
 		let ptr = this.parentBlock_;
 		while(ptr){
-			
+
 			switch(ptr.getDataStr()){
 				case 'isArr':
-				
-				if(this.getVar_ === ptr.getVar_){
-					this.typeName_ = ptr.typeName_;
-					return;
-				}
 
-				break;
+					if(this.getVar_ === ptr.getVar_){
+						this.typeName_ = ptr.typeName_;
+						return;
+					}
+
+					break;
 
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
 	},
-	
+
 	allocateDropdown: function(){
 		return this.paramNames_;
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		if(!this.parentBlock_){
 			TT += "Block warning, this block has a return and must be connected.\n";
 		}
@@ -1440,7 +1488,7 @@ Blockly.Blocks['get_arr'] = {
 		if(this.size_ < 1){
 			//TT += 'Warning, attempting to return uninitialized array "' + this.getVar_ + '".\n';
 		}
-		
+
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
@@ -1448,50 +1496,50 @@ Blockly.Blocks['get_arr'] = {
 			this.setWarningText(null);
 		}
 	}
-	
+
 };
 Blockly.C['get_arr'] = function(block) {
 	var code = '';
-	
+
 	code += this.getVar_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
 Blockly.Blocks['get_vec'] = {
 	init: function() {
-		
+
 		this.paramNames_ = [["", ""]];
-		
+
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "VAR");
-		
+
 		this.setOutput(true, null);
 		this.setColour(vectorHUE);
 		this.setTooltip("");
 		this.setHelpUrl("");
-		
+
 		this.typeName_ = "";
 		this.getVar_ = "";
-		
+
 		this.paramCount_ = 0;
 
 		this.isInitialized_ = false;
-		
+
 		//If this block gets a variable
 		this.isGetter_ = true;
-		
+
 		//this.setMovable(false);
 		//this.setDeletable(false);
 	},
-	
+
 	onchange: function(){
-		
+
 		this.allocateValues();
 		this.allocateVariables();
 		this.allocateWarnings();
 	},
-	
+
 	allocateValues: function(){
 
 		if(this.getFieldValue('VAR') && this.getFieldValue('VAR').length > 0){
@@ -1500,36 +1548,36 @@ Blockly.Blocks['get_vec'] = {
 		else {
 			this.getVar_ = "";
 		}
-		
+
 	},
 
 	allocateVariables: function(){
 		var options = [];
-		
+
 		options.push(["", ""]);
-		
+
 		//Previous declaration
-		
+
 		let ptr = this.parentBlock_;
-		
+
 		while(ptr){
-			
+
 			if(this.getVar_ === ptr.getVar_){
 				this.isInitialized_ = ptr.isInitialized_;
 			}
 
 			switch(ptr.getDataStr()){
 				case 'isVec':
-				
-				(ptr && ptr.getVar_ ) ? (options.push([ptr.getVar_, ptr.getVar_])) : (0);
 
-				break;
+					(ptr && ptr.getVar_ ) ? (options.push([ptr.getVar_, ptr.getVar_])) : (0);
+
+					break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
 		this.paramNames_ = options;
-		
+
 		this.allocateType();
 
 	},
@@ -1538,33 +1586,33 @@ Blockly.Blocks['get_vec'] = {
 		//Set typeName_
 		let ptr = this.parentBlock_;
 		while(ptr){
-			
+
 			switch(ptr.getDataStr()){
 				case 'isVec':
-				
-				if(this.getVar_ === ptr.getVar_){
-					this.typeName_ = ptr.typeName_;
-					return;
-				}
 
-				break;
+					if(this.getVar_ === ptr.getVar_){
+						this.typeName_ = ptr.typeName_;
+						return;
+					}
+
+					break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
 	},
-	
+
 	allocateDropdown: function(){
 		return this.paramNames_;
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		if(!this.parentBlock_){
 			TT += "Block warning, this block has a return and must be connected.\n";
 		}
-		
+
 		if(this.parentBlock_ == null){
 			this.setWarningText(TT);
 		}
@@ -1572,89 +1620,89 @@ Blockly.Blocks['get_vec'] = {
 			this.setWarningText(null);
 		}
 	}
-	
+
 };
 Blockly.C['get_vec'] = function(block) {
 	var code = '';
-	
+
 	code += this.getVar_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
 
 Blockly.Blocks['get_objects'] = {
 	init: function() {
-		
+
 		this.paramNames_ = [["", ""]];
-		
+
 		this.appendDummyInput()
 			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "VAR");
-		
-		
-		
+
+
+
 		this.setOutput(true, null);
 		this.setColour(classHue);
 		this.setTooltip("");
 		this.setHelpUrl("");
-		
+
 		this.typeName_ = "";
 		this.getVar_ = "";
-		
+
 		this.paramCount_ = 0;
 
 		this.isInitialized_ = false;
-		
+
 		//If this block gets a variable
 		this.isGetter_ = true;
 	},
-	
+
 	onchange: function(){
-		
+
 		this.allocateValues();
 		this.allocateVariables();
 		this.allocateWarnings();
 	},
-	
+
 	allocateValues: function(){
 		this.typeName_ = this.getFieldValue('VAR');
 	},
 
 	allocateVariables: function(){
 		var options = [];
-		
+
 		options.push(["", ""]);
-		
+
 		//Previous declaration
-		
+
 		let ptr = this.parentBlock_;
-		
+
 		while(ptr){
-			
+
 			switch(ptr.getDataStr()){
 				case 'isStruct':
 				case 'isClass':
-				
-				options.push([ptr.getVar_, ptr.getVar_]);
-				
-				break;
+
+					options.push([ptr.getVar_, ptr.getVar_]);
+
+					break;
 			}
-			
+
 			ptr = ptr.parentBlock_;
 		}
 		this.paramNames_ = options;
 	},
-	
+
 	allocateDropdown: function(){
 		return this.paramNames_;
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		if(!this.parentBlock_){
 			TT += "Block warning, this block has a return and must be connected.\n";
 		}
-		
+
 		if(this.parentBlock_ == null){
 			this.setWarningText(TT);
 		}
@@ -1662,34 +1710,12 @@ Blockly.Blocks['get_objects'] = {
 			this.setWarningText(null);
 		}
 	}
-	
+
 };
 Blockly.C['get_objects'] = function(block) {
 	var code = '';
-	
+
 	code += this.typeName_;
-	
+
 	return [code, Blockly.C.ORDER_NONE];
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

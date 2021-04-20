@@ -115,13 +115,13 @@ Blockly.Blocks['function_declaration'] = {
 		this.isConst_ = ( this.getFieldValue('const') === "const" );
 		this.type_ = this.getFieldValue('myFuncReturn');
 		this.identifier_ = this.getFieldValue('identifier');
-		
+
 		// Old variables names - left in place so as not to break existing code that uses these variables
 		this.typeName_ = this.getFieldValue('myFuncReturn');
 		this.getVar_ = this.getFieldValue('identifier');
 		this.isConst_ = ( this.getFieldValue('const') === "const" );
 		this.isConstructor_ = false;
-		this.isDestructor_ = false
+		this.isDestructor_ = false;
 
 		//Allocate function properties
 		this.funcProp_[0] = this.isConst_;
@@ -245,11 +245,11 @@ Blockly.Blocks['function_declaration'] = {
 		ptr = this.parentBlock_;
 
 		while(ptr){
-			
+
 			if(this.getVar_ === ptr.getVar_){
-				
+
 				//TT += 'Error, "' + this.getVar_ + '" has been previously declared in this scope.\n';
-				
+
 				break;
 			}
 
@@ -321,26 +321,26 @@ Blockly.C['function_declaration'] = function(block) {
 
 	code += block.type_ + " " + block.identifier_ + " (" + valueInput + ") {\n"
 		+ statementInput
-	    + "}\n";
+		+ "}\n";
 
 	return code;
 };
 
 Blockly.Blocks['function_parameters'] = {
 	init: function() {
-		
+
 		this.pTypes_ = [
-			["int", "int"], 
+			["int", "int"],
 			["size_t", "size_t"],
-			["double", "double"], 
+			["double", "double"],
 			["char", "char"],
-			["string", "string"], 
+			["string", "string"],
 			["bool", "bool"],
 			["short", "short"],
 			["long", "long"],
 			["long long", "long long"]
 		];
-		
+
 		this.pPtrs_ = [
 			["", ""],
 			["*", "*"],
@@ -348,44 +348,44 @@ Blockly.Blocks['function_parameters'] = {
 			["**", "**"],
 			["*&", "*&"]
 		];
-		
+
 		this.appendValueInput('valueInput')
 			.appendField(new Blockly.FieldDropdown([['', ''], ['const', 'const']]), 'const')
 			.appendField(new Blockly.FieldDropdown(this.pTypes_), 'type')
 			.appendField(new Blockly.FieldDropdown(this.pPtrs_), 'pointerOperator')
 			.appendField(new Blockly.FieldTextInput('myFunctionParameter'), 'identifier');
-		
-    	this.setInputsInline(false);
+
+		this.setInputsInline(false);
 
 		this.setPreviousStatement(false);
 		this.setNextStatement(false);
 
-    	this.setOutput(true);
-    	this.setColour(funcHUE);
+		this.setOutput(true);
+		this.setColour(funcHUE);
 		this.setTooltip("");
 		this.setHelpUrl("");
 
 		/**
 		 * Parameter properties
-		 * 
+		 *
 		 * [0] = constant | boolean
-		 * 
+		 *
 		 * [1] = type | string
-		 * 
+		 *
 		 * [2] = pointers/dereferences | string
-		 * 
+		 *
 		 * [3] = name | string
-		 * 
+		 *
 		 * [4] = is initialized | boolean
 		 */
 		this.paramProp_ = [false, "", "" ,"", true];
 	},
-	
+
 	onchange: function(){
 		this.allocateValues();
 		this.allocateWarnings();
 	},
-	
+
 	allocateValues: function(){
 		// Variables added by David Hazell (SP21)
 		this.type_            = this.getField('type').getText();
@@ -419,7 +419,7 @@ Blockly.Blocks['function_parameters'] = {
 		}
 
 
-		
+
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
@@ -440,7 +440,7 @@ Blockly.C['function_parameters'] = function(block){
 	if (block.type_ === 'string' && !C_Include.using.std(block)){
 		code += "std::";
 	}
-		
+
 	code += block.type_ + ' ';
 
 	if (block.pointerOperator_ !== '' ) {
@@ -458,16 +458,16 @@ Blockly.C['function_parameters'] = function(block){
 
 Blockly.Blocks['function_return'] = {
 	init: function() {
-		
+
 		this.appendValueInput("valinp1")
 			.setCheck(null)
 			.appendField("return")
 			.appendField("");
-			
+
 		this.setPreviousStatement(true, null);
-		
+
 		this.setColour(funcHUE);
-		
+
 		this.setTooltip("");
 		this.setHelpUrl("");
 
@@ -475,7 +475,7 @@ Blockly.Blocks['function_return'] = {
 		this.input_ = "";
 		this.ptrType_ = "";
 	},
-	
+
 	onchange: function(){
 		this.allocateValues();
 		this.allocateWarnings();
@@ -496,26 +496,26 @@ Blockly.Blocks['function_return'] = {
 		}
 
 		//Stream from and/or into the function surround block
-		
+
 		let ptr = this.getSurroundParent();
 
 		while(ptr){
 
 			if(ptr.getDataStr() === "isFunc"){
 				//ptr.funcProp_ refers to the function properties in the main function block
-				
+
 				//constant value
 				this.isConst_ = ptr.funcProp_[0];
-				
+
 				//Stream the type from function declaration
 				this.typeName_ = ptr.funcProp_[1];
-				
+
 				//Stream the pointer from function declaration
 				this.ptrType_ = ptr.funcProp_[2];
-				
+
 				//variable name
 				this.getVar_ = ptr.funcProp_[3];
-				
+
 				//Stream the value to function declaration
 				ptr.input_ = this.input_;
 				ptr.value_ = this.value_;
@@ -523,27 +523,27 @@ Blockly.Blocks['function_return'] = {
 
 			ptr = ptr.getSurroundParent();
 		}
-		
+
 	},
-	
+
 	allocateWarnings: function(){
 		var TT = "";
-		
+
 		let block = this.getInputTargetBlock('valinp1');
 
 		let ptr = this.getSurroundParent();
 
 		var found = false;
 		while(ptr){
-			
+
 			//check if there is a function
 			if( ptr.getDataStr() === "isFunc" ){
 				found = true;
 			}
-			
+
 			ptr = ptr.getSurroundParent();
 		}
-		
+
 		if(!found){
 			TT += "Error, return must be within a function.\n";
 		}
@@ -551,51 +551,51 @@ Blockly.Blocks['function_return'] = {
 		//Warnings related to block connection
 
 		if( block ){
-			
+
 			if(this.typeName_ === "void"){
 				TT += 'Error, attempting to return data in a void function.\n';
 			}
 			else if(this.typeName_ !== block.typeName_){
-				
+
 				TT += 'Error, function must return type "' + this.typeName_ + '", currently returning type "' + block.typeName_ + '".\n';
-				
+
 				if(this.input_.length < 1){
 					TT += 'Error, no data is being returned.\n ';
 				}
-				
+
 			}
-			
-			
+
+
 			if(this.isConst_ !== block.isConst_){
 				//TT += "Error, function const and return const must be the same.\n";
 			}
-			
+
 		}
 		else {
-			
+
 			if( this.typeName_ !== "void" ){
 				TT += 'Error, a non-void return must return a "' + this.typeName_ + this.ptrType_ + '".\n';
 			}
 		}
-		
-		
+
+
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
 		else{
 			this.setWarningText(null);
 		}
-		
+
 	}
 };
 Blockly.C['function_return'] = function(block) {
 	var code = '';
-	
+
 	code += 'return';
-	
+
 	if(block.input_.length > 0){
 		code += ' ';
-		
+
 		for(var i = 0; i < block.ptrLevel_; ++i){
 			code += '*';
 		}
@@ -615,7 +615,7 @@ Blockly.Blocks['func_parameters_call'] = {
 			.appendField(new Blockly.FieldVariable("myParam1"), "myParamName");
 
 		this.setInputsInline(false);
-		
+
 		this.setPreviousStatement(true, null);
 		this.setNextStatement(true, null);
 
@@ -656,7 +656,7 @@ Blockly.Blocks['func_call_return'] = {
 		this.setColour(funcHUE);
 		this.setTooltip("Calls a user defined function.\nInput - Parameters defined");
 		this.setHelpUrl("https://www.tutorialspoint.com/cplusplus/cpp_functions.htm");
-		
+
 		this.setMutator(new Blockly.Mutator(['func_var_init_literal', 'func_parameters_call']));
 
 	},
@@ -677,7 +677,7 @@ Blockly.Blocks['func_call_return'] = {
 	},
 
 	compose: function(containerBlock){
-		
+
 	}
 };
 Blockly.C['func_call_return'] = function(block) {
@@ -714,27 +714,27 @@ Blockly.Blocks['function_call'] = {
 		this.setColour(funcHUE);
 		this.setTooltip("Calls a user defined function.\nInput - Parameters defined");
 		this.setHelpUrl("https://www.tutorialspoint.com/cplusplus/cpp_functions.htm");
-		
+
 		//this.setMutator(new Blockly.Mutator(['func_var_init_literal', 'func_parameters_call']));
 
 	},
-	
+
 	onchange: function(){
-		
+
 		this.allocateVariables();
 		this.allocateWarnings();
 	},
-	
+
 	allocateVariables: function(){
-		
+
 	},
-	
+
 	allocateDropdown: function(){
 
 	},
-	
+
 	allocateWarnings: function(){
-		
+
 	}
 };
 Blockly.C['function_call'] = function(block) {
@@ -755,26 +755,3 @@ Blockly.C['function_call'] = function(block) {
 
 	return code;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

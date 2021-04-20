@@ -1,231 +1,178 @@
-
 var classHue = 35;
 
+//Able to be inserted
 
-Blockly.Blocks['ds_struct'] = {
-	init: function() {
-		this.appendDummyInput()
-			.appendField('struct ')
-			.appendField(new Blockly.FieldTextInput("myStruct"), "myStructDec");
-		this.appendStatementInput("stateinp1")
-			.setCheck(null);
-		
+Blockly.Blocks["ds_class"] = {
+	init: function(){ 
 		this.setPreviousStatement(true, null);
 		this.setNextStatement(true, null);
 		this.setColour(classHue);
-		this.setTooltip("");
-		this.setHelpUrl("");
+		this.setDataStr("isClass", true);
+		this.setTooltip("This block declares a class.");
+		this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/classes/");
+		
+		this.classVarPublic_ = [];
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
+		this.classConProp_ = [];
+		this.classConParam_ = [];
+		
+		this.classVarPrivate_ = [];
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
+		
+		
+		this.appendDummyInput()
+			.appendField("class")
+			.appendField(new Blockly.FieldTextInput("myClass"), "myClassDec");
+			
+		this.appendDummyInput()
+			.appendField("public:");
 
-		//Default this to a struct
-		this.setDataStr("isStruct", true);
-		
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
-		this.classFuncProp_ = [];
-		this.classFuncParam_ = [];
-		
-		//Function constructors
-		this.classConProp_ = [];
-		this.classConParam_ = [];
+			
+		this.appendStatementInput("statePublic")
+			.setCheck(null);
+			
+		this.appendDummyInput()
+			.appendField("private:");
+			
+		this.appendStatementInput("statePrivate")
+			.setCheck(null);
 	},
 	
-	onchange: function(){
+	onchange: function() {
 		this.allocateValues();
-		
-		this.allocateWarnings();
-		console.log(this.classVar_);
+
 	},
 	
-	allocateValues: function(){
-		this.getVar_ = this.getField('myStructDec').getText();
+	allocateValues: function() {
+		this.getVar_ = this.getField("myClassDec").getText();
 		
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
+		this.classVarPublic_ = [];
+		this.classVarPrivate_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
 		this.classConProp_ = [];
 		this.classConParam_ = [];
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
 		
-		//Get the first block in the statement dropdown
-		let ptr = this.getInputTargetBlock('stateinp1');
-		while(ptr){
-			switch(ptr.getDataStr()){
-				
-				//If the block is a variable 
-				case 'isVar':
-				this.classVar_.push(ptr.varProp_);
+		//public
+		let ptr = this.getInputTargetBlock("statePublic");
+		while (ptr) {
+			switch (ptr.getDataStr()){
+
+				case "isVar":
+				this.classVarPublic_.push(ptr.varProp_);
 				break;
 				
-				//If the block is an array 
-				case 'isArr':
-				this.classArr_.push(ptr.varProp_);
-				break;
-				
-				//If the block is a vector 
-				case 'isVec':
-				this.classVec_.push(ptr.varProp_);
-				break;
-				
-				//If the block is a function 
 				case 'isFunc':
 				//If the function is not a constructor
-				if(!ptr.isConstructor_){
 					this.classFuncProp_.push(ptr.funcProp_);
 					this.classFuncParam_.push(ptr.funcParam_);
-				}
-				//If the function is a constructor
-				else{
+
+				break;
+			}
+
+			switch (ptr.type){
+				case "class_constructor":
 					this.classConProp_.push(ptr.funcProp_);
 					this.classConParam_.push(ptr.funcParam_);
-				}
-				
 				break;
 			}
 			
-			//Get the next bottom block
+			
 			ptr = ptr.nextConnection.targetBlock();
 		}
-	},
-	
-	allocateWarnings: function(){
-		var TT = "";
 		
-		
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
+		//private
+		ptr = this.getInputTargetBlock("statePrivate");
+		while (ptr) {
+			switch (ptr.getDataStr()){
+				case "isVar":
+				this.classVarPrivate_.push(ptr.varProp_);
+				break;
+
+				case 'isFunc':
+				//If the function is not a constructor
+					this.classFuncPropPrivate_.push(ptr.funcProp_);
+					this.classFuncParamPrivate_.push(ptr.funcParam_);
+
+				break;
+			}
+			
+			switch (ptr.type){
+				case "class_constructor":
+					this.classConPropPrivate_.push(ptr.funcProp_);
+					this.classConParamPrivate_.push(ptr.funcParam_);
+				break;
+			}
+			ptr = ptr.nextConnection.targetBlock();
 		}
-		else {
-			this.setWarningText(null);
-		}
+		
 	}
-	
 };
 
-Blockly.C['ds_struct'] = function(block) {
-	var variable_mystructdec = Blockly.C.variableDB_.getName(block.getFieldValue('myStructDec'), Blockly.Variables.NAME_TYPE);
-	var statements_state1 = Blockly.C.statementToCode(block, 'stateinp1');
-	// TODO: Assemble C into code variable.
-	code = '';
-
-	code += 'struct ' + variable_mystructdec + '{\n';
+Blockly.C["ds_class"] = function(block) {
+	var codeStatePublic = 
+	Blockly.C.statementToCode(block, "statePublic");
+	var codestatePrivate = 
+	Blockly.C.statementToCode(block, "statePrivate");
 	
-	code += statements_state1;
+	var code = "";
+	code += "class " + this.getVar_ + "{\n";
 	
-	code += '};\n';
+	code += "public:\n";
+	code += codeStatePublic;
+	
+	code += "private:\n";
+	code += codestatePrivate;
+	
+	code += "};\n";
 	
 	return code;
 };
 
-Blockly.Blocks['ds_object'] = {
+//Standalone block to allow set functions to be used
+
+Blockly.Blocks['ds_member2'] = {
 	init: function(){
-		
-		this.paramNames_ = [["", ""]];
-		
-		this.appendValueInput('valinp1')
-			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "DS")
-			.appendField(new Blockly.FieldDropdown([['', ''], ['*', '*']]), 'ptr')
-			.appendField(new Blockly.FieldTextInput('myObj'), 'obj');
-		
-		this.setOutput(false);
-		this.setColour(classHue);
-		this.setTooltip("");
-		this.setHelpUrl("");
-		
+
+		this.appendValueInput('valinp1').setCheck(null);
+
+		this.setInputsInline(false);
 		this.setPreviousStatement(true);
 		this.setNextStatement(true);
-		
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
-		this.classFuncProp_ = [];
-		this.classFuncParam_ = [];
-		
-		this.classConProp_ = [];
-		this.classConParam_ = [];
+		this.setColour(classHue);
+
+		this.setTooltip("This block calls a class object");
+		this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/classes/");
+
 	},
-	
+
 	onchange: function(){
-		this.allocateVariables();
-		this.allocateValues();
+		this.allocateBlock();
 		this.allocateWarnings();
 	},
-	
-	allocateVariables: function(){
-		var options = [];
-		
-		options.push(["", ""]);
-		
-		let ptr = this.parentBlock_;
-		
-		while(ptr){
-			switch(ptr.getDataStr()){
-				case 'isStruct':
-				
-				options.push([ptr.getVar_, ptr.getVar_]);
-				
-				break;
-			}
-			ptr = ptr.parentBlock_;
+
+	allocateBlock: function(){
+		let block = this.getInputTargetBlock('valinp1');
+
+		if(block){
+			block.setColour(this.getColour());
+			block.setMovable(false);
+			block.setDeletable(false);
 		}
-		
-		this.paramNames_ = options;
-	},
-	
-	allocateValues: function(){
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
-		this.classFuncProp_ = [];
-		this.classFuncParam_ = [];
-		this.classConProp_ = [];
-		this.classConParam_ = [];
-		
-		//variable is the new object 
-		this.typeName_ = this.getFieldValue('DS');
-		this.getVar_ = this.getFieldValue('obj');
-		this.ptrType_ = this.getFieldValue('ptr');
-		
-		let ptr = this.parentBlock_;
-		
-		//Loop through to find a struct or class
-		while(ptr){
-			//If the block is a struct or class, and if it is the one we want
-			if( ( ptr.getDataStr() === "isStruct" || ptr.getDataStr() === "isClass" ) && this.typeName_ === ptr.getVar_){
-				
-				//Stream all information
-				this.classVar_ = ptr.classVar_;
-				this.classArr_ = ptr.classArr_;
-				this.classVec_ = ptr.classVec_;
-				
-				this.classFuncProp_ = ptr.classFuncProp_;
-				this.classFuncParam_ = ptr.classFuncParam_;
-				
-				this.classConProp_ = ptr.classConProp_;
-				this.classConParam_ = ptr.classConParam_;
-				
-				
-				break;
-			}
-			ptr = ptr.parentBlock_;
-		}
-		
-		
-	},
-	
-	allocateDropdown: function(){
-		return this.paramNames_;
 	},
 	
 	allocateWarnings: function(){
 		var TT = "";
 		
-		//If there is no option selected
-		if(this.getFieldValue('DS')){
-			
-		}
+		let block = this.getInputTargetBlock('valinp1');
 		
 		if(TT.length > 0){
 			this.setWarningText(TT);
@@ -234,182 +181,286 @@ Blockly.Blocks['ds_object'] = {
 			this.setWarningText(null);
 		}
 	}
+
 };
 
-Blockly.C['ds_object'] = function(block){
-	var val1 = Blockly.C.valueToCode( block, 'valinp1', Blockly.C.ORDER_NONE );
-	let nextBlock = block.getInputTargetBlock('valinp1');
 
-	var DS = block.getFieldValue('DS');
-	var ptr = block.getFieldValue('ptr');
-	var obj = block.getFieldValue('obj');
+Blockly.C['ds_member2'] = function(block){
+	var val1 =  Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
+	var code = "";
+
+	code += val1 + ';\n';
+
+	return code;
+};
+
+Blockly.Blocks['class_constructor'] = {
+	init: function(){
+		this.setPreviousStatement(true, null);
+		this.setNextStatement(true, null);
+		this.setColour(classHue);
+		this.setTooltip("This block creates constructors/ destructors.");
+		this.setHelpUrl("https://www.geeksforgeeks.org/rule-of-three-in-cpp/");
+		
+		this.appendValueInput('valinp1')
+			.appendField(new Blockly.FieldDropdown([['', ''], ['~', '~']]), 'con_type')
+			.appendField('class name', 'con_name')
+			.appendField('(');
+		this.appendDummyInput()
+			.appendField(') {');
+		this.appendStatementInput("stateinp1").setCheck(null);
+
+		this.appendDummyInput()
+			.appendField('}');
+		
+		this.setInputsInline(true);
+		
+		this.paramCount_ = 0;
+		
+		this.isConstructor_ = true;
+		
+		this.isDestructor_ = false;
+		
+		this.constructorType_ = "";
+		this.constructorName_ = "class name";
+		
+		this.funcProp_= [];
+		this.funcParam_ = [];
+		
+		//info from the classes in parameters
+		this.funcParamClassMembers_ = [];
+	},
+	
+	onchange: function(){
+		this.allocateVariables();
+		this.allocateValues();
+	},
+	
+	allocateValues: function(){
+		var CV_manage = C_Var;
+		
+		this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
+		console.log(this.funcParam_);
+		
+		
+		this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
+		console.log(this.funcParamClassMembers_);
+	},
+	
+	allocateVariables: function(){
+		this.setFieldValue("class name", "con_name");
+
+		
+		if (this.constructorType_ != '')
+		{
+			this.isConstructor_ = false;
+			this.isDestructor_ = true;
+		}
+
+
+		let ptr = this.getSurroundParent();
+		
+		while (ptr){
+			if (ptr.getDataStr() === 'isClass'){
+				this.setFieldValue(ptr.getVar_, 'con_name');
+				break;				
+			}
+			
+			ptr = ptr.getSurroundParent();
+		}
+		
+		this.constructorType_ = this.getFieldValue('con_type');
+		this.constructorName_ = this.getFieldValue('con_name');
+	}
+};
+
+Blockly.C['class_constructor'] = function(block) {
+	var stateinp1 = Blockly.C.statementToCode(block, 'stateinp1');
+	
+	var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
 	
 	var code = "";
 	
-	if(ptr.length > 0){
-		code += DS + ptr + ' ' + obj + ' = new ' + DS;
-	}
-	else {
-		code += DS + ' ' + obj;
-	}
+	code += block.constructorType_;
 	
-	if(nextBlock && nextBlock.type === "get_func" && val1.length > 0){
-		code += val1;
-	}
+	code += block.constructorName_;
 	
-	code += ';\n';
+	code += '(';
+	
+	code += val1;
+	
+	code += ')';
+	
+	code += '{\n';
+
+	code += stateinp1;
+
+	code += '}\n';
 	
 	return code;
 };
 
-Blockly.Blocks['ds_member'] = {
-	init: function(){
+
+Blockly.Blocks['class_parameters'] = {
+	init: function() {
 		
-		this.paramNames_ = [["", ""]];
+		this.pPtrs_ = [
+			["", ""], 
+			["&", "&"]
+		];
 		
-		this.appendValueInput("valinp1")
-			.appendField(new Blockly.FieldDropdown(this.allocateObjDropdown.bind(this)), 'DS')
-			.appendField('', 'operator');
-			
+		this.appendValueInput('valinp1')
+			.appendField(new Blockly.FieldDropdown([['', ''], ['const', 'const']]), 'const')
+			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), 'type')
+			.appendField(new Blockly.FieldDropdown(this.pPtrs_), 'ptr')
+			.appendField(new Blockly.FieldTextInput('param'), 'var');
 		
-		this.setInputsInline(false);
-		this.setOutput(true);
-		this.setColour(classHue);
-		this.setTooltip("");
-		this.setHelpUrl("");
-		
+    	this.setInputsInline(false);
+
 		this.setPreviousStatement(false);
 		this.setNextStatement(false);
+
+    	this.setOutput(true);
+    	this.setColour(classHue);
+		this.setTooltip("");
+		this.setHelpUrl("");
+
+		/**
+		 * Parameter properties
+		 * 
+		 * [0] = constant | boolean
+		 * 
+		 * [1] = type | string
+		 * 
+		 * [2] = pointers/dereferences | string
+		 * 
+		 * [3] = name | string
+		 * 
+		 * [4] = is initialized | boolean
+		 */
+		this.paramProp_ = [false, "", "" ,"", true];
 		
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
+		this.classVarPublic_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
-		
-		this.isGetter_ = true;
 	},
 	
 	onchange: function(){
 		this.allocateValues();
 		this.allocateVariables();
 		this.allocateWarnings();
-		
 	},
 	
 	allocateValues: function(){
-		var val1 = Blockly.C.valueToCode( this, 'valinp1', Blockly.C.ORDER_NONE );
-		
-		this.typeName_ = "";
-		
-		this.classVar_ = [];
-		this.classArr_ = [];
-		this.classVec_ = [];
+		this.isConst_ = (this.getFieldValue('const') === 'const')
+		this.typeName_ = this.getField('type').getText();
+		console.log(this.typeName_);
+		this.addPtr_ = this.getField('ptr').getText();
+		this.getVar_ = this.getField('var').getText();
+
+		this.paramProp_[0] = this.isConst_;
+		this.paramProp_[1] = this.typeName_;
+		this.paramProp_[2] = this.addPtr_;
+		this.paramProp_[3] = this.getVar_;
+		//Default initialization to true
+		this.paramProp_[4] = true;
+
+		this.classVarPublic_ = [];
 		this.classFuncProp_ = [];
 		this.classFuncParam_ = [];
+
+
+
+	},
+	
+	allocateVariables: function() {		
+		let ptr = this.parentBlock_;
+		
+		while (ptr){		
+
+		console.log(this.typeName_ + " " + ptr.getVar_);
+			if (ptr.getDataStr() === 'isClass' && this.typeName_ === ptr.getVar_){
+				console.log(ptr.getDataStr());
+				this.classVarPublic_ = ptr.classVarPublic_;
+				this.classFuncProp_ = ptr.classFuncProp_;
+				this.classFuncParam_ = ptr.classFuncParam_;
+				console.log(this.classVarPublic_);
+				console.log(ptr.classVarPublic_);
+				console.log(this.classFuncProp_);
+				console.log(this.classFuncParam_);
+			}
+			ptr = ptr.parentBlock_;
+		}		
+	},
+
+	allocateDropdown: function(){
+		var options = [["",""]];
 		
 		let ptr = this.parentBlock_;
 		
-		while(ptr){
-			switch(ptr.type){
-				case 'ds_object':
+		while (ptr){
+			if (ptr.getDataStr() === 'isClass'){
 				
-				if(this.getFieldValue('DS') === ptr.getVar_){
-					this.typeName_ = ptr.typeName_;
-					
-					this.classVar_ = ptr.classVar_;
-					this.classArr_ = ptr.classArr_;
-					this.classVec_ = ptr.classVec_;
-					
-					this.classFuncProp_ = ptr.classFuncProp_;
-					this.classFuncParam_ = ptr.classFuncParam_;
-					
-					this.ptrType_ = ptr.ptrType_;
-					break;
-				}
-			
-				break;
-			}
-			
-			ptr = ptr.parentBlock_;
-		}
-		
-		console.log(this.typeName_);
-		
-		//Allocate pointer type
-		let C = C_Logic;
-		
-		if(val1.length > 0){
-			if(C.help.ptr_is_deref(this.ptrType_)){
-				this.setFieldValue('->', 'operator');
-			}
-			else {
-				this.setFieldValue('.', 'operator');
-			}
-		}
-		else {
-			this.setFieldValue('', 'operator');
-		}
-	},
-	
-	
-	allocateVariables: function(){
-		
-		//Section to allocate objects for the left dropdown list
-		var options = [];
-		options.push(["", ""]);
-		
-		let ptr = this.parentBlock_;
-		
-		while(ptr){
-			
-			switch(ptr.type){
-				case 'ds_object':
 				options.push([ptr.getVar_, ptr.getVar_]);
-				break;
 			}
 			ptr = ptr.parentBlock_;
 		}
 		
-		this.paramNames_ = options;
+		return options;
 	},
-	
-	allocateObjDropdown: function(){
-		return this.paramNames_;
-	},
-	
+
+
 	allocateWarnings: function(){
 		var TT = "";
-		let block = this.getInputTargetBlock('valinp1');
-			
-		if(block){
-
+		
+		let ptr = this.getSurroundParent();
+		
+		if(!this.parentBlock_){
+			TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
 		}
+		else if(ptr.type !== "func_parameters" && ptr.type !== "user_function" && ptr.type !== "class_constructor"){
+			TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
+		}
+
+		
+		
+		
 		
 		if(TT.length > 0){
 			this.setWarningText(TT);
 		}
-		else {
+		else{
 			this.setWarningText(null);
 		}
 	}
-	
+
 };
 
-Blockly.C['ds_member'] = function(block){
-	var val1 = Blockly.C.valueToCode( block, 'valinp1', Blockly.C.ORDER_NONE );
+Blockly.C['class_parameters'] = function(block){
+	var val = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
 	var code = "";
 	
-	code += block.getFieldValue('DS');
+	var std = '';
 	
-	if(val1.length > 0){
-		code += block.getFieldValue('operator') + val1;
+	var C = C_Include;
+	if(!C.using.std(this) && this.typeName_ === 'string'){
+		std = 'std::';
 	}
 	
+	if(this.getVar_.length > 0){
+		
+		if(this.isConst_){
+			code += 'const ';
+		}
+		
+		code += std + this.typeName_ + this.addPtr_ + ' ' + this.getVar_;
+	}
+	
+	if(val.length > 0){
+		code += ', ' + val;
+	}
+
 	return [code, Blockly.C.ORDER_NONE];
 };
-
-
-
-
-

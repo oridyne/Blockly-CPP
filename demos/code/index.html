@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
 
@@ -15,6 +15,7 @@
         <script src="js/Logic.js"></script>
         <script src="js/Include.js"></script>
         <script src="js/Scopes.js"></script>
+		<script src="js/Variable Management.js"></script>
 
         <script src="Blocks/FileSaver.js"></script>
         <script src="Blocks/filereader.js"></script>
@@ -34,9 +35,9 @@
         <script src="Blocks/Chapter 6 - Arrays (2D).js"></script>
         <script src="Blocks/Chapter 6 - Vectors.js"></script>
         <script src="Blocks/Chapter 6 - Pointers.js"></script>
+		    <script src="Blocks/Chapter 7 - Structs.js"></script>
         <script src="Blocks/Chapter 7 - Classes.js"></script>
         
-
         <!-- Include block type inputs -->
       <script src="Blocks/Blocks - Type.js"></script>
       
@@ -62,12 +63,12 @@
                     </p>
 
                     <p align="left">
-                        <button onclick="downloadXML()" title="Save your work.">Save</button>
-
-                        <input type="file" onchange="readFile(this)"
-                               title="Load a blockly save into the program."></input>
+                        <button onclick="saveFileCheck()" title="Save your work.">Save Files</button>
+                        <button onclick="loadFileBox()" title="Load your work.">Load Files</button>
+                        <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
+                               title="Load a blockly save into the program." multiple></input>
                     </p>
-      
+
                     <p align="left">
                         <button onclick="runCode()">Run Code</button>
                     </p>
@@ -75,7 +76,7 @@
                     <p align="left">
                         <button onclick="stopCodeRun()">Stop Code</button>
                     </p>
-
+                    <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
                 <td class="farSide">
                     <select id="languageMenu"></select>
@@ -84,6 +85,7 @@
             <tr>
                 <td colspan=2>
                     <table width="100%">
+
                         <tr id="tabRow" height="1em">
                             <td id="tab_blocks" class="tabon">...</td>
                             <td id="tab_c" class="taboff">C++</td> <!--Added C++ to the tab-->
@@ -92,7 +94,19 @@
                             <td class="tabmin">&nbsp;</td>
                             <td id="tab_term" class="taboff">Terminal</td>
                             <td class="tabmin">&nbsp;</td>
-
+                            <td class="tabmin" align="left">
+                                <div class="fdropdown">
+                                    <button class="filedropdownbutton">Files...</button>
+                                    <div id="fileDropDown" class="filedropdown-content">
+                                        <a href="javascript:void(0)" onclick="newFileBox()">New File</a>
+                                        <a href="javascript:void(0)" id="Main.cpp_file" onclick="makeFileVisible('Main.cpp')">Main.cpp</a>
+                                    </div>
+                                    <div id="fileDropDownDelete" class="filedropdown-delete">
+                                        <a href="javascript:void(0)" style="padding-bottom:4px"</a>
+                                        <a href="javascript:void(0)" id="Main.cpp_del" onclick="deleteFile('Main.cpp')">X</a>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="tabmax">
                                 <button id="trashButton" class="notext" title="...">
                                     <img src='../../media/1x1.gif' class="trash icon21">
@@ -115,15 +129,49 @@
 
             </tr>
         </table>
-
-        <div id="content_blocks" class="content"></div>
+        <div id="Main.cpp" class="content"></div>
         <pre id="content_c" class="content prettyprint lang-c"></pre>
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
         <textarea id="content_xml" class="content" wrap="off"></textarea>
         <pre id="content_term" class="content">
-            <div id="terminal" class="terminal"></div>
+        <div id="terminal" class="terminal"></div>
         </pre>
+        <!-- Pop-up box for creating a new file. -->>
+        <div id="newFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideModal()">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p>Please enter a valid file name.</p>
+                <input type="text" id="fileTypeName" name="FileTypeName" />
+                <div style="display:inline-block">
+                    <input type="radio" id="fileTypeH" name="fileTypeButton" value=".h">
+                    <label for="fileTypeh">Header(.h)</label><br>
+                    <input type="radio" name="fileTypeButton" value=".cpp">
+                    <label for="fileTypec">Class(.cpp)</label><br>
+                </div>
+                <div style="float:right">
+                    <input type="button" style="padding:3px" onclick="newFileName()" value="Create File" />
+                    <input type="button" style="padding:3px" onclick="hideModal()" value="Cancel" />
+                </div>
+            </div>
+        </div>
+        <div id="loadFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideLoadBox()">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p>Merge files/ Create new project?</p>
+                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved will be lost.)</p>
+                <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that has not been saved will be lost.)</p>
+                <div>
+                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="New Project" />
+                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Merge Files" />
+                    <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel" />
+                </div>
+            </div>
+        </div>
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 
@@ -1353,10 +1401,40 @@
 
             </category>
             <!-- end of Chapter 6 blocks -->
+			
+			<category name = "Chapter 7" colour = "#134796" >
+
+					<label text="Class Declaration" web-class="labelClass"></label>
+					
+					<block type = "ds_class"></block>
+					
+					<label text="Constructor/Destructor" web-class="labelClass"></label>
+					
+					<block type = "class_constructor"></block>
+					
+					<label text="Constructor Parameters" web-class="labelClass"></label>
+					
+					<block type = "class_parameters"></block>
+					
+					<label text="Object Declaration" web-class="labelClass"></label>
+
+					<block type = "ds_object"></block>
+					
+					<label text="Object Block" web-class="labelClass"></label>
+					
+					<block type = "ds_member"></block>
+					
+					<block type="ds_member2">
+						<value name="valinp1">
+							<block type="ds_member"></block>
+						</value>
+					</block>
+
+			</category>
+				
+            <!-- end of Chapter 7 blocks -->		
 
         </xml> <!-- toolbox -->
-
-
         <!-- <textarea id="content_xml" class="content" wrap="off"></textarea> -->
     </body>
 
@@ -1434,5 +1512,10 @@
         font-weight: bold;
         fill: #5B93A5;
     }
+	
+	.labelClass > .blocklyFlyoutLabelText {
+		font-weight: bold;
+		fill: #A5925B	
+	}
 
 </style>
