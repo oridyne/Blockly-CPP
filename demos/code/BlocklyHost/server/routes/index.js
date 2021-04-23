@@ -36,7 +36,7 @@ async function requestHandler(req, res) {
     if(await reqProm === 1) {
         res.writeHead(400);
         res.end();
-        console.log("request failed");
+        console.log(chalk.red("request failed"));
     } 
     
     switch (urlPath[0]) {
@@ -46,12 +46,12 @@ async function requestHandler(req, res) {
         default:
             res.writeHead(404);
             res.end();
-            console.log('endpoint does not exist')
+            console.log(chalk.red('endpoint does not exist'));
             break;
     }
 }
 
-// seperate to make stuff more readable
+// separate to make stuff more readable
 function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     if(urlPath[1] === 'id' && reqMethod === 'GET' )  {
         cppService.getID(reqBody, res);
@@ -62,13 +62,13 @@ function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     else if(urlPath[1] === 'compile' && reqMethod === 'POST') {
         cppService.compileProgram(reqBody, res);
     }
-    else if(urlPath[1] === 'stopProgram' && reqMethod === 'POST') {
+    else if(urlPath[1] === 'stop') {
         cppService.stopProgram(reqBody,res);
     }
     else {
         res.writeHead(404);
         res.end();
-        console.log('cppCompile endpoint does not exist')
+        console.log(chalk.red('cppCompile endpoint does not exist'));
     }
 }
 

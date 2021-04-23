@@ -39,13 +39,13 @@
         <script src="Blocks/Chapter 7 - Classes.js"></script>
 
         <!-- Include block type inputs -->
-        <script src="Blocks/Blocks - Type.js"></script>
-
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@devel/js/jquery.terminal.min.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
-        <script src="js/Terminal.js"></script>
-
+      <script src="Blocks/Blocks - Type.js"></script>
+      
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/gh/jcubic/jquery.terminal@devel/js/jquery.terminal.min.js"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
+      <script src="js/Terminal.js"></script>
+      <script src="js/compilerOptions.js"></script>
     </head>
 
     <body>
@@ -56,8 +56,8 @@
                         <span id="title"></span>
                         <!--<span id = "version">Beta 1.7</span>-->
                     </h1>
-
                     <p align="left">
+                    </br>
                         <button onclick="downloadCode()">Download C++ Code</button>
                         <!-- button onclick="updateLog(this)">Download C++</button -->
                     </p>
@@ -79,6 +79,7 @@
                     <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
                 <td class="farSide">
+                </br>
                     <select id="languageMenu"></select>
                 </td>
             </tr>
@@ -99,8 +100,7 @@
                                     <button class="filedropdownbutton">Files...</button>
                                     <div id="fileDropDown" class="filedropdown-content">
                                         <a href="javascript:void(0)" onclick="newFileBox()">New File</a>
-                                        <a href="javascript:void(0)" id="Main.cpp_file"
-                                           onclick="makeFileVisible('Main.cpp')">Main.cpp</a>
+                                        <a href="javascript:void(0)" id="Main.cpp_file" onclick="makeFileVisible('Main.cpp')">Main.cpp</a>
                                     </div>
                                     <div id="fileDropDownDelete" class="filedropdown-delete">
                                         <a href="javascript:void(0)" style="padding-bottom:4px"</a>
@@ -135,17 +135,39 @@
         <!-- Hao: use c_text element to store c code on the tab_blocks -->
         <pre id="c_text" class="content prettyprint lang-c"></pre>
         <textarea id="content_xml" class="content" wrap="off"></textarea>
-        <pre id="content_term" class="content">
-        <div id="terminal" class="terminal"></div>
-        </pre>
-        <!-- Pop-up box for creating a new file. -->>
+        <div id="content_term" class="content">
+            <button onclick="runCode()" float="left">Run ▶</button>
+            <button onclick="stopCodeRun()" float="left">Stop ◼</button>
+            <button id="compOptBtn">Options</button>
+            <dialog open id="compOptDiv">
+                <form class="form" action="#" id="compOptForm">
+                    <div id="compOptHead">Compile Options</div>
+                    <hr />
+                    <p id="fileCompileLabel"><b>Compile List</b></p>
+                    <div id="fileCheckboxes"></div>
+                    <br />
+                    <p id="AdvancedOptions"><b>Advanced Options</b><br />leave these alone unless you know what they are</p>
+                    <p id="compilerOptmLevelLabel"><u>Compiler optimization level</u></p>
+                    <div id="compilerOptimRadios"></div>
+                    <p id="compilerVersionLabel"><u>C++ Version</u></p>
+                    <div id="compilerVersionRadios"></div>
+                    <p id="miscCompilerOptsLabel"><u>Misc Options</u></p>
+                    <div id="miscCompilerOptsCheckboxes"></div>
+                    <br />
+                    <button id="saveBtn">Save</button>
+                    <button id="cancelBtn">Cancel</button>
+                </form>
+            </dialog>
+            <div id="terminal" class="terminal"></div>
+        </div>
         <div id="newFilePopUp" class="modal">
             <div class="modal-header">
                 <div id="close-btn" class="close-btn" onclick="hideModal()">&times;</div>
             </div>
             <div class="modal-content">
                 <p>Please enter a valid file name.</p>
-                <input type="text" id="fileTypeName" name="FileTypeName"/>
+                <input type="text" id="fileTypeName" name="FileTypeName" />
+
                 <div style="display:inline-block">
                     <input type="radio" id="fileTypeH" name="fileTypeButton" value=".h">
                     <label for="fileTypeh">Header(.h)</label><br>
@@ -153,8 +175,8 @@
                     <label for="fileTypec">Class(.cpp)</label><br>
                 </div>
                 <div style="float:right">
-                    <input type="button" style="padding:3px" onclick="newFileName()" value="Create File"/>
-                    <input type="button" style="padding:3px" onclick="hideModal()" value="Cancel"/>
+                    <input type="button" style="padding:3px" onclick="newFileName()" value="Create File" />
+                    <input type="button" style="padding:3px" onclick="hideModal()" value="Cancel" />
                 </div>
             </div>
         </div>
@@ -164,19 +186,12 @@
             </div>
             <div class="modal-content">
                 <p>Merge files/ Create new project?</p>
-                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved
-                    will be lost.)</p>
-                <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that
-                    has not been saved will be lost.)</p>
+                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved will be lost.)</p>
+                <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that has not been saved will be lost.)</p>
                 <div>
-                    <input type="button" id="yesLoadFileBtn" style="padding:3px"
-                           onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();"
-                           value="New Project"/>
-                    <input type="button" id="noLoadFileBtn" style="padding:3px"
-                           onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();"
-                           value="Merge Files"/>
-                    <input type="button" id="cancelLoadFileBtn" style="padding:3px"
-                           onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel"/>
+                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="New Project" />
+                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Merge Files" />
+                    <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel" />
                 </div>
             </div>
         </div>

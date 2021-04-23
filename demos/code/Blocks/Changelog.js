@@ -18,7 +18,6 @@ function downloadCode() {
 }
 
 var yesNoCancelLoadBtn = 'Cancel';
-
 //function to load
 function readFile(input) {
     if (yesNoCancelLoadBtn == 'Cancel') {
