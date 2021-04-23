@@ -1,5 +1,6 @@
 const { spawn } = require("child_process");
 const execFile = require("child_process").execFile;
+
 const fs = require('fs-extra');
 const path = require("path");
 const compilePath = __dirname + "\\cppCompile";
@@ -14,6 +15,7 @@ function writeJsonRes(res, obj) {
   res.end();
 }
 
+
 // create new user id
 function getID(req, res) {
   const id6 = intformat(generator.next(), "hex", {prefix: "0x"});
@@ -21,6 +23,7 @@ function getID(req, res) {
   res.writeHead(200);
   writeJsonRes(res, id6);
 }
+
 
 async function saveFile(req, res) {
   await fs.ensureDir(`${compilePath}\\${req.id}`);
@@ -186,7 +189,7 @@ function wsInit(wss) {
       });
   });
 }
-
+         
 async function clearDir(dir, uid) {
   try {
     await fs.remove(`${dir}\\${uid}`);

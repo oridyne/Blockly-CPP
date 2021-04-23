@@ -2,771 +2,758 @@ var coutHUE = 25;
 var cinHUE = 50;
 
 Blockly.Blocks['cout'] = {
-	init: function() {
-		this.appendValueInput("valinp0")
-			.setCheck(null)
-			.appendField("cout <<");
-		
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-		this.setColour(coutHUE);
-		this.setTooltip("Outputs the input into the output stream. \nRequires - <iostream>");
-		this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/basic_io/");
-		
-		this.setMutator(new Blockly.Mutator(['cout_stream_add']));
-	
-		//count of added couts in the stream
-		this.coutStreamCount_ = 0;
-	},
-	
-	mutationToDom: function(){
-		if(!this.coutStreamCount_){
-			return null;
-		}
-		var container = document.createElement('mutation');
+    init: function () {
+        this.appendValueInput("valinp0")
+            .setCheck(null)
+            .appendField("cout <<");
 
-		if(this.coutStreamCount_){
-			container.setAttribute('printadd', this.coutStreamCount_);
-		}
-		
-		return container;
-	},
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(coutHUE);
+        this.setTooltip("Outputs the input into the output stream. \nRequires - <iostream>");
+        this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/basic_io/");
 
-	domToMutation: function(xmlElement){
-		this.coutStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
-		for(var i = 1; i <= this.coutStreamCount_;  ++i){
-			this.appendValueInput('valinp' + i).setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
-		}
-	},
+        this.setMutator(new Blockly.Mutator(['cout_stream_add']));
 
-	decompose: function(workspace){
-		var containerBlock = workspace.newBlock('cout_stream_mutator');
-		containerBlock.initSvg();
+        //count of added couts in the stream
+        this.coutStreamCount_ = 0;
+    },
 
-		var connection = containerBlock.getInput('STACK').connection;
-		for(var i = 1; i <= this.coutStreamCount_; ++i){
-			var add = workspace.newBlock('cout_stream_add');
-			add.initSvg();
-			
-			connection.connect(add.previousConnection);
-			connection = add.nextConnection;
-		}
+    mutationToDom: function () {
+        if (!this.coutStreamCount_) {
+            return null;
+        }
+        var container = document.createElement('mutation');
 
-		return containerBlock;
-	},
+        if (this.coutStreamCount_) {
+            container.setAttribute('printadd', this.coutStreamCount_);
+        }
 
-	compose: function(containerBlock){
-		for(var i = this.coutStreamCount_; i > 0; i--){
-			this.removeInput('valinp' + i);
-		}
-		this.coutStreamCount_ = 0;
+        return container;
+    },
 
-		var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-		
-		while(clauseBlock){
-			switch(clauseBlock.type){
-				case 'cout_stream_add':
-					this.coutStreamCount_++;
-					
-					var printInput = this.appendValueInput('valinp' + this.coutStreamCount_)
-						.setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+    domToMutation: function (xmlElement) {
+        this.coutStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
+        for (var i = 1; i <= this.coutStreamCount_; ++i) {
+            this.appendValueInput('valinp' + i).setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+        }
+    },
 
-					if(clauseBlock.valueConnection_){
-						printInput.connection.connect(clauseBlock.valueConnection_);
-					}
-				break;
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('cout_stream_mutator');
+        containerBlock.initSvg();
 
-				default:
-					throw 'Unknown block type.';
-			}
-			clauseBlock = clauseBlock.nextConnection 
-			&& clauseBlock.nextConnection.targetBlock();
-		}
-	},
+        var connection = containerBlock.getInput('STACK').connection;
+        for (var i = 1; i <= this.coutStreamCount_; ++i) {
+            var add = workspace.newBlock('cout_stream_add');
+            add.initSvg();
 
-	saveConnections: function(containerBlock){
-		var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-		var i = 1;
-		while(clauseBlock){
-			switch(clauseBlock.type){
-				case 'cout_stream_add':
-					var inputPrint = this.getInput('valinp' + i);
+            connection.connect(add.previousConnection);
+            connection = add.nextConnection;
+        }
 
-					clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
+        return containerBlock;
+    },
 
-					clauseBlock.statementConnection_ = i++;
+    compose: function (containerBlock) {
+        for (var i = this.coutStreamCount_; i > 0; i--) {
+            this.removeInput('valinp' + i);
+        }
+        this.coutStreamCount_ = 0;
 
-					break;
-				default:
-					throw 'Unknown block type.';
-			}
-			clauseBlock = clauseBlock.nextConnection 
-			&& clauseBlock.nextConnection.targetBlock();
-		}
-	},
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
 
-	onchange: function(){
-		
-		this.allocateWarnings();
-	},
-	
-	allocateWarnings: function(){
-		var TT = "";
-		
-		//Cout type check
-		
-		//Library Check
-		let librarySearch = C_Include;
-		
-		var libFound = librarySearch.search_library(this, ['include_iostream']);
-		
-		if(!libFound){
-			TT += "Error, <iostream> library must be included.\n";
-		}
-		
-		//Libary check end
-		
-		//Check if this block is in a proper scope
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'cout_stream_add':
+                    this.coutStreamCount_++;
 
-		let Scope = C_Scope;
+                    var printInput = this.appendValueInput('valinp' + this.coutStreamCount_)
+                        .setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
 
-		if(!Scope.node.is_in_scope(this, ['isFunc'])){
-			TT += "Error, this block must be inside of a function or main.\n";
-		}
-		
-		//Proper scope end
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-		
-	},
-	// Hao: Add iostream for cin
-	customContextMenu: function(options){
-		//save the current scope
-		let BlockScope = this;
+                    if (clauseBlock.valueConnection_) {
+                        printInput.connection.connect(clauseBlock.valueConnection_);
+                    }
+                    break;
 
-		var librarySearch = C_Include;
-		var libFound = librarySearch.search_library(this, ['include_iostream']);
-		
-		//create an initialization block
-		if(!libFound){
-			
-			automate_library_string= {
-				text: "include <iostream>",
-				enabled: true,
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
 
-				callback: function(){
-					var newBlock = BlockScope.workspace.newBlock('include_iostream');
-					let ptr = BlockScope;
+    saveConnections: function (containerBlock) {
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 1;
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'cout_stream_add':
+                    var inputPrint = this.getInput('valinp' + i);
 
-					while(ptr){
-						//if we're at the top
-						if(!ptr.parentBlock_){
-							newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
-							newBlock.nextConnection.connect(ptr.previousConnection);
-							newBlock.initSvg();
-							newBlock.render();
+                    clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
 
-							return;
-						}
-	
-						ptr = ptr.parentBlock_;
-					}
-	
-				}
+                    clauseBlock.statementConnection_ = i++;
 
-			}
-			options.push(automate_library_string);
+                    break;
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
 
-		}
-	}
+    onchange: function () {
+
+        this.allocateWarnings();
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+
+        //Cout type check
+
+        //Library Check
+        let librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_iostream']);
+
+        if (!libFound) {
+            TT += "Error, <iostream> library must be included.\n";
+        }
+
+        //Libary check end
+
+        //Check if this block is in a proper scope
+
+        let Scope = C_Scope;
+
+        if (!Scope.node.is_in_scope(this, ['isFunc'])) {
+            TT += "Error, this block must be inside of a function or main.\n";
+        }
+
+        //Proper scope end
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    },
+    // Hao: Add iostream for cin
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
+
+        var librarySearch = C_Include;
+        var libFound = librarySearch.search_library(this, ['include_iostream']);
+
+        //create an initialization block
+        if (!libFound) {
+
+            automate_library_string = {
+                text: "include <iostream>",
+                enabled: true,
+
+                callback: function () {
+                    var newBlock = BlockScope.workspace.newBlock('include_iostream');
+                    let ptr = BlockScope;
+
+                    while (ptr) {
+                        //if we're at the top
+                        if (!ptr.parentBlock_) {
+                            newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                            newBlock.nextConnection.connect(ptr.previousConnection);
+                            newBlock.initSvg();
+                            newBlock.render();
+
+                            return;
+                        }
+
+                        ptr = ptr.parentBlock_;
+                    }
+
+                }
+
+            }
+            options.push(automate_library_string);
+
+        }
+    }
 
 };
 
-Blockly.C['cout'] = function(block) {
-	var code = '';
-	var std = '';
+Blockly.C['cout'] = function (block) {
+    var code = '';
+    var std = '';
 
-	C = C_Include;
-	
-	if(!C.using.std(block)){
-		std = 'std::';
-	}
+    C = C_Include;
 
-	code += std + 'cout';
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
 
-	for(var i = 0; i <= block.coutStreamCount_; ++i){
-		var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+    code += std + 'cout';
 
-		if(arg.length > 0){
-			code += ' << ' + arg;
-		}
-		else {
-			code += ' << ' + std + 'endl';
-		}
+    for (var i = 0; i <= block.coutStreamCount_; ++i) {
+        var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
 
-	}
-	
-	
-	code += ';\n';
-	return code;
+        if (arg.length > 0) {
+            code += ' << ' + arg;
+        } else {
+            code += ' << ' + std + 'endl';
+        }
+
+    }
+
+
+    code += ';\n';
+    return code;
 };
 
 Blockly.Blocks['cout_setprecision'] = {
-	init: function() {
-		this.appendValueInput('valinp1')
-			.appendField("setprecision(");
-			
-		this.appendDummyInput()
-			.appendField(')');
-			
-		this.setOutput(true);
-		this.setColour(coutHUE);
-		this.setTooltip("Sets floating point precision in the cout stream.");
-		this.setHelpUrl("http://www.cplusplus.com/reference/iomanip/setprecision/");
-	},
-	onchange: function(){
-		
-		this.allocateWarnings();
-	},
-	
-	allocateWarnings: function(){
-		var C = C_Logic;
-		
-		let block = this.getInputTargetBlock('valinp1');
-		
-		var TT = "";
-		
-		if(!this.parentBlock_ || (this.parentBlock_ && this.parentBlock_.type !== "cout")){
-			TT += 'Error, "setprecision()" must proceed a "cout".\n';
-		}
-		
-		//Search Library start
-		var librarySearch = C_Include;
-		
-		var libFound = librarySearch.search_library(this, ['include_iomanip']);
-		
-		if(!libFound){
-			TT += "Error, <iomanip> library must be included.\n";
-		}
-		
-		//Search Library end
-		
-		if(block){
-			if(!C.help.is_of_type_integer(block.typeName_)){
-				TT += 'Error, parameter must be of type "int", "size_t", "short", "long", "long long", current type: "' + block.typeName_ + '.\n';
-			}
-		}
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-		
-	},
-	customContextMenu: function(options){
-		//save the current scope
-		let BlockScope = this;		
-		// call from code.js
-		autoInclude('iomanip', BlockScope, options);
-		
-	}
+    init: function () {
+        this.appendValueInput('valinp1')
+            .appendField("setprecision(");
+
+        this.appendDummyInput()
+            .appendField(')');
+
+        this.setOutput(true);
+        this.setColour(coutHUE);
+        this.setTooltip("Sets floating point precision in the cout stream.");
+        this.setHelpUrl("http://www.cplusplus.com/reference/iomanip/setprecision/");
+    },
+    onchange: function () {
+
+        this.allocateWarnings();
+    },
+
+    allocateWarnings: function () {
+        var C = C_Logic;
+
+        let block = this.getInputTargetBlock('valinp1');
+
+        var TT = "";
+
+        if (!this.parentBlock_ || (this.parentBlock_ && this.parentBlock_.type !== "cout")) {
+            TT += 'Error, "setprecision()" must proceed a "cout".\n';
+        }
+
+        //Search Library start
+        var librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_iomanip']);
+
+        if (!libFound) {
+            TT += "Error, <iomanip> library must be included.\n";
+        }
+
+        //Search Library end
+
+        if (block) {
+            if (!C.help.is_of_type_integer(block.typeName_)) {
+                TT += 'Error, parameter must be of type "int", "size_t", "short", "long", "long long", current type: "' + block.typeName_ + '.\n';
+            }
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    },
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
+        // call from code.js
+        autoInclude('iomanip', BlockScope, options);
+
+    }
 };
 
-Blockly.C['cout_setprecision'] = function(block) {
-	var C = C_Include;
-	
-	let val = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
-	
-	var code = '';
-	var std = '';
+Blockly.C['cout_setprecision'] = function (block) {
+    var C = C_Include;
 
-	
-	if(!C.using.std(block)){
-		std = 'std::';
-	}
-	
-	if(val.length > 0){
-		code = std + 'setprecision(' + val + ')';
-	}
+    let val = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
 
-	// TODO: Change ORDER_NONE to the correct strength.
-	return [code, Blockly.C.ORDER_NONE];
+    var code = '';
+    var std = '';
+
+
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
+
+    if (val.length > 0) {
+        code = std + 'setprecision(' + val + ')';
+    }
+
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.C.ORDER_NONE];
 };
 
 Blockly.Blocks['cin_input'] = {
-	init: function() {
+    init: function () {
 
-		this.appendValueInput("valinp0")
-			.setCheck(this.setCinCheck)
-			.appendField("cin >>")
-			.setAlign(Blockly.ALIGN_RIGHT);
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-		this.setColour(cinHUE);
-		this.setTooltip("Grabs input from the console.\nRequires - <iostream>");
-		this.setHelpUrl("http://www.cplusplus.com/reference/iostream/cin/");
-	
-		this.setMutator(new Blockly.Mutator(['cin_stream_add']));
+        this.appendValueInput("valinp0")
+            .setCheck(this.setCinCheck)
+            .appendField("cin >>")
+            .setAlign(Blockly.ALIGN_RIGHT);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(cinHUE);
+        this.setTooltip("Grabs input from the console.\nRequires - <iostream>");
+        this.setHelpUrl("http://www.cplusplus.com/reference/iostream/cin/");
 
-		this.cinStreamCount_ = 0;
+        this.setMutator(new Blockly.Mutator(['cin_stream_add']));
 
-		this.setCinCheck = 'Variable';
-		
-	},
+        this.cinStreamCount_ = 0;
 
-	mutationToDom: function(){
-		if(!this.cinStreamCount_){
-			return null;
-		}
-		var container = document.createElement('mutation');
+        this.setCinCheck = 'Variable';
 
-		if(this.cinStreamCount_){
-			container.setAttribute('printadd', this.cinStreamCount_);
-		}
+    },
 
-		return container;
-	},
+    mutationToDom: function () {
+        if (!this.cinStreamCount_) {
+            return null;
+        }
+        var container = document.createElement('mutation');
 
-	domToMutation: function(xmlElement){
-		this.cinStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
-		for(var i = 1; i <= this.cinStreamCount_; i++){
-			this.appendValueInput('valinp' + i).setCheck(this.setCinCheck).appendField('cin >> ').setAlign(Blockly.ALIGN_RIGHT);
-		}
-	},
+        if (this.cinStreamCount_) {
+            container.setAttribute('printadd', this.cinStreamCount_);
+        }
 
-	decompose: function(workspace){
-		var containerBlock = workspace.newBlock('cin_stream_mutator');
-		containerBlock.initSvg();
+        return container;
+    },
 
-		var connection = containerBlock.getInput('STACK').connection;
+    domToMutation: function (xmlElement) {
+        this.cinStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
+        for (var i = 1; i <= this.cinStreamCount_; i++) {
+            this.appendValueInput('valinp' + i).setCheck(this.setCinCheck).appendField('cin >> ').setAlign(Blockly.ALIGN_RIGHT);
+        }
+    },
 
-		for(var i = 1; i <= this.cinStreamCount_; ++i){
-			var add = workspace.newBlock('cin_stream_add');
-			add.initSvg();
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('cin_stream_mutator');
+        containerBlock.initSvg();
 
-			console.log(this.cinStreamCount_);
-			connection.connect(add.previousConnection);
-			connection = add.nextConnection;
-		}
-		return containerBlock;
-	},
+        var connection = containerBlock.getInput('STACK').connection;
 
-	compose: function(containerBlock){
-		for(var i = this.cinStreamCount_; i > 0; i--){
-			this.removeInput('valinp' + i);
-		}
-		this.cinStreamCount_ = 0;
+        for (var i = 1; i <= this.cinStreamCount_; ++i) {
+            var add = workspace.newBlock('cin_stream_add');
+            add.initSvg();
 
-		var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-		while(clauseBlock){
-			
-			switch(clauseBlock.type){
+            console.log(this.cinStreamCount_);
+            connection.connect(add.previousConnection);
+            connection = add.nextConnection;
+        }
+        return containerBlock;
+    },
 
-				case 'cin_stream_add':
-					this.cinStreamCount_++;
-					var printInput = this.appendValueInput('valinp' + this.cinStreamCount_)
-						.setCheck(this.setCinCheck).appendField('cin >> ').setAlign(Blockly.ALIGN_RIGHT);
+    compose: function (containerBlock) {
+        for (var i = this.cinStreamCount_; i > 0; i--) {
+            this.removeInput('valinp' + i);
+        }
+        this.cinStreamCount_ = 0;
 
-					if(clauseBlock.valueConnection_){
-						printInput.connection.connect(clauseBlock.valueConnection_);
-					}
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        while (clauseBlock) {
 
-				break;
+            switch (clauseBlock.type) {
 
-				default:
-					throw 'Unknown block type.';
-			}
+                case 'cin_stream_add':
+                    this.cinStreamCount_++;
+                    var printInput = this.appendValueInput('valinp' + this.cinStreamCount_)
+                        .setCheck(this.setCinCheck).appendField('cin >> ').setAlign(Blockly.ALIGN_RIGHT);
 
-			clauseBlock = clauseBlock.nextConnection
-			&& clauseBlock.nextConnection.targetBlock();
-		}
-	},
+                    if (clauseBlock.valueConnection_) {
+                        printInput.connection.connect(clauseBlock.valueConnection_);
+                    }
 
-	saveConnections: function(containerBlock){
-		var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-		var i = 1;
-		while(clauseBlock){
+                    break;
 
-			switch(clauseBlock.type){
+                default:
+                    throw 'Unknown block type.';
+            }
 
-				case 'cin_stream_add':
-					var inputPrint = this.getInput('valinp' + i);
-					clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
-					clauseBlock.statementConnection_ = i++;
-				break;
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
 
-				default:
-					throw 'Unknown block type.';	
-			}
-			clauseBlock = clauseBlock.nextConnection &&
-			clauseBlock.nextConnection.targetBlock();
-		}
-	},
+    saveConnections: function (containerBlock) {
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 1;
+        while (clauseBlock) {
 
-	onchange: Blockly.Blocks.requireInFunction,
-	
-	onchange: function(){
-		
-		this.allocateWarnings();
-	},
-	
-	allocateWarnings: function(){
-		var TT = "";
-		
-		var librarySearch = C_Include;
-		
-		var libFound = librarySearch.search_library(this, ['include_iostream']);
-		
-		if(!libFound){
-			TT += "Error, <iostream> library must be included.\n";
-		}
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-		
-	},
-	customContextMenu: function(options){
-		//save the current scope
-		let BlockScope = this;
+            switch (clauseBlock.type) {
 
-		var librarySearch = C_Include;
-		var libFound = librarySearch.search_library(this, ['include_iostream']);
-		
-		//create an initialization block
-		if(!libFound){
-			
-			automate_library_string= {
-				text: "include <iostream>",
-				enabled: true,
+                case 'cin_stream_add':
+                    var inputPrint = this.getInput('valinp' + i);
+                    clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
+                    clauseBlock.statementConnection_ = i++;
+                    break;
 
-				callback: function(){
-					var newBlock = BlockScope.workspace.newBlock('include_iostream');
-					let ptr = BlockScope;
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection &&
+                clauseBlock.nextConnection.targetBlock();
+        }
+    },
 
-					while(ptr){
-						//if we're at the top
-						if(!ptr.parentBlock_){
-							newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
-							newBlock.nextConnection.connect(ptr.previousConnection);
-							newBlock.initSvg();
-							newBlock.render();
+    onchange: Blockly.Blocks.requireInFunction,
 
-							return;
-						}
-	
-						ptr = ptr.parentBlock_;
-					}
-	
-				}
+    onchange: function () {
 
-			}
-			options.push(automate_library_string);
+        this.allocateWarnings();
+    },
 
-		}
-	}
+    allocateWarnings: function () {
+        var TT = "";
+
+        var librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_iostream']);
+
+        if (!libFound) {
+            TT += "Error, <iostream> library must be included.\n";
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    },
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
+
+        var librarySearch = C_Include;
+        var libFound = librarySearch.search_library(this, ['include_iostream']);
+
+        //create an initialization block
+        if (!libFound) {
+
+            automate_library_string = {
+                text: "include <iostream>",
+                enabled: true,
+
+                callback: function () {
+                    var newBlock = BlockScope.workspace.newBlock('include_iostream');
+                    let ptr = BlockScope;
+
+                    while (ptr) {
+                        //if we're at the top
+                        if (!ptr.parentBlock_) {
+                            newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                            newBlock.nextConnection.connect(ptr.previousConnection);
+                            newBlock.initSvg();
+                            newBlock.render();
+
+                            return;
+                        }
+
+                        ptr = ptr.parentBlock_;
+                    }
+
+                }
+
+            }
+            options.push(automate_library_string);
+
+        }
+    }
 
 };
 
-Blockly.C['cin_input'] = function(block) {
-	var val = Blockly.C.valueToCode(block, 'valinp0', Blockly.C.ORDER_NONE);
-	// TODO: Assemble C into code variable.
-	var code = '';
-	var std = '';
-	var WT = false;
-	//tooltip for warning text
+Blockly.C['cin_input'] = function (block) {
+    var val = Blockly.C.valueToCode(block, 'valinp0', Blockly.C.ORDER_NONE);
+    // TODO: Assemble C into code variable.
+    var code = '';
+    var std = '';
+    var WT = false;
+    //tooltip for warning text
 
-	C = C_Include;
-	if( !C.using.std(block) ){
-		std = 'std::';
-	}
+    C = C_Include;
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
 
-	if(this.cinStreamCount_ < 1 && !val){
-		WT = true;
-	}
-	else if(this.cinStreamCount_ < 1 && val){
-		code += std + 'cin >> ' + val;
-	}
-	else if(this.cinStreamCount_ > 0 && !val){
-		WT = true;
-	}
-	else{
+    if (this.cinStreamCount_ < 1 && !val) {
+        WT = true;
+    } else if (this.cinStreamCount_ < 1 && val) {
+        code += std + 'cin >> ' + val;
+    } else if (this.cinStreamCount_ > 0 && !val) {
+        WT = true;
+    } else {
 
-		code += std + 'cin >> ' + val;
+        code += std + 'cin >> ' + val;
 
-		for(var i = 1; i <= this.cinStreamCount_; ++i){
-			var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
-			var childConnection = this.inputList[i].connection;
-			var childBlock = childConnection.targetBlock();
+        for (var i = 1; i <= this.cinStreamCount_; ++i) {
+            var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+            var childConnection = this.inputList[i].connection;
+            var childBlock = childConnection.targetBlock();
 
 
-			if(childBlock){
-				code += ' >> ' + arg;
-			}
-			else { 
-				WT = true;
-			}
-		}
-	}
+            if (childBlock) {
+                code += ' >> ' + arg;
+            } else {
+                WT = true;
+            }
+        }
+    }
 
-	this.setWarningText(null);
-	if(WT == true){
-		this.setWarningText("Block warning: all cin inputs must be attached to a variable block.");
-	}
-	
-	if(code.length > 0){
-		code += ';\n';
-	}
-	
-	return code;
+    this.setWarningText(null);
+    if (WT == true) {
+        this.setWarningText("Block warning: all cin inputs must be attached to a variable block.");
+    }
+
+    if (code.length > 0) {
+        code += ';\n';
+    }
+
+    return code;
 };
 
 
 Blockly.Blocks['cin_parse'] = {
-	init: function() {
-		this.appendValueInput("valinp1")
-			.setCheck("Cin")
-			.appendField("(cin stream)")
-			.appendField(new Blockly.FieldVariable("myVar"), "myVarDef");
-		this.setOutput(true, "Cin");
-		this.setColour(cinHUE);
-		this.setTooltip("");
-		this.setHelpUrl("");
-	}
+    init: function () {
+        this.appendValueInput("valinp1")
+            .setCheck("Cin")
+            .appendField("(cin stream)")
+            .appendField(new Blockly.FieldVariable("myVar"), "myVarDef");
+        this.setOutput(true, "Cin");
+        this.setColour(cinHUE);
+        this.setTooltip("");
+        this.setHelpUrl("");
+    }
 };
 
-Blockly.C['cin_parse'] = function(block) {
-	var variable_name = Blockly.C.variableDB_.getName(block.getFieldValue('myVarDef'), Blockly.Variables.NAME_TYPE);
-	var value_valinp1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
-	// TODO: Assemble C into code variable.
-	var code = '';
+Blockly.C['cin_parse'] = function (block) {
+    var variable_name = Blockly.C.variableDB_.getName(block.getFieldValue('myVarDef'), Blockly.Variables.NAME_TYPE);
+    var value_valinp1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    // TODO: Assemble C into code variable.
+    var code = '';
 
-	code += variable_name;
+    code += variable_name;
 
-	if(value_valinp1.length > 0){
-		code += " >> " + value_valinp1;
-	}
-	else {
+    if (value_valinp1.length > 0) {
+        code += " >> " + value_valinp1;
+    } else {
 
-	}
+    }
 
-	// TODO: Change ORDER_NONE to the correct strength.
-	return [code, Blockly.C.ORDER_NONE];
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.C.ORDER_NONE];
 };
 
 Blockly.Blocks['cin_getline'] = {
-	init: function() {
-		this.appendValueInput('valinp1')
-			.appendField("getline(cin, ");
-		
-		this.appendDummyInput('duminp1')
-			.appendField(")");
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-		this.setColour(cinHUE);
-		this.setTooltip("Grabs an entire line as a string.");
-		this.setHelpUrl("http://www.cplusplus.com/reference/string/string/getline/");
-	},
-	
-	onchange: function(){
-		this.allocateWarnings();
-	},
-	
-	allocateWarnings: function(){
-		let block = this.getInputTargetBlock('valinp1');
-		
-		var TT = "";
-		
-		var librarySearch = C_Include;
-		
-		var libFoundIostream = librarySearch.search_library(this, ['include_iostream']);
-		var libFoundString = librarySearch.search_library(this, ['include_string']);
-		
-		if(!libFoundIostream){
-			TT += "Error, <iostream> library must be included.\n";
-		}
-		if(!libFoundString){
-			TT += "Error, <string> library must be included.\n";
-		}
-		
-		//Check if this block is in a proper scope
-		let Scope = C_Scope;
+    init: function () {
+        this.appendValueInput('valinp1')
+            .appendField("getline(cin, ");
 
-		if(!Scope.node.is_in_scope(this, ['isFunc'])){
-			TT += "Error, this block must be inside of a function or main.\n";
-		}
-		
-		if(block && block.getVar_.length > 0){
-			
-			if(block.typeName_ !== "string"){
-				TT += 'Error, variable must be a string.\n';
-			}
-			
-		}
-		else {
-			TT += "Error, getline requires a variable.\n";
-		}
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-		
-	},
-	
-	customContextMenu: function(options){
-		//save the current scope
-		let BlockScope = this;
+        this.appendDummyInput('duminp1')
+            .appendField(")");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(cinHUE);
+        this.setTooltip("Grabs an entire line as a string.");
+        this.setHelpUrl("http://www.cplusplus.com/reference/string/string/getline/");
+    },
 
-		var librarySearch = C_Include;
-		var libFoundIostream = librarySearch.search_library(this, ['include_iostream']);
-		var libFoundString = librarySearch.search_library(this, ['include_string']);
-		
-		//Create the option to automate a string library creation
-		if(!libFoundIostream){
-			automate_library_iostream = {
-				text: "include <iostream>",
-				enabled: true,
+    onchange: function () {
+        this.allocateWarnings();
+    },
 
-				callback: function(){
-					var newBlock = BlockScope.workspace.newBlock('include_iostream');
-					let ptr = BlockScope;
+    allocateWarnings: function () {
+        let block = this.getInputTargetBlock('valinp1');
 
-					while(ptr){
-						//if we're at the top
-						if(!ptr.parentBlock_){
-							newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
-							newBlock.nextConnection.connect(ptr.previousConnection);
-							newBlock.initSvg();
-							newBlock.render();
+        var TT = "";
 
-							return;
-						}
-	
-						ptr = ptr.parentBlock_;
-					}
-	
-				}
+        var librarySearch = C_Include;
 
-			}
-			options.push(automate_library_iostream);
-		}
-		
-		//Create the option to automate a string library creation
-		if(!libFoundString){
-			automate_library_string = {
-				text: "include <string>",
-				enabled: true,
+        var libFoundIostream = librarySearch.search_library(this, ['include_iostream']);
+        var libFoundString = librarySearch.search_library(this, ['include_string']);
 
-				callback: function(){
-					var newBlock = BlockScope.workspace.newBlock('include_string');
-					let ptr = BlockScope;
+        if (!libFoundIostream) {
+            TT += "Error, <iostream> library must be included.\n";
+        }
+        if (!libFoundString) {
+            TT += "Error, <string> library must be included.\n";
+        }
 
-					while(ptr){
-						//if we're at the top
-						if(!ptr.parentBlock_){
-							newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
-							newBlock.nextConnection.connect(ptr.previousConnection);
-							newBlock.initSvg();
-							newBlock.render();
+        //Check if this block is in a proper scope
+        let Scope = C_Scope;
 
-							return;
-						}
-	
-						ptr = ptr.parentBlock_;
-					}
-	
-				}
+        if (!Scope.node.is_in_scope(this, ['isFunc'])) {
+            TT += "Error, this block must be inside of a function or main.\n";
+        }
 
-			}
-			options.push(automate_library_string);
-		}
-	}
+        if (block && block.getVar_.length > 0) {
+
+            if (block.typeName_ !== "string") {
+                TT += 'Error, variable must be a string.\n';
+            }
+
+        } else {
+            TT += "Error, getline requires a variable.\n";
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    },
+
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
+
+        var librarySearch = C_Include;
+        var libFoundIostream = librarySearch.search_library(this, ['include_iostream']);
+        var libFoundString = librarySearch.search_library(this, ['include_string']);
+
+        //Create the option to automate a string library creation
+        if (!libFoundIostream) {
+            automate_library_iostream = {
+                text: "include <iostream>",
+                enabled: true,
+
+                callback: function () {
+                    var newBlock = BlockScope.workspace.newBlock('include_iostream');
+                    let ptr = BlockScope;
+
+                    while (ptr) {
+                        //if we're at the top
+                        if (!ptr.parentBlock_) {
+                            newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                            newBlock.nextConnection.connect(ptr.previousConnection);
+                            newBlock.initSvg();
+                            newBlock.render();
+
+                            return;
+                        }
+
+                        ptr = ptr.parentBlock_;
+                    }
+
+                }
+
+            }
+            options.push(automate_library_iostream);
+        }
+
+        //Create the option to automate a string library creation
+        if (!libFoundString) {
+            automate_library_string = {
+                text: "include <string>",
+                enabled: true,
+
+                callback: function () {
+                    var newBlock = BlockScope.workspace.newBlock('include_string');
+                    let ptr = BlockScope;
+
+                    while (ptr) {
+                        //if we're at the top
+                        if (!ptr.parentBlock_) {
+                            newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                            newBlock.nextConnection.connect(ptr.previousConnection);
+                            newBlock.initSvg();
+                            newBlock.render();
+
+                            return;
+                        }
+
+                        ptr = ptr.parentBlock_;
+                    }
+
+                }
+
+            }
+            options.push(automate_library_string);
+        }
+    }
 };
 
-Blockly.C['cin_getline'] = function(block) {
-	var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
-	// TODO: Assemble C into code variable.
-	var code = '';
-	var std = '';
+Blockly.C['cin_getline'] = function (block) {
+    var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    // TODO: Assemble C into code variable.
+    var code = '';
+    var std = '';
 
-	C = C_Include;
-	if( !C.using.std(block) ){
-		std = 'std::';
-	}
+    C = C_Include;
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
 
-	code += std + 'getline(' + std + 'cin, ' + val1 + ');\n';
+    code += std + 'getline(' + std + 'cin, ' + val1 + ');\n';
 
 
-	return code;
+    return code;
 };
-
 
 
 // Mutator blocks for the mutator
 Blockly.Blocks['cout_stream_mutator'] = {
-	init: function(){
-		this.setColour(coutHUE);
-		this.appendDummyInput().appendField('print');
-		this.appendStatementInput('STACK');
+    init: function () {
+        this.setColour(coutHUE);
+        this.appendDummyInput().appendField('print');
+        this.appendStatementInput('STACK');
 
-		this.setPreviousStatement(false);
-		this.setNextStatement(false);
-		this.setTooltip('');
-		this.contextMenu = false;
-	}
+        this.setPreviousStatement(false);
+        this.setNextStatement(false);
+        this.setTooltip('');
+        this.contextMenu = false;
+    }
 };
 
 
 Blockly.Blocks['cout_stream_add'] = {
-	init: function(){
-		this.setColour(coutHUE);
-		this.appendDummyInput().appendField('add');
-		
-		this.setPreviousStatement(true);
-		this.setNextStatement(true);
-		this.setTooltip('');
-		this.contextMenu = false;
-	}
-};
+    init: function () {
+        this.setColour(coutHUE);
+        this.appendDummyInput().appendField('add');
 
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        this.setTooltip('');
+        this.contextMenu = false;
+    }
+};
 
 
 // Mutator blocks for the mutator
 Blockly.Blocks['cin_stream_mutator'] = {
-	init: function(){
-		this.setColour(cinHUE);
-		this.appendDummyInput().appendField('print');
-		this.appendStatementInput('STACK');
+    init: function () {
+        this.setColour(cinHUE);
+        this.appendDummyInput().appendField('print');
+        this.appendStatementInput('STACK');
 
-		this.setPreviousStatement(false);
-		this.setNextStatement(false);
-		this.setTooltip('');
-		this.contextMenu = false;
-	}
+        this.setPreviousStatement(false);
+        this.setNextStatement(false);
+        this.setTooltip('');
+        this.contextMenu = false;
+    }
 };
 
 
 Blockly.Blocks['cin_stream_add'] = {
-	init: function(){
-		this.setColour(cinHUE);
-		this.appendDummyInput().appendField('add');
-		
-		this.setPreviousStatement(true);
-		this.setNextStatement(true);
-		this.setTooltip('');
-		this.contextMenu = false;
-	}
+    init: function () {
+        this.setColour(cinHUE);
+        this.appendDummyInput().appendField('add');
+
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        this.setTooltip('');
+        this.contextMenu = false;
+    }
 };

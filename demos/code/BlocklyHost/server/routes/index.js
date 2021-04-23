@@ -4,12 +4,12 @@ const
     cppService = require('../service/cppService');
 
 async function requestHandler(req, res) {
-    const reqURL = url.parse(req.url);
-    const urlPath = reqURL.pathname.substring(1).split("/");
-    let reqBody;
-    const reqMethod = req.method;
-    const reqProm = new Promise((resolve) => {
-        let reqRaw = "";
+    var reqURL = url.parse(req.url);
+    var urlPath = reqURL.pathname.substring(1).split("/");
+    var reqBody;
+    var reqMethod = req.method;
+    const reqProm = new Promise((resolve,reject) => {
+        var reqRaw="";
         req.on('data',(data) => {
             reqRaw += data;
         }); 

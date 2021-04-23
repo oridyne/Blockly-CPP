@@ -10,6 +10,7 @@ const chai = require("chai"),
   ws = require('ws'),
   chalk = require('chalk');
 server.create(config);
+
 let uid;
 const address = "http://localhost:3000";
 const expect = chai.expect;
@@ -79,7 +80,7 @@ describe("/POST SendFile", () => {
 });
 
 describe("Compile and websocket", async () => {
-  await new Promise((resolve)=>{
+  await new Promise((resolve) => {
     it("it should compile test program", (done) => {
     let compReq = {
       id:"0x5df321a476c00000" ,

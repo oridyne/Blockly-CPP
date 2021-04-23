@@ -1,746 +1,734 @@
-
 var arrayHUE = 195;
 
 Blockly.Blocks['arr_dynamic'] = {
-	init: function() {
-		this.appendDummyInput()
-			  .appendField("dynamic?")
-			  .appendField(new Blockly.FieldCheckbox("FALSE"), "check1");
-		this.setColour(arrayHUE);
-		this.setTooltip("");
-		this.setHelpUrl("");
-		
-	},
-	
-	onchange: function(){
-		
-	}
-	
+    init: function () {
+        this.appendDummyInput()
+            .appendField("dynamic?")
+            .appendField(new Blockly.FieldCheckbox("FALSE"), "check1");
+        this.setColour(arrayHUE);
+        this.setTooltip("");
+        this.setHelpUrl("");
+
+    },
+
+    onchange: function () {
+
+    }
+
 };
 
 Blockly.Blocks['array_1D'] = {
-	init: function(){
+    init: function () {
 
-		this.appendValueInput("valinp0")
-			.setCheck(null)
-			.appendField(new Blockly.FieldDropdown([["int","INT"], ["size_t","SIZE_T"], ["double","DOUBLE"], ["char","CHAR"], ["string","STRING"], ["bool","BOOL"]]), "myArrType")
-			.appendField(new Blockly.FieldTextInput("myArr"), "myArrDef")
-			.appendField('[')
-		
-		this.appendDummyInput()
-			.appendField(']')
-			.appendField('', 'init');
+        this.appendValueInput("valinp0")
+            .setCheck(null)
+            .appendField(new Blockly.FieldDropdown([["int", "INT"], ["size_t", "SIZE_T"], ["double", "DOUBLE"], ["char", "CHAR"], ["string", "STRING"], ["bool", "BOOL"]]), "myArrType")
+            .appendField(new Blockly.FieldTextInput("myArr"), "myArrDef")
+            .appendField('[')
 
-		this.appendStatementInput('stateinp0')
-			.setCheck(['array_initialization']);
+        this.appendDummyInput()
+            .appendField(']')
+            .appendField('', 'init');
 
-		this.appendDummyInput()
-			.appendField('', 'init2');
+        this.appendStatementInput('stateinp0')
+            .setCheck(['array_initialization']);
 
-		this.setInputsInline(true);
+        this.appendDummyInput()
+            .appendField('', 'init2');
 
-		this.setPreviousStatement(true);
-		this.setNextStatement(true);
-		this.setColour(arrayHUE);
-		this.setTooltip('');
+        this.setInputsInline(true);
 
-		this.typeName_ = "";
-		this.getVar_ = "";
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
+        this.setColour(arrayHUE);
+        this.setTooltip('');
 
-		//size of the array
-		this.size_ = 1;
-		//how many elements actually exist in the array
-		this.allocatedSize_ = 0;
+        this.typeName_ = "";
+        this.getVar_ = "";
 
-		//variable to check the number of dimensions
-		this.dimensions_ = 1;
+        //size of the array
+        this.size_ = 1;
+        //how many elements actually exist in the array
+        this.allocatedSize_ = 0;
 
-		this.arrayElements_ = [];
-		this.arrayElementsValue_ = [];
+        //variable to check the number of dimensions
+        this.dimensions_ = 1;
 
-		//is constant
-		this.isConst_ = false;
+        this.arrayElements_ = [];
+        this.arrayElementsValue_ = [];
 
-		//set data structure as an array
-		this.setDataStr("isArr", true);
+        //is constant
+        this.isConst_ = false;
 
-		this.varProp_ = [];
-	},
+        //set data structure as an array
+        this.setDataStr("isArr", true);
 
-	onchange: function(){
+        this.varProp_ = [];
+    },
 
-		//this.setFieldValue(' = { ', 'init');
+    onchange: function () {
 
-		this.allocateBlock();
-		this.allocateValues();
-		this.allocateArray();
-		this.allocateWarnings();
-	},
-	
-	/**
-	 * Change the get_num block to align to the logic of arrays
-	 */
-	allocateBlock: function(){
-		let block = this.getInputTargetBlock('valinp0');
+        //this.setFieldValue(' = { ', 'init');
 
-		if(block && block.type === "get_num"){
-			block.setColour( this.getColour() );
-			block.getField('NUM').setPrecision(1);
-			block.getField('NUM').setMin(1);
-		}
-	},
+        this.allocateBlock();
+        this.allocateValues();
+        this.allocateArray();
+        this.allocateWarnings();
+    },
 
-	allocateValues: function(){
-		var val0 = Blockly.C.valueToCode( this, 'valinp0', Blockly.C.ORDER_NONE )
-		let block = this.inputList[0].connection.targetConnection;
+    /**
+     * Change the get_num block to align to the logic of arrays
+     */
+    allocateBlock: function () {
+        let block = this.getInputTargetBlock('valinp0');
 
-		this.typeName_ = this.getField('myArrType').getText();
-		this.getVar_ = this.getField('myArrDef').getText();
-		
-		//Get the size from the value block if it's not a number
-		if( block && block.sourceBlock_.type !== "get_num" && block.sourceBlock_.value_ && isNaN( val0 ) ){
-			this.size_ = parseInt( block.sourceBlock_.value_ );
-		}
-		else{
-			this.size_ = parseInt( val0 );
-		}
+        if (block && block.type === "get_num") {
+            block.setColour(this.getColour());
+            block.getField('NUM').setPrecision(1);
+            block.getField('NUM').setMin(1);
+        }
+    },
 
-		if(this.size_ < this.allocatedSize_){
-			this.inputList[0].connection.targetConnection.sourceBlock_.setFieldValue(this.allocatedSize_, 'NUM');
-		}
+    allocateValues: function () {
+        var val0 = Blockly.C.valueToCode(this, 'valinp0', Blockly.C.ORDER_NONE)
+        let block = this.inputList[0].connection.targetConnection;
 
-		//The number of elements that is currently initialized
-		this.allocatedSize_ = this.arrayElements_.length;
+        this.typeName_ = this.getField('myArrType').getText();
+        this.getVar_ = this.getField('myArrDef').getText();
 
-		//If there exists at least one initialized element, at the array formatting
-		if(this.allocatedSize_ > 0){
-			this.setFieldValue('= {', 'init');
-			this.setFieldValue('};', 'init2');
-		}
-		else {
-			this.setFieldValue('', 'init');
-			this.setFieldValue('', 'init2');
-		}
-		
-		//clear the list
-		this.arrayElements_ = [];
-		this.arrayElementsValue_ = [];
-		
-		this.varProp_[0] = false;
-		this.varProp_[1] = this.typeName_;
-		this.varProp_[2] = "";
-		this.varProp_[3] = this.getVar_;
+        //Get the size from the value block if it's not a number
+        if (block && block.sourceBlock_.type !== "get_num" && block.sourceBlock_.value_ && isNaN(val0)) {
+            this.size_ = parseInt(block.sourceBlock_.value_);
+        } else {
+            this.size_ = parseInt(val0);
+        }
 
-	},
+        if (this.size_ < this.allocatedSize_) {
+            this.inputList[0].connection.targetConnection.sourceBlock_.setFieldValue(this.allocatedSize_, 'NUM');
+        }
 
-	allocateArray: function(){
-		let ptr = this.getInputTargetBlock('stateinp0');
+        //The number of elements that is currently initialized
+        this.allocatedSize_ = this.arrayElements_.length;
 
-		var i = 0;
-		while(ptr){
+        //If there exists at least one initialized element, at the array formatting
+        if (this.allocatedSize_ > 0) {
+            this.setFieldValue('= {', 'init');
+            this.setFieldValue('};', 'init2');
+        } else {
+            this.setFieldValue('', 'init');
+            this.setFieldValue('', 'init2');
+        }
 
-			if(ptr.type !== "array_1D_initialization"){ break };
+        //clear the list
+        this.arrayElements_ = [];
+        this.arrayElementsValue_ = [];
 
-			if(ptr.input_ && ptr.input_.length > 0){
-				ptr.setFieldValue('[' + i.toString() + ']', 'init');
+        this.varProp_[0] = false;
+        this.varProp_[1] = this.typeName_;
+        this.varProp_[2] = "";
+        this.varProp_[3] = this.getVar_;
 
-				this.arrayElements_[i] = ptr.input_;
-				this.arrayElementsValue_[i] = ptr.value_;
+    },
 
-				i++;
-			}
-			else {
-				ptr.setFieldValue('', 'init');
-			}
+    allocateArray: function () {
+        let ptr = this.getInputTargetBlock('stateinp0');
 
-			ptr = ptr.nextConnection && ptr.nextConnection.targetBlock();
-		}
+        var i = 0;
+        while (ptr) {
 
-	},
-	
-	customContextMenu: function(options){
-		//save the current scope
-		let BlockScope = this;
-
-		display_elements = {
-			text: "Display Array Data",
-			enabled: true, 
-	
-			callback: function(){
-
-				var temp = "";
-
-				for(var i = 0; i < BlockScope.arrayElements_.length; ++i){
-					temp += "[" + i + "] = " + BlockScope.arrayElementsValue_[i] + "\n";
-				}
-
-				alert(
-					"Array type: " + BlockScope.typeName_ + "\n" + 
-					"name: " + BlockScope.getVar_ + "\n" + 
-					"size: " + BlockScope.size_ + "\n" + 
-					"elements: \n" + temp
-				);
-			}
-		};
-		
-		//Auto size array
-		allocate_elements = {
-			text: "Auto Allocate Array",
-			enabled: true, 
-	
-			callback: function(){
-
-			}
-		};
-
-		options.push(display_elements);
-		//options.push(allocate_elements);
-	},
-
-	allocateWarnings: function(){
-		var TT = "";
-
-		//Size comparison section
-		{
-			let block = this.inputList[0].connection.targetConnection;
-
-			if(block && block.sourceBlock_.type !== "get_num" && block.sourceBlock_.value_ && block.sourceBlock_.value_ < 1){
-				TT += "Error, a variable size cannot be less than 1.\n";
-			}
-		
-			if(this.size_ === 0 && this.arrayElements_.length === 0){
-				TT += "Error, an array's size must be defined if it is not initialized.\n";
-			}
-
-			else if(this.size_ > 0 && this.arrayElements_.length > this.size_){
-				TT += "Error, array size is " + this.size_ + " but there are " + this.arrayElements_.length + " elements.\n";
-			}
-		}
-
-		//type checking size
-		{
-			var allowedTypes = ["int", "size_t", "short", "long", "long long"];
-			//get the next block
-			let block = this.inputList[0].connection.targetConnection;
-			let blockExtended = "";
-
-			//get the name of the variable
-			if(block && block.sourceBlock_.typeName_){
-				blockExtended = block.sourceBlock_.typeName_;
-			}
+            if (ptr.type !== "array_1D_initialization") {
+                break
+            }
 
 
-			if(blockExtended.length > 0 && blockExtended !== allowedTypes[0] && blockExtended !== allowedTypes[1] && blockExtended !== allowedTypes[2] && blockExtended !== allowedTypes[3] && blockExtended !== allowedTypes[4] ){
+            if (ptr.input_ && ptr.input_.length > 0) {
+                ptr.setFieldValue('[' + i.toString() + ']', 'init');
 
-				TT += 'Error, size type must be an Int, Size_t, Short, Long or Long long, current type: "' + blockExtended + '".\n';
+                this.arrayElements_[i] = ptr.input_;
+                this.arrayElementsValue_[i] = ptr.value_;
 
-			}
-			
-		}
+                i++;
+            } else {
+                ptr.setFieldValue('', 'init');
+            }
 
-		//type checking elements
-		{
-			let ptr = this.getInputTargetBlock('stateinp0');
+            ptr = ptr.nextConnection && ptr.nextConnection.targetBlock();
+        }
 
-			var i = 0;
-			while(ptr){
+    },
 
-				if(ptr.type !== "array_1D_initialization"){
-					TT += "Block error, element #" + i.toString() + " requires a proper initialization block.\n";
-				}
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
 
-				//If the array init block is initialized and the two types are not the same
-				else if(ptr && this.typeName_ !== ptr.typeName_ && ptr.input_.length > 0){
-					
-					TT += 'Error, element #' + i.toString() + ' is of type "' + ptr.typeName_ + '", array is of type "' + this.typeName_ + '".\n';
-				}
-				
-				i++;
-				ptr = ptr.nextConnection && ptr.nextConnection.targetBlock();
-			}
-		}
+        display_elements = {
+            text: "Display Array Data",
+            enabled: true,
+
+            callback: function () {
+
+                var temp = "";
+
+                for (var i = 0; i < BlockScope.arrayElements_.length; ++i) {
+                    temp += "[" + i + "] = " + BlockScope.arrayElementsValue_[i] + "\n";
+                }
+
+                alert(
+                    "Array type: " + BlockScope.typeName_ + "\n" +
+                    "name: " + BlockScope.getVar_ + "\n" +
+                    "size: " + BlockScope.size_ + "\n" +
+                    "elements: \n" + temp
+                );
+            }
+        };
+
+        //Auto size array
+        allocate_elements = {
+            text: "Auto Allocate Array",
+            enabled: true,
+
+            callback: function () {
+
+            }
+        };
+
+        options.push(display_elements);
+        //options.push(allocate_elements);
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+
+        //Size comparison section
+        {
+            let block = this.inputList[0].connection.targetConnection;
+
+            if (block && block.sourceBlock_.type !== "get_num" && block.sourceBlock_.value_ && block.sourceBlock_.value_ < 1) {
+                TT += "Error, a variable size cannot be less than 1.\n";
+            }
+
+            if (this.size_ === 0 && this.arrayElements_.length === 0) {
+                TT += "Error, an array's size must be defined if it is not initialized.\n";
+            } else if (this.size_ > 0 && this.arrayElements_.length > this.size_) {
+                TT += "Error, array size is " + this.size_ + " but there are " + this.arrayElements_.length + " elements.\n";
+            }
+        }
+
+        //type checking size
+        {
+            var allowedTypes = ["int", "size_t", "short", "long", "long long"];
+            //get the next block
+            let block = this.inputList[0].connection.targetConnection;
+            let blockExtended = "";
+
+            //get the name of the variable
+            if (block && block.sourceBlock_.typeName_) {
+                blockExtended = block.sourceBlock_.typeName_;
+            }
 
 
+            if (blockExtended.length > 0 && blockExtended !== allowedTypes[0] && blockExtended !== allowedTypes[1] && blockExtended !== allowedTypes[2] && blockExtended !== allowedTypes[3] && blockExtended !== allowedTypes[4]) {
 
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
+                TT += 'Error, size type must be an Int, Size_t, Short, Long or Long long, current type: "' + blockExtended + '".\n';
 
-	}
+            }
+
+        }
+
+        //type checking elements
+        {
+            let ptr = this.getInputTargetBlock('stateinp0');
+
+            var i = 0;
+            while (ptr) {
+
+                if (ptr.type !== "array_1D_initialization") {
+                    TT += "Block error, element #" + i.toString() + " requires a proper initialization block.\n";
+                }
+
+                //If the array init block is initialized and the two types are not the same
+                else if (ptr && this.typeName_ !== ptr.typeName_ && ptr.input_.length > 0) {
+
+                    TT += 'Error, element #' + i.toString() + ' is of type "' + ptr.typeName_ + '", array is of type "' + this.typeName_ + '".\n';
+                }
+
+                i++;
+                ptr = ptr.nextConnection && ptr.nextConnection.targetBlock();
+            }
+        }
+
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    }
 
 };
 
-Blockly.C['array_1D'] = function(block){
-	var val0 = Blockly.C.valueToCode(block, 'valinp0', Blockly.C.ORDER_NONE);
+Blockly.C['array_1D'] = function (block) {
+    var val0 = Blockly.C.valueToCode(block, 'valinp0', Blockly.C.ORDER_NONE);
 
-	var type = this.getField('myArrType').getText();
+    var type = this.getField('myArrType').getText();
 
-	C = C_Include;
-	
-	var code = '';
-	var std = '';
-	
-	if(!C.using.std(block)){
-		std = 'std::';
-	}
-	
-	//if data type requires std::
-	if(type === 'string'){
-		code += std;
-	}
+    C = C_Include;
 
-	code += type + ' ' + this.getVar_;
-	
-	code += '[';
+    var code = '';
+    var std = '';
 
-	if(val0.length > 0 || this.size_ > 0){
-		code += val0;
-	}
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
 
-	code += ']';
+    //if data type requires std::
+    if (type === 'string') {
+        code += std;
+    }
 
-	if(block.arrayElements_.length > 0){
-		code += ' = { ';
-		
-		for(var i = 0; i < block.arrayElements_.length; ++i){
-			code += block.arrayElements_[i];
+    code += type + ' ' + this.getVar_;
 
-			if(i < this.arrayElements_.length - 1){
-				code += ", ";
-			}
+    code += '[';
 
-		}
-		
-		code += ' }';
-	}
+    if (val0.length > 0 || this.size_ > 0) {
+        code += val0;
+    }
 
-	code += ';\n';
-	
-	return code;
+    code += ']';
+
+    if (block.arrayElements_.length > 0) {
+        code += ' = { ';
+
+        for (var i = 0; i < block.arrayElements_.length; ++i) {
+            code += block.arrayElements_[i];
+
+            if (i < this.arrayElements_.length - 1) {
+                code += ", ";
+            }
+
+        }
+
+        code += ' }';
+    }
+
+    code += ';\n';
+
+    return code;
 };
 
 
 Blockly.Blocks['array_1D_initialization'] = {
-	init: function() {
-		this.appendValueInput("valinp0")
-			.setCheck(null)
-			.appendField("", "init");
-		this.setColour(arrayHUE);
+    init: function () {
+        this.appendValueInput("valinp0")
+            .setCheck(null)
+            .appendField("", "init");
+        this.setColour(arrayHUE);
 
-		this.setOutput(false);
-		this.setPreviousStatement(true);
-		this.setNextStatement(true);
+        this.setOutput(false);
+        this.setPreviousStatement(true);
+        this.setNextStatement(true);
 
-		this.setTooltip("");
-		this.setHelpUrl("");
+        this.setTooltip("");
+        this.setHelpUrl("");
 
-		//the input code (in C++)
-		this.input_ = "";
+        //the input code (in C++)
+        this.input_ = "";
 
-		//the value of the input (such as variables)
-		this.value_ = "";
+        //the value of the input (such as variables)
+        this.value_ = "";
 
-		//type
-		this.typeName_ = "";
-	},
-	
-	onchange: function(){
+        //type
+        this.typeName_ = "";
+    },
 
-		this.allocateValues();
-		this.allocateWarnings();
-	},
+    onchange: function () {
 
-	allocateValues: function(){
-		this.input_ = Blockly.C.valueToCode(this, 'valinp0', Blockly.C.ORDER_ATOMIC);
+        this.allocateValues();
+        this.allocateWarnings();
+    },
 
-		this.value_ = "";
-		this.typeName_ = "";
+    allocateValues: function () {
+        this.input_ = Blockly.C.valueToCode(this, 'valinp0', Blockly.C.ORDER_ATOMIC);
 
-		let block = this.getInputTargetBlock('valinp0');
-		if(block){
-			this.value_ = block.value_;
-			this.typeName_ = block.typeName_;
-		}
+        this.value_ = "";
+        this.typeName_ = "";
 
-		//if the surround parent (array block)
-		//does not exist, auto change the subscript
-		if(!this.getSurroundParent()){
-			this.setFieldValue('', 'init');
-		}
+        let block = this.getInputTargetBlock('valinp0');
+        if (block) {
+            this.value_ = block.value_;
+            this.typeName_ = block.typeName_;
+        }
 
-		
-	},
-
-	allocateWarnings: function(){
-		var TT = "";
-
-		let ptr = this.getSurroundParent();
-
-		var found = false;
-		while(ptr){
-
-			if(ptr.getDataStr() === "isArr"){
-				found = true;
-				break;
-			}
-
-			ptr = ptr.getSurroundParent();
-		}
-
-		if(!found){
-			TT += 'Block Warning, this block must be in an array.\n';
-		}
-
-		if(TT.length > 0){
-			this.setWarningText(TT)
-		}
-		else {
-			this.setWarningText(null);
-		}
+        //if the surround parent (array block)
+        //does not exist, auto change the subscript
+        if (!this.getSurroundParent()) {
+            this.setFieldValue('', 'init');
+        }
 
 
-	}
-	
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+
+        let ptr = this.getSurroundParent();
+
+        var found = false;
+        while (ptr) {
+
+            if (ptr.getDataStr() === "isArr") {
+                found = true;
+                break;
+            }
+
+            ptr = ptr.getSurroundParent();
+        }
+
+        if (!found) {
+            TT += 'Block Warning, this block must be in an array.\n';
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT)
+        } else {
+            this.setWarningText(null);
+        }
+
+
+    }
+
 };
 
-Blockly.C['array_1D_initialization'] = function(block){
-	var code = "";
-	
-	if(block.input_.length > 0){
-		code += block.input_;
-	}
+Blockly.C['array_1D_initialization'] = function (block) {
+    var code = "";
 
-	return code;
+    if (block.input_.length > 0) {
+        code += block.input_;
+    }
+
+    return code;
 };
 
 Blockly.Blocks['array_1D_element'] = {
-	init: function() {
-		
-		this.appendValueInput("valinp0")
-			.setCheck(null);
+    init: function () {
 
-		this.appendValueInput("valinp1")
-			.appendField("[");
+        this.appendValueInput("valinp0")
+            .setCheck(null);
 
-		this.appendDummyInput()
-			.appendField("]");
-			
-			
-		this.setPreviousStatement(false);
-		this.setNextStatement(false);
-		
-		this.setOutput(true, null);
-		this.setColour(arrayHUE);
-		this.setTooltip("");
-		this.setHelpUrl("");
+        this.appendValueInput("valinp1")
+            .appendField("[");
 
-		//size of the array
-		this.size_ = 0;
+        this.appendDummyInput()
+            .appendField("]");
 
-		//array elements
-		this.allocatedSize_ = 0;
 
-		//the current inputted size
-		this.element_ = 0;
+        this.setPreviousStatement(false);
+        this.setNextStatement(false);
 
-		this.dimensions_ = 1;
-		
-		//If this block gets a variable
-		this.isGetter_ = true;
-	},
-	
-	onchange: function(){
-		this.allocateValues();
-		this.allocateBlock();
-		this.allocateWarnings();
-	},
+        this.setOutput(true, null);
+        this.setColour(arrayHUE);
+        this.setTooltip("");
+        this.setHelpUrl("");
 
-	allocateValues: function(){
-		this.getVar_ = Blockly.C.valueToCode( this, 'valinp0', Blockly.C.ORDER_NONE );
-		this.element_ = parseInt( Blockly.C.valueToCode( this, 'valinp1', Blockly.C.ORDER_NONE ) );
+        //size of the array
+        this.size_ = 0;
 
-		let ptr = this.parentBlock_;
+        //array elements
+        this.allocatedSize_ = 0;
 
-		while(ptr){
+        //the current inputted size
+        this.element_ = 0;
 
-			if(ptr.getDataStr() === "isArr" && this.getVar_ === ptr.getVar_){
-				this.size_ = ptr.size_;
+        this.dimensions_ = 1;
 
-				this.allocatedSize_ = ptr.allocatedSize_;
+        //If this block gets a variable
+        this.isGetter_ = true;
+    },
 
-				this.typeName_ = ptr.typeName_;
-				
-				this.dimensions_ = ptr.dimensions_;
+    onchange: function () {
+        this.allocateValues();
+        this.allocateBlock();
+        this.allocateWarnings();
+    },
 
-				if(ptr.arrayElementsValue_[this.element_]){
-					this.value_ = ptr.arrayElementsValue_[this.element_];
-				}
-			}
-			else if (ptr.getDataStr() === "isVar" && this.getVar_ === ptr.getVar_) {
-				this.size_ = ptr.size_;
+    allocateValues: function () {
+        this.getVar_ = Blockly.C.valueToCode(this, 'valinp0', Blockly.C.ORDER_NONE);
+        this.element_ = parseInt(Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_NONE));
 
-				this.allocatedSize_ = ptr.size_;
-				
-				if(ptr.typeName_ === "string"){
-					this.typeName_ = "char";
-				}
-				else{
-					this.typeName_ = ptr.typeName_;
-				}
+        let ptr = this.parentBlock_;
 
-				this.dimensions_ = ptr.dimensions_;
+        while (ptr) {
 
-				this.value_ = ptr.value_;
+            if (ptr.getDataStr() === "isArr" && this.getVar_ === ptr.getVar_) {
+                this.size_ = ptr.size_;
 
-			}
+                this.allocatedSize_ = ptr.allocatedSize_;
 
-			ptr = ptr.parentBlock_;
-		}
+                this.typeName_ = ptr.typeName_;
 
-	},
-	
-	allocateBlock: function(){
-		var block = this.getInputTargetBlock('valinp0');
+                this.dimensions_ = ptr.dimensions_;
 
-		if(block){
-			block.setColour( this.getColour() );
-			block.setDeletable(false);
-			block.setMovable(false);
-		}
+                if (ptr.arrayElementsValue_[this.element_]) {
+                    this.value_ = ptr.arrayElementsValue_[this.element_];
+                }
+            } else if (ptr.getDataStr() === "isVar" && this.getVar_ === ptr.getVar_) {
+                this.size_ = ptr.size_;
 
-		block = this.getInputTargetBlock('valinp1');
+                this.allocatedSize_ = ptr.size_;
 
-		if(block && block.type === "get_num"){
-			block.setColour( this.getColour() );
-			block.getField('NUM').setPrecision(1);
-			block.getField('NUM').setMin(0);
-		}
+                if (ptr.typeName_ === "string") {
+                    this.typeName_ = "char";
+                } else {
+                    this.typeName_ = ptr.typeName_;
+                }
 
-	},
+                this.dimensions_ = ptr.dimensions_;
 
-	allocateWarnings: function(){
-		var TT = "";
-		if(this.getVar_.length > 0){
+                this.value_ = ptr.value_;
 
-			if(this.element_ >= this.size_){
-				//TT += 'Error, attempting to get element [' + this.element_ + '] from array "' + this.getVar_ + '", which has a size of ' + this.size_ + '.\n';
-			}
+            }
 
-			if(this.element_ >= this.allocatedSize_ && !( this.element_ >= this.size_ ) ){
-				//TT += 'Warning, attempting to get uninitialized element [' + this.element_ + '], from array "' + this.getVar_ + '".\n';
-			}
+            ptr = ptr.parentBlock_;
+        }
 
-			if(this.dimensions_ !== 1){
-				TT += 'Error, array "' + this.getVar_ + '" is not compatible with a 1D element setter.\n';
-			}
+    },
 
-		}
-		else {
-			TT += "Error, array variable is required.\n";
-		}
+    allocateBlock: function () {
+        var block = this.getInputTargetBlock('valinp0');
 
-		if(!this.parentBlock_){
-			TT += "Block Error, this block has a return and must be connected.\n";
-		}
-		
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-		
-	}
+        if (block) {
+            block.setColour(this.getColour());
+            block.setDeletable(false);
+            block.setMovable(false);
+        }
+
+        block = this.getInputTargetBlock('valinp1');
+
+        if (block && block.type === "get_num") {
+            block.setColour(this.getColour());
+            block.getField('NUM').setPrecision(1);
+            block.getField('NUM').setMin(0);
+        }
+
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+        if (this.getVar_.length > 0) {
+
+            if (this.element_ >= this.size_) {
+                //TT += 'Error, attempting to get element [' + this.element_ + '] from array "' + this.getVar_ + '", which has a size of ' + this.size_ + '.\n';
+            }
+
+            if (this.element_ >= this.allocatedSize_ && !(this.element_ >= this.size_)) {
+                //TT += 'Warning, attempting to get uninitialized element [' + this.element_ + '], from array "' + this.getVar_ + '".\n';
+            }
+
+            if (this.dimensions_ !== 1) {
+                TT += 'Error, array "' + this.getVar_ + '" is not compatible with a 1D element setter.\n';
+            }
+
+        } else {
+            TT += "Error, array variable is required.\n";
+        }
+
+        if (!this.parentBlock_) {
+            TT += "Block Error, this block has a return and must be connected.\n";
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    }
 };
 
-Blockly.C['array_1D_element'] = function(block) {
-	var code = '';
-	
-	if(this.getVar_.length > 0){
-		code += this.getVar_ + '[' + this.element_ + ']';
-	}
-	
-	return [code, Blockly.C.ORDER_ATOMIC];
+Blockly.C['array_1D_element'] = function (block) {
+    var code = '';
+
+    if (this.getVar_.length > 0) {
+        code += this.getVar_ + '[' + this.element_ + ']';
+    }
+
+    return [code, Blockly.C.ORDER_ATOMIC];
 };
 
 Blockly.Blocks['array_1D_setter'] = {
-	init: function() {
+    init: function () {
 
-		this.appendValueInput("valinp0")
-			.setCheck(null);
+        this.appendValueInput("valinp0")
+            .setCheck(null);
 
-		this.appendValueInput("valinp1")
-			.setCheck(null)
-			.appendField("[");
+        this.appendValueInput("valinp1")
+            .setCheck(null)
+            .appendField("[");
 
-		this.appendDummyInput()
-			.appendField("]");
+        this.appendDummyInput()
+            .appendField("]");
 
-		this.appendValueInput("valinp2")
-			.appendField(" = ")
-			.setCheck(null);
+        this.appendValueInput("valinp2")
+            .appendField(" = ")
+            .setCheck(null);
 
-		this.setInputsInline(true);
-			
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-			
-		this.setColour(arrayHUE);
-		this.setTooltip("");
-		this.setHelpUrl("");
-		this.element_ = 0;
-		this.size_ = 0;
+        this.setInputsInline(true);
 
-		//is this an array block?
-		this.isArr_ = false;
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
 
-		this.dimensions_ = 1;
+        this.setColour(arrayHUE);
+        this.setTooltip("");
+        this.setHelpUrl("");
+        this.element_ = 0;
+        this.size_ = 0;
 
-	},
+        //is this an array block?
+        this.isArr_ = false;
 
-	onchange: function(){
+        this.dimensions_ = 1;
 
-		this.allocateValues();
-		this.allocateBlock();
-		this.allocateWarnings();
-	},
-	
-	allocateValues: function(){
-		this.getVar_ = Blockly.C.valueToCode( this, 'valinp0', Blockly.C.ORDER_NONE );
-		this.element_ = parseInt( Blockly.C.valueToCode( this, 'valinp1', Blockly.C.ORDER_NONE ) );
-		
-		let ptr = this.parentBlock_;
+    },
 
-		this.typeName_ = "";
+    onchange: function () {
 
-		while(ptr){
-			
-			if(this.getVar_ === ptr.getVar_){
+        this.allocateValues();
+        this.allocateBlock();
+        this.allocateWarnings();
+    },
 
-				this.typeName_ = ptr.typeName_;
+    allocateValues: function () {
+        this.getVar_ = Blockly.C.valueToCode(this, 'valinp0', Blockly.C.ORDER_NONE);
+        this.element_ = parseInt(Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_NONE));
 
-				this.size_ = ptr.size_;
+        let ptr = this.parentBlock_;
 
-				this.isArr_ = (ptr.getDataStr() === "isArr");
-				
-				this.dimensions_ = ptr.dimensions_;
+        this.typeName_ = "";
 
-				return;
-			}
-			
-			ptr = ptr.parentBlock_;
-		}
+        while (ptr) {
 
+            if (this.getVar_ === ptr.getVar_) {
 
-	},
+                this.typeName_ = ptr.typeName_;
 
-	allocateBlock: function(){
-		let block = this.getInputTargetBlock('valinp0');
+                this.size_ = ptr.size_;
 
-		if(block && block.type === "get_num"){
-			block.setColour( this.getColour() );
-			block.setMovable(false);
-			block.setDeletable(false);
-			block.getField('NUM').setPrecision(1);
-			block.getField('NUM').setMin(0);
-		}
+                this.isArr_ = (ptr.getDataStr() === "isArr");
 
-		block = this.getInputTargetBlock('valinp1');
+                this.dimensions_ = ptr.dimensions_;
 
-		if(block && block.type === "get_num"){
-			block.setColour( this.getColour() );
-			block.setMovable(false);
-			block.setDeletable(false);
-			block.getField('NUM').setPrecision(1);
-			block.getField('NUM').setMin(0);
-		}
+                return;
+            }
+
+            ptr = ptr.parentBlock_;
+        }
 
 
-	},
+    },
 
-	allocateWarnings: function(){
-		var TT = "";
-		
-		let block = this.getInputTargetBlock('valinp2');
-		
-		//Errors if there is a proper type
+    allocateBlock: function () {
+        let block = this.getInputTargetBlock('valinp0');
 
-		//if a block has been inserted, and its type is known
-		if(block && this.typeName_.length > 0){
+        if (block && block.type === "get_num") {
+            block.setColour(this.getColour());
+            block.setMovable(false);
+            block.setDeletable(false);
+            block.getField('NUM').setPrecision(1);
+            block.getField('NUM').setMin(0);
+        }
 
-			//If the array is of type String and requires Char
-			if(this.typeName_ === "string" && block.typeName_ !== "char" && !this.isArr_){
-				TT += 'Error, "' + this.getVar_ + '" is of type String, which is an array of characters. Insertion must be of type "Char", currently is of type "' + block.typeName_ + '".\n';
-			}
-			
-			//if the two types are incompatible
-			else if (this.typeName_ !== block.typeName_){
-				//If the array is of type String and requires String
-				if(this.typeName_ === "string" && this.isArr_){
-					TT += 'Error, array "' + this.getVar_ + '" is of type "' + this.typeName_ + '", input is of type "' + block.typeName_ + '".\n';
-				}
-	
-				//
-				else if (this.typeName_ !== block.typeName_ && this.typeName_ !== "string"){
-					TT += 'Error, array "' + this.getVar_ + '" is of type "' + this.typeName_ + '", input is of type "' + block.typeName_ + '".\n';
-				}
-				
-			}
-			
-		}
+        block = this.getInputTargetBlock('valinp1');
 
-		//If a variable is known
-		if(this.getVar_.length > 0){
-
-			if(this.element_ >= this.size_){
-				//TT += 'Error, attempting to get element [' + this.element_ + '] from array "' + this.getVar_ + '", which has a size of ' + this.size_ + '.\n';
-			}
-
-			if(this.dimensions_ !== 1){
-				//TT += 'Error, array "' + this.getVar_ + '" is not compatible with a 1D element setter.\n';
-			}
+        if (block && block.type === "get_num") {
+            block.setColour(this.getColour());
+            block.setMovable(false);
+            block.setDeletable(false);
+            block.getField('NUM').setPrecision(1);
+            block.getField('NUM').setMin(0);
+        }
 
 
-		}
-		else {
-			TT += 'Block error, this block requires an array variable.\n';
-		}
-		
-		if(this.typeName_ === "string"){
-			
-			var librarySearch = C_Include;
-			
-			var libFound = librarySearch.search_library(this, ['include_string']);
-			
-			if(!libFound){
-				TT += "Error, <string> library must be included.\n";
-			}
-		}
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+
+        let block = this.getInputTargetBlock('valinp2');
+
+        //Errors if there is a proper type
+
+        //if a block has been inserted, and its type is known
+        if (block && this.typeName_.length > 0) {
+
+            //If the array is of type String and requires Char
+            if (this.typeName_ === "string" && block.typeName_ !== "char" && !this.isArr_) {
+                TT += 'Error, "' + this.getVar_ + '" is of type String, which is an array of characters. Insertion must be of type "Char", currently is of type "' + block.typeName_ + '".\n';
+            }
+
+            //if the two types are incompatible
+            else if (this.typeName_ !== block.typeName_) {
+                //If the array is of type String and requires String
+                if (this.typeName_ === "string" && this.isArr_) {
+                    TT += 'Error, array "' + this.getVar_ + '" is of type "' + this.typeName_ + '", input is of type "' + block.typeName_ + '".\n';
+                }
+
+                //
+                else if (this.typeName_ !== block.typeName_ && this.typeName_ !== "string") {
+                    TT += 'Error, array "' + this.getVar_ + '" is of type "' + this.typeName_ + '", input is of type "' + block.typeName_ + '".\n';
+                }
+
+            }
+
+        }
+
+        //If a variable is known
+        if (this.getVar_.length > 0) {
+
+            if (this.element_ >= this.size_) {
+                //TT += 'Error, attempting to get element [' + this.element_ + '] from array "' + this.getVar_ + '", which has a size of ' + this.size_ + '.\n';
+            }
+
+            if (this.dimensions_ !== 1) {
+                //TT += 'Error, array "' + this.getVar_ + '" is not compatible with a 1D element setter.\n';
+            }
 
 
-		if( !this.getInputTargetBlock('valinp2' ) ){
-			TT += 'Block error, setting an element requires an input.\n';
-		}
+        } else {
+            TT += 'Block error, this block requires an array variable.\n';
+        }
 
-		if(TT.length > 0){
-			this.setWarningText(TT);
-		}
-		else {
-			this.setWarningText(null);
-		}
-	}
+        if (this.typeName_ === "string") {
+
+            var librarySearch = C_Include;
+
+            var libFound = librarySearch.search_library(this, ['include_string']);
+
+            if (!libFound) {
+                TT += "Error, <string> library must be included.\n";
+            }
+        }
+
+
+        if (!this.getInputTargetBlock('valinp2')) {
+            TT += 'Block error, setting an element requires an input.\n';
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+    }
 };
-  
-Blockly.C['array_1D_setter'] = function(block) {
-	var val2 = Blockly.C.valueToCode( this, 'valinp2', Blockly.C.ORDER_NONE );
-	var code = "";
 
-	if( block.getVar_.length > 0 && val2){
-		code += block.getVar_ + '[' + block.element_ + '] = ' + val2 + ';\n';
-	}
+Blockly.C['array_1D_setter'] = function (block) {
+    var val2 = Blockly.C.valueToCode(this, 'valinp2', Blockly.C.ORDER_NONE);
+    var code = "";
 
-	return code;
+    if (block.getVar_.length > 0 && val2) {
+        code += block.getVar_ + '[' + block.element_ + '] = ' + val2 + ';\n';
+    }
+
+    return code;
 };

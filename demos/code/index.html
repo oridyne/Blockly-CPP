@@ -15,7 +15,7 @@
         <script src="js/Logic.js"></script>
         <script src="js/Include.js"></script>
         <script src="js/Scopes.js"></script>
-		<script src="js/Variable Management.js"></script>
+        <script src="js/Variable Management.js"></script>
 
         <script src="Blocks/FileSaver.js"></script>
         <script src="Blocks/filereader.js"></script>
@@ -34,9 +34,9 @@
         <script src="Blocks/Chapter 6 - Arrays.js"></script>
         <script src="Blocks/Chapter 6 - Arrays (2D).js"></script>
         <script src="Blocks/Chapter 6 - Vectors.js"></script>
-		<script src="Blocks/Chapter 7 - Structs.js"></script>
+        <script src="Blocks/Chapter 6 - Pointers.js"></script>
+        <script src="Blocks/Chapter 7 - Structs.js"></script>
         <script src="Blocks/Chapter 7 - Classes.js"></script>
-        <script src="Blocks/Chapter 8 - Pointers.js"></script>
 
         <!-- Include block type inputs -->
       <script src="Blocks/Blocks - Type.js"></script>
@@ -46,7 +46,6 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal@2.20.2/css/jquery.terminal.min.css">
       <script src="js/Terminal.js"></script>
       <script src="js/compilerOptions.js"></script>
-      
     </head>
 
     <body>
@@ -68,6 +67,14 @@
                         <button onclick="loadFileBox()" title="Load your work.">Load Files</button>
                         <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
                                title="Load a blockly save into the program." multiple></input>
+                    </p>
+
+                    <p align="left">
+                        <button onclick="runCode()">Run Code</button>
+                    </p>
+
+                    <p align="left">
+                        <button onclick="stopCodeRun()">Stop Code</button>
                     </p>
                     <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
@@ -160,6 +167,7 @@
             <div class="modal-content">
                 <p>Please enter a valid file name.</p>
                 <input type="text" id="fileTypeName" name="FileTypeName" />
+
                 <div style="display:inline-block">
                     <input type="radio" id="fileTypeH" name="fileTypeButton" value=".h">
                     <label for="fileTypeh">Header(.h)</label><br>
@@ -624,13 +632,13 @@
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
 
-                <block type="user_function"></block>
+                <block type="function_declaration"></block>
 
                 <label text="Function parameters/return" web-class="labelFunction"></label>
 
-                <block type="func_parameters"></block>
+                <block type="function_parameters"></block>
 
-                <block type="func_return"></block>
+                <block type="function_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
                 <block type="get_func"></block>
@@ -1213,13 +1221,13 @@
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
 
-                <block type="user_function"></block>
+                <block type="function_declaration"></block>
 
                 <label text="Function parameters/return" web-class="labelFunction"></label>
 
-                <block type="func_parameters"></block>
+                <block type="function_parameters"></block>
 
-                <block type="func_return"></block>
+                <block type="function_return"></block>
 
                 <label text="Function Getter" web-class="labelFunction"></label>
                 <block type="get_func"></block>
@@ -1384,53 +1392,70 @@
 
                 </category>
 
-                <!-- Chapter 6.20                                                 -->
-                <!-- Pointers                                                     -->
-                <!-- variables that store the memory addresses of other variables -->
+                <<!-- Chapter 6                                                               -->
+                <!-- Pointers - variables that store the memory addresses of other variables -->
+                <!--                                                                         -->
+                <!-- Author:   David J. Hazell                                               -->
+                <!-- Semester: Spring 2021                                                   -->
                 <category name="Pointers" colour="#134796">
 
                     <label text="Pointer Declaration" web-class="labelPointer"></label>
+                    <block type="pointer_declare"></block>
 
+                    <label text="Pointer Initialization" web-class="labelPointer"></label>
+                    <block type="pointer_getter"></block>
+                    <block type="pointer_reference"></block>
                     <block type="pointer_null"></block>
+                    <block type="pointer_nullptr"></block>
 
-                    <label text="Pointer Reference" web-class="labelPointer"></label>
+                    <label text="Pointer Assignment" web-class="labelPointer"></label>
+                    <block type="pointer_assignment">
+                        <value name="valinp1">
+                            <shadow type="pointer_getter">
+                                <field name="VAR"></field>
+                            </shadow>
+                        </value>
+                    </block>
+
+                    <label text="Pointer Operators" web-class="labelPointer"></label>
+                    <block type="pointer_operator"></block>
 
                 </category>
 
             </category>
             <!-- end of Chapter 6 blocks -->
-			
-			<category name = "Chapter 7" colour = "#134796" >
 
-					<label text="Class Declaration" web-class="labelClass"></label>
-					
-					<block type = "ds_class"></block>
-					
-					<label text="Constructor/Destructor" web-class="labelClass"></label>
-					
-					<block type = "class_constructor"></block>
-					
-					<label text="Constructor Parameters" web-class="labelClass"></label>
-					
-					<block type = "class_parameters"></block>
-					
-					<label text="Object Declaration" web-class="labelClass"></label>
+            <category name="Chapter 7" colour="#134796">
 
-					<block type = "ds_object"></block>
-					
-					<label text="Object Block" web-class="labelClass"></label>
-					
-					<block type = "ds_member"></block>
-					
-					<block type="ds_member2">
-						<value name="valinp1">
-							<block type="ds_member"></block>
-						</value>
-					</block>
+                <label text="Class Declaration" web-class="labelClass"></label>
 
-			</category>
-				
-            <!-- end of Chapter 7 blocks -->		
+                <block type="ds_class"></block>
+
+                <label text="Constructor/Destructor" web-class="labelClass"></label>
+
+                <block type="class_constructor"></block>
+
+                <label text="Constructor Parameters" web-class="labelClass"></label>
+
+                <block type="class_parameters"></block>
+
+                <label text="Object Declaration" web-class="labelClass"></label>
+
+                <block type="ds_object"></block>
+
+                <label text="Object Block" web-class="labelClass"></label>
+
+                <block type="ds_member"></block>
+
+                <block type="ds_member2">
+                    <value name="valinp1">
+                        <block type="ds_member"></block>
+                    </value>
+                </block>
+
+            </category>
+
+            <!-- end of Chapter 7 blocks -->
 
         </xml> <!-- toolbox -->
         <!-- <textarea id="content_xml" class="content" wrap="off"></textarea> -->
@@ -1510,10 +1535,10 @@
         font-weight: bold;
         fill: #5B93A5;
     }
-	
-	.labelClass > .blocklyFlyoutLabelText {
-		font-weight: bold;
-		fill: #A5925B	
-	}
+
+    .labelClass > .blocklyFlyoutLabelText {
+        font-weight: bold;
+        fill: #A5925B
+    }
 
 </style>

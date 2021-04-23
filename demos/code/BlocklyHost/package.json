@@ -7,6 +7,7 @@
     "test": "mocha testing/test.js",
     "start": "node server.js",
     "testCxx": "mocha testing/testCxx.js --timeout 30000"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
