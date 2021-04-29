@@ -57,16 +57,19 @@
                         <!--<span id = "version">Beta 1.7</span>-->
                     </h1>
                     <p align="left">
-                    </br>
+                        </br>
                         <button onclick="downloadCode()">Download C++ Code</button>
                         <!-- button onclick="updateLog(this)">Download C++</button -->
                     </p>
 
                     <p align="left">
-                        <button onclick="saveFileCheck()" title="Save your work.">Save Files</button>
-                        <button onclick="loadFileBox()" title="Load your work.">Load Files</button>
+                        <button onclick="showFilePopUp('saveFilePopUp')" title="Save your work.">Save Files</button>
+                        <button onclick="showFilePopUp('loadFilePopUp')" title="Load your work.">Load Files</button>
                         <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
                                title="Load a blockly save into the program." multiple></input>
+                        <button onclick="showFilePopUp('renameFilePopUp')" title="Rename File">Rename File</button>
+                        <button onclick="showFilePopUp('deleteFilePopUp')" title="Delete File">Delete File</button>
+                        <button onclick="showFilePopUp('newFilePopUp')" title="New File">New File</button>
                     </p>
 
                     <p align="left">
@@ -79,7 +82,7 @@
                     <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
                 <td class="farSide">
-                </br>
+                    </br>
                     <select id="languageMenu"></select>
                 </td>
             </tr>
@@ -99,12 +102,7 @@
                                 <div class="fdropdown">
                                     <button class="filedropdownbutton">Files...</button>
                                     <div id="fileDropDown" class="filedropdown-content">
-                                        <a href="javascript:void(0)" onclick="newFileBox()">New File</a>
                                         <a href="javascript:void(0)" id="Main.cpp_file" onclick="makeFileVisible('Main.cpp')">Main.cpp</a>
-                                    </div>
-                                    <div id="fileDropDownDelete" class="filedropdown-delete">
-                                        <a href="javascript:void(0)" style="padding-bottom:4px"</a>
-                                        <a href="javascript:void(0)" id="Main.cpp_del" onclick="deleteFile('Main.cpp')">X</a>
                                     </div>
                                 </div>
                             </td>
@@ -162,9 +160,10 @@
         </div>
         <div id="newFilePopUp" class="modal">
             <div class="modal-header">
-                <div id="close-btn" class="close-btn" onclick="hideModal()">&times;</div>
+                <div id="close-btn" class="close-btn" onclick="hideFilePopUp('newFilePopUp')">&times;</div>
             </div>
             <div class="modal-content">
+                <p><strong>Create A New File...</strong></p>
                 <p>Please enter a valid file name.</p>
                 <input type="text" id="fileTypeName" name="FileTypeName" />
 
@@ -176,22 +175,103 @@
                 </div>
                 <div style="float:right">
                     <input type="button" style="padding:3px" onclick="newFileName()" value="Create File" />
-                    <input type="button" style="padding:3px" onclick="hideModal()" value="Cancel" />
+                    <input type="button" style="padding:3px" onclick="hideFilePopUp('newFilePopUp')" value="Cancel" />
+                </div>
+            </div>
+        </div>
+        <div id="saveFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideFilePopUp('saveFilePopUp')">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p><strong>Save All Files...</strong></p>
+                <p>(Warning!!! Certain browsers will not save over existing files in local user directory. Please ensure file names have saved correctly.)</p>
+                <div>
+                    <input type="button" id="yesSaveFileBtn" style="padding:3px" onclick="saveFileCheck();" value="Save Files" />
+                    <input type="button" id="noSaveFileBtn" style="padding:3px" onclick="hideFilePopUp('saveFilePopUp')" value="Cancel" />
                 </div>
             </div>
         </div>
         <div id="loadFilePopUp" class="modal">
             <div class="modal-header">
-                <div id="close-btn" class="close-btn" onclick="hideLoadBox()">&times;</div>
+                <div id="close-btn" class="close-btn" onclick="hideFilePopUp('loadFilePopUp')">&times;</div>
             </div>
             <div class="modal-content">
-                <p>Merge files/ Create new project?</p>
-                <p>(Warning!!! Creating a new project will clear all current files. All files which have not been saved will be lost.)</p>
+                <p><strong>Load File(s)...</strong></p>
+                <p>(Warning!!! Creating a new project will remove all current files. All files which have not been saved will be lost.)</p>
                 <p>(Warning!!! Merging files with duplicate names will replace existing files. Any replaced file that has not been saved will be lost.)</p>
                 <div>
-                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="New Project" />
-                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideLoadBox();" value="Merge Files" />
-                    <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideLoadBox();" value="Cancel" />
+                    <input type="button" id="yesLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Yes'; document.getElementById('fileSaveBtn').click(); hideFilePopUp('loadFilePopUp');" value="New Project" />
+                    <input type="button" id="noLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'No'; document.getElementById('fileSaveBtn').click(); hideFilePopUp('loadFilePopUp');" value="Merge Files" />
+                    <input type="button" id="cancelLoadFileBtn" style="padding:3px" onclick="yesNoCancelLoadBtn = 'Cancel'; hideFilePopUp('loadFilePopUp');" value="Cancel" />
+                </div>
+            </div>
+        </div>
+        <div id="renameFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideFilePopUp('renameFilePopUp')">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p><strong>Rename A File...</strong></p>
+                <p>Please choose a file to rename and enter a valid new name.</p>
+                <div>
+                    <div style="display:inline-block">
+                        <div>
+                            <form id="originCopyFileDD">
+                                <label for="originCopyFileDD">File to rename:</label>
+                                <select id="originCopyFileDD1" name="originCopyFileDD">
+                                </select>
+                            </form>
+                        </div>
+                        <div>
+                            <p>Please enter a valid file name:</p>
+                            <input type="text" id="renameFileName" name="renameFileName" />
+
+                            <div style="display:inline-block">
+                                <input type="radio" id="renameFileTypeH" name="renameFileTypeButton" value=".h">
+                                <label for="renameFileTypeH">Header(.h)</label><br>
+                                <input type="radio" name="renameFileTypeButton" value=".cpp">
+                                <label for="renameFileTypeC">Class(.cpp)</label><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="float:right">
+                        <input type="button" style="padding:3px" onclick="renameFileChecker()" value="Rename File" />
+                        <input type="button" style="padding:3px" onclick="hideFilePopUp('renameFilePopUp')" value="Cancel" />
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div id="deleteFilePopUp" class="modal">
+            <div class="modal-header">
+                <div id="close-btn" class="close-btn" onclick="hideFilePopUp('deleteFilePopUp')">&times;</div>
+            </div>
+            <div class="modal-content">
+                <p><strong>Delete A File...</strong></p>
+                <p>Please choose a file to remove.</p>
+                <p>(Warning!! Deleted files can not be recovered.)</p>
+                <div>
+                    <div style="display:inline-block">
+                        <div>
+                            <form id="originDeleteFileDD">
+                                <label for="originDeleteFileDD">File to delete:</label>
+                                <select id="originDeleteFileDD1" name="originDeleteFileDD">
+                                </select>
+                            </form>
+                        </div>
+                        <input type="checkbox" id="deleteAllFilesCB" name="deleteAllFilesCB" />
+                        <label for="deleteAllFilesCB">Delete All Files</label>
+                    </div>
+                    <div style="float:right">
+                        <input type="button" style="padding:3px" onclick="deleteFile()" value="Delete File(s)" />
+                        <input type="button" style="padding:3px" onclick="hideFilePopUp('deleteFilePopUp')" value="Cancel" />
+
+                    </div>
+
+
                 </div>
             </div>
         </div>

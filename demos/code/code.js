@@ -302,10 +302,14 @@ Code.tabClick = function (clickedName) {
     }
   
     if (clickedName == 'blocks') {
+        document.getElementById('tab_' + clickedName).className = 'tabon';
         Code.workspace.setVisible(true);
+        
         document.getElementById(currentFile).style.visibility = 'visible';
 		// Hao Loi: turn on c_text element
-		document.getElementById('c_text').style.visibility = 'visible';		
+        document.getElementById('c_text').style.visibility = 'visible';	
+        Code.attemptCodeGeneration(Blockly.C);
+        
     }
     Code.renderContent();
     Blockly.svgResize(Code.workspace);
@@ -422,7 +426,7 @@ Code.init = function () {
                 el1.style.height = (2 * bBox1.height - el1.offsetHeight) + 'px';
                 el1.style.width = bBox1.width + 'px';
                 el1.style.width = (2 * bBox1.width - el1.offsetWidth) + 'px';
-                el1.style.visibility = 'visible';
+               
             }
             else {
             var el2 = document.getElementById('content_' + Code.TABS_[i]);
@@ -702,6 +706,10 @@ var allWorkspaces = new Map();
 function newFileName() {
     
     var initialFileName = document.getElementById("fileTypeName").value;
+    if (initialFileName == "") {
+        window.alert("File name cannot be empty.");
+        return;
+    }
     var fileTypeList = document.getElementsByName("fileTypeButton");
     // Checks radio button for selected file type(.h/.c)
     for (var i = 0; i < fileTypeList.length; i++) {
@@ -717,7 +725,7 @@ function newFileName() {
         return;
     }
     newFile(newFileName);
-    hideModal();
+    hideFilePopUp('newFilePopUp');
 }
 // Creates a new workspace that represents a file.
 function newFile(newFileName) {
@@ -728,13 +736,6 @@ function newFile(newFileName) {
     newFileTag.id = newFileName + "_file"
     newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
     document.getElementById("fileDropDown").appendChild(newFileTag);
-    // Create new file drop down anchor tag (delete button).
-    var newDeleteTag = document.createElement('a');
-    newDeleteTag.href = "javascript:void(0)";
-    newDeleteTag.innerText = "X";
-    newDeleteTag.id = newFileName + "_del";
-    newDeleteTag.addEventListener('click', function () { deleteFile(newFileName) });
-    document.getElementById("fileDropDownDelete").appendChild(newDeleteTag);
     // Create new div(workspace).
     var newFileDiv = document.createElement('div');
     newFileDiv.id = newFileName;
@@ -849,12 +850,29 @@ function checkFileName(newEntry) {
     return false;  
 }
 // Checks if indicated workspace exists.
-function deleteFile(fileToBeDeleted) {
-    if (window.confirm("Delete File (" + fileToBeDeleted + ") ?")) {
+function deleteFile() {
+    var filesToBeDeleted = document.getElementById("deleteAllFilesCB").checked;
+    var fileToBeDeleted = document.getElementById("originDeleteFileDD1").value;
+    if (filesToBeDeleted == true && fileToBeDeleted != "") {
+        var checker = window.confirm("Are you sure you want to delete all files? This action cannot be undone.")
+        if (checker == true) {
+            deleteAllFiles();
+            hideFilePopUp('deleteFilePopUp');
+            window.alert("All Files succesfully deleted.");
+            return;
+        }
+        if (checker == false) {
+            return;
+        }
+    }
+    if (fileToBeDeleted != "") {
         deleteFileConfirm(fileToBeDeleted);
+        hideFilePopUp('deleteFilePopUp');
+        window.alert("File succesfully deleted.");
     }
     else {
-        return;
+        hideFilePopUp('deleteFilePopUp');
+        window.alert("There are no files to delete.");
     }
 }
 // Deletes indicated workspace.
@@ -865,21 +883,25 @@ function deleteFileConfirm(fileToBeDeleted) {
         // Finds the indicated workspace in allFiles.
         if (fileTracker == fileToBeDeleted) {
             // If the current workspace is the indicated file it switches to a different workspace.
-            if ((currentFile == fileToBeDeleted)&&(allFiles.length > 1)) {
+            if ((currentFile == fileToBeDeleted) && (allFiles.length > 1)) {
                 if (currentFile == allFiles[0]) {
                     currentFile = allFiles[1];
                 }
                 else {
                     currentFile = allFiles[0];
+                  
                 }
             }
-            // Removes all HTML elements associated with the indicated worksapce and removes indicated workspace from the map and array.
+            if (allFiles.length == 1) {
+                Code.workspace.clear();
+                Code.attemptCodeGeneration(Blockly.C);
+                document.getElementById('c_text').style.visibility = 'hidden';
+            }
+            // Removes all HTML elements associated with the indicated workspace and removes indicated workspace from the map and array.
             Code.workspace = allWorkspaces.get(allFiles[i]);
             allFiles.splice(i, 1);
             var fileButton = document.getElementById(fileToBeDeleted + "_file");
-            var delButton = document.getElementById(fileToBeDeleted + "_del")
             fileButton.remove();
-            delButton.remove();
             deletedFile.remove();
             allWorkspaces.delete(fileTracker);
             document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
@@ -891,289 +913,359 @@ function deleteFileConfirm(fileToBeDeleted) {
 }
 // Deletes all HTML elements associated with any workspaces, clears the workspace array and map.
 function deleteAllFiles() {
+    Code.workspace.clear();
+    Code.attemptCodeGeneration(Blockly.C);
     for (var i = 0; i < allFiles.length; i++) {
         var deletedFile = document.getElementById(allFiles[i]);
         Code.workspace = allWorkspaces.get(allFiles[i]);
         var fileButton = document.getElementById(allFiles[i] + "_file");
-        var delButton = document.getElementById(allFiles[i] + "_del")
         fileButton.remove();
-        delButton.remove();
         deletedFile.remove();
         allWorkspaces.delete(allFiles[i]);
     }
+    currentFile = "";
     allFiles = [];
+    document.getElementById('c_text').style.visibility = 'hidden';
+    document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
 }
 // Displays the New File pop out box. 
-function newFileBox() {
-    var modal = document.querySelector(".modal");
-    modal.style.display = "block";
-    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
-    toolbox.style.display = "none";
+function showFilePopUp(popUpShow) {
+    populateDropDowns("originDeleteFileDD1");
+    populateDropDowns("originCopyFileDD1");
+    var popUp = document.getElementById(popUpShow);
+    var toolbox = document.querySelectorAll(".blocklyToolboxDiv.blocklyNonSelectable");
+    if (toolbox) {
+        for (var i = 0; i < toolbox.length; i++) {
+            toolbox[i].style.display = "none";
+        }
+    }
+    popUp.style.display = "block";
 }
 // Hides the New File pop out box
-function hideModal() {
-    var modal = document.querySelector(".modal");
-    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
-    toolbox.style.display = "block";
-    modal.style.display = "none";
-}
-function loadFileBox() {
-    var modal = document.getElementById("loadFilePopUp");
-    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
-    toolbox.style.display = "none";
-    modal.style.display = "block";
-}
-function hideLoadBox() {
-    var modal = document.getElementById("loadFilePopUp");
-    var toolbox = document.querySelector(".blocklyToolboxDiv.blocklyNonSelectable");
-    toolbox.style.display = "block";
-    modal.style.display = "none";
-}
-function saveFileCheck() {
-    var confirmSave = window.confirm("Warning!!! (Saved files will have incorrect file names if duplicate files exist in the user directory.)");
-    if (confirmSave == true) {
-        downloadXML();
+function hideFilePopUp(popUpHide) {
+    var popUp = document.getElementById(popUpHide);
+    var toolbox = document.querySelectorAll(".blocklyToolboxDiv.blocklyNonSelectable");
+    if (toolbox) {
+        for (var i = 0; i < toolbox.length; i++) {
+            toolbox[i].style.display = "block";
+        }
     }
-    else {
+    popUp.style.display = "none";
+}
+
+function saveFileCheck() {
+
+    downloadXML();
+    hideFilePopUp('saveFilePopUp');
+}
+
+
+function renameFileChecker() {
+
+    
+    var newFileName = document.getElementById("renameFileName").value;
+    if (newFileName == "") {
+        window.alert("File name cannot be empty.");
         return;
     }
-}
-// Holds the name of each workspace.
-var allFiles = ["Main.cpp",];
-// Tracks the currently visible workspace.
-var currentFile = "Main.cpp";
-// Map of all the divs holding workspaces.
-var allWorkspaces = new Map();
-
-// Gets user input for name of new workspace.
-function newFileName() {
-    
-    var initialFileName = document.getElementById("fileTypeName").value;
-    var fileTypeList = document.getElementsByName("fileTypeButton");
+    var newFileTypeList = document.getElementsByName("renameFileTypeButton");
     // Checks radio button for selected file type(.h/.c)
-    for (var i = 0; i < fileTypeList.length; i++) {
-        if (fileTypeList[i].checked == true) {
-            var fileType = fileTypeList[i].value;
+    for (var i = 0; i < newFileTypeList.length; i++) {
+        if (newFileTypeList[i].checked == true) {
+            var fileType = newFileTypeList[i].value;
         }
-        fileTypeList[i].checked = false;
+        newFileTypeList[i].checked = false;
     }
-    var newFileName = initialFileName + fileType;
+    var newFileName = newFileName + fileType;
     //check for repeat names    
     var isNameTaken = checkFileName(newFileName);
-    if (isNameTaken == true) {     
+    if (isNameTaken == true || !newFileName) {
         return;
     }
-    newFile(newFileName);
-    hideModal();
+    renameFile(newFileName);
+    hideFilePopUp('renameFilePopUp');
+    
+    
+
 }
-// Creates a new workspace that represents a file.
-function newFile(newFileName) {
-    // Create new file drop down anchor tag (file access).
-    var newFileTag = document.createElement('a');
-    newFileTag.href = "javascript:void(0)";
-    newFileTag.innerText = newFileName;
-    newFileTag.id = newFileName + "_file"
-    newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
-    document.getElementById("fileDropDown").appendChild(newFileTag);
-    // Create new file drop down anchor tag (delete button).
-    var newDeleteTag = document.createElement('a');
-    newDeleteTag.href = "javascript:void(0)";
-    newDeleteTag.innerText = "X";
-    newDeleteTag.id = newFileName + "_del";
-    newDeleteTag.addEventListener('click', function () { deleteFile(newFileName) });
-    document.getElementById("fileDropDownDelete").appendChild(newDeleteTag);
-    // Create new div(workspace).
-    var newFileDiv = document.createElement('div');
-    newFileDiv.id = newFileName;
-    newFileDiv.className = "content";
-    var rtl = Code.isRtl();
-    document.body.insertBefore(newFileDiv, document.getElementById('content_c'));
-    // Gives dimensions to new workspace.
-    var container = document.getElementById('content_c');
-    var bBox = Code.getBBox_(container);
-    newFileDiv.style.top = bBox.y + 'px';
-    newFileDiv.style.left = bBox.x + 'px';
-    newFileDiv.style.height = bBox.height + 'px';
-    newFileDiv.style.height = (2 * bBox.height - newFileDiv.offsetHeight) + 'px';
-    newFileDiv.style.width = bBox.width + 'px';
-    newFileDiv.style.width = (2 * bBox.width - newFileDiv.offsetWidth) + 'px';
-    newFileDiv.style.visibility = 'visible';
-    // Injects blockly into new div
-    var newWorkspace = Blockly.inject(newFileDiv, {
-        grid: {
-            spacing: 25,
-            length: 3,
-            colour: '#ccc',
-            snap: true
-        },
-        media: '../../media/',
-        rtl: rtl,
-        toolbox: document.getElementById('toolbox'),
-        zoom: {
-            controls: true,
-            wheel: true
-        }
-    });
-    allWorkspaces.set(newFileName, newWorkspace);
-    allFiles.push(newFileName);
-    makeFileVisible(newFileName);    
-}
-// Indicated workspace generates c code, is resized, becomes visible, and all other workspaces become hidden.
-function makeFileVisible(fileName) {
+function renameFile(newName) {
+    document.getElementById("fileDisplayName").innerHTML = "Current File:   " + newName;
+    var oldFileName = document.getElementById("originCopyFileDD1").value;
+    Code.workspace = allWorkspaces.get(oldFileName);
+    allWorkspaces.delete(oldFileName);
     for (var i = 0; i < allFiles.length; i++) {
-        var showOrHide = document.getElementById(allFiles[i]);
-        if (allFiles[i] == fileName) {
-            showOrHide.style.visibility = 'visible';
-            currentFile = fileName;
-            document.getElementById("fileDisplayName").innerHTML = "Current File:   " + currentFile;
-            Code.workspace = allWorkspaces.get(allFiles[i]);
-            Code.attemptCodeGeneration(Blockly.C);
-            Code.workspace.addChangeListener(Code.generateCode);
-            Blockly.svgResize(Code.workspace);
-        }
-        else {
-            showOrHide.style.visibility = 'hidden';
+        if (allFiles[i] == oldFileName) {
+            allFiles[i] = newName;
         }
     }
-    // Simulates click on tab 'blocks'
-    Code.tabClick('blocks');
+    var oldFile = document.getElementById(oldFileName);
+    oldFile.id = newName;
+
+    var newFileTag = document.getElementById(oldFileName + "_file");
+
+    newFileTag.innerText = newName;
+    newFileTag.id = newName + "_file"
+    newFileTag.removeAttribute("onclick");
+    newFileTag.removeEventListener('click', makeFileVisible);
+    newFileTag.addEventListener('click', function () { makeFileVisible(newName) });
+
+    allWorkspaces.set(newName, Code.workspace);
+    makeFileVisible(newName);
+   
 }
-// Checks to see if User-Entered File Name is valid.
-function checkFileName(newEntry) {
-    var projectedName = newEntry;
-    // Checks for any existing workspaces.
-    if (allFiles.length > 0) {
-        for (var i = 0; i < allFiles.length; i++) {
-            var fileToCheck = allFiles[i];
-            // User entered nothing.
-            if (projectedName == null) {
-                return true;
-            }
-            if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
-                var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
-            }
-            else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
-                var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
-            }
-            // User entered file name that already exists.
-            if (projectedName == fileToCheck) {
-                window.alert("File name is already in use");
-                return true;
-            }
-            // User didnt specify a file type.
-            if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
-                window.alert("Please enter a valid file type( .h ) / ( .cpp )") 
-                return true;
-            }
+function populateDropDowns(ddName) {
+    var dropDown = document.getElementById(ddName);
+    if (dropDown.options.length) {
+        for (var i = dropDown.options.length - 1; i >= 0; i--) {
+            dropDown.remove(i);
         }
-        return false;
     }
-    else {
-        var fileToCheck = allFiles[i];
-        // User entered nothing.
-        if (projectedName == null) {
-            return true;
-        }
-        // User entered file name that already exists.
-        if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
-            var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
-        }
-        else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
-            var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
-        }
-        if (projectedName == fileToCheck) {
-            window.alert("File name is already in use");
+    for (var i = 0; i < allFiles.length; i++) {
+        var newOptionName = allFiles[i];
+        var newOption = document.createElement("option");
+        newOption.text = newOptionName;
+        newOption.value = newOptionName;
+        dropDown.add(newOption);
+
+    }
+
+}
+//// Holds the name of each workspace.
+//var allFiles = ["Main.cpp",];
+//// Tracks the currently visible workspace.
+//var currentFile = "Main.cpp";
+//// Map of all the divs holding workspaces.
+//var allWorkspaces = new Map();
+
+//// Gets user input for name of new workspace.
+//function newFileName() {
+    
+//    var initialFileName = document.getElementById("fileTypeName").value;
+//    var fileTypeList = document.getElementsByName("fileTypeButton");
+//    // Checks radio button for selected file type(.h/.c)
+//    for (var i = 0; i < fileTypeList.length; i++) {
+//        if (fileTypeList[i].checked == true) {
+//            var fileType = fileTypeList[i].value;
+//        }
+//        fileTypeList[i].checked = false;
+//    }
+//    var newFileName = initialFileName + fileType;
+//    //check for repeat names    
+//    var isNameTaken = checkFileName(newFileName);
+//    if (isNameTaken == true) {     
+//        return;
+//    }
+//    newFile(newFileName);
+//    hideModal();
+//}
+//// Creates a new workspace that represents a file.
+//function newFile(newFileName) {
+//    // Create new file drop down anchor tag (file access).
+//    var newFileTag = document.createElement('a');
+//    newFileTag.href = "javascript:void(0)";
+//    newFileTag.innerText = newFileName;
+//    newFileTag.id = newFileName + "_file"
+//    newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
+//    document.getElementById("fileDropDown").appendChild(newFileTag);
+//    // Create new file drop down anchor tag (delete button).
+//    var newDeleteTag = document.createElement('a');
+//    newDeleteTag.href = "javascript:void(0)";
+//    newDeleteTag.innerText = "X";
+//    newDeleteTag.id = newFileName + "_del";
+//    newDeleteTag.addEventListener('click', function () { deleteFile(newFileName) });
+//    document.getElementById("fileDropDownDelete").appendChild(newDeleteTag);
+//    // Create new div(workspace).
+//    var newFileDiv = document.createElement('div');
+//    newFileDiv.id = newFileName;
+//    newFileDiv.className = "content";
+//    var rtl = Code.isRtl();
+//    document.body.insertBefore(newFileDiv, document.getElementById('content_c'));
+//    // Gives dimensions to new workspace.
+//    var container = document.getElementById('content_c');
+//    var bBox = Code.getBBox_(container);
+//    newFileDiv.style.top = bBox.y + 'px';
+//    newFileDiv.style.left = bBox.x + 'px';
+//    newFileDiv.style.height = bBox.height + 'px';
+//    newFileDiv.style.height = (2 * bBox.height - newFileDiv.offsetHeight) + 'px';
+//    newFileDiv.style.width = bBox.width + 'px';
+//    newFileDiv.style.width = (2 * bBox.width - newFileDiv.offsetWidth) + 'px';
+//    newFileDiv.style.visibility = 'visible';
+//    // Injects blockly into new div
+//    var newWorkspace = Blockly.inject(newFileDiv, {
+//        grid: {
+//            spacing: 25,
+//            length: 3,
+//            colour: '#ccc',
+//            snap: true
+//        },
+//        media: '../../media/',
+//        rtl: rtl,
+//        toolbox: document.getElementById('toolbox'),
+//        zoom: {
+//            controls: true,
+//            wheel: true
+//        }
+//    });
+//    allWorkspaces.set(newFileName, newWorkspace);
+//    allFiles.push(newFileName);
+//    makeFileVisible(newFileName);    
+//}
+//// Indicated workspace generates c code, is resized, becomes visible, and all other workspaces become hidden.
+//function makeFileVisible(fileName) {
+//    for (var i = 0; i < allFiles.length; i++) {
+//        var showOrHide = document.getElementById(allFiles[i]);
+//        if (allFiles[i] == fileName) {
+//            showOrHide.style.visibility = 'visible';
+//            currentFile = fileName;
+//            document.getElementById("fileDisplayName").innerHTML = "Current File:   " + currentFile;
+//            Code.workspace = allWorkspaces.get(allFiles[i]);
+//            Code.attemptCodeGeneration(Blockly.C);
+//            Code.workspace.addChangeListener(Code.generateCode);
+//            Blockly.svgResize(Code.workspace);
+//        }
+//        else {
+//            showOrHide.style.visibility = 'hidden';
+//        }
+//    }
+//    // Simulates click on tab 'blocks'
+//    Code.tabClick('blocks');
+//}
+//// Checks to see if User-Entered File Name is valid.
+//function checkFileName(newEntry) {
+//    var projectedName = newEntry;
+//    // Checks for any existing workspaces.
+//    if (allFiles.length > 0) {
+//        for (var i = 0; i < allFiles.length; i++) {
+//            var fileToCheck = allFiles[i];
+//            // User entered nothing.
+//            if (projectedName == null) {
+//                return true;
+//            }
+//            if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
+//                var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
+//            }
+//            else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
+//                var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
+//            }
+//            // User entered file name that already exists.
+//            if (projectedName == fileToCheck) {
+//                window.alert("File name is already in use");
+//                return true;
+//            }
+//            // User didnt specify a file type.
+//            if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
+//                window.alert("Please enter a valid file type( .h ) / ( .cpp )") 
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+//    else {
+//        var fileToCheck = allFiles[i];
+//        // User entered nothing.
+//        if (projectedName == null) {
+//            return true;
+//        }
+//        // User entered file name that already exists.
+//        if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
+//            var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
+//        }
+//        else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
+//            var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
+//        }
+//        if (projectedName == fileToCheck) {
+//            window.alert("File name is already in use");
  
-            return true;
-        }
-        // User didnt specify a file type.
-        if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
-            window.alert("Please enter a valid file type( .h ) / ( .cpp )")
+//            return true;
+//        }
+//        // User didnt specify a file type.
+//        if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
+//            window.alert("Please enter a valid file type( .h ) / ( .cpp )")
            
-            return true;
-        }
-    }
-    return false;  
-}
-// Checks if indicated workspace exists.
-function deleteFile(fileToBeDeleted) {
-    if (window.confirm("Delete File (" + fileToBeDeleted + ") ?")) {
-        deleteFileConfirm(fileToBeDeleted);
-    }
-    else {
-        return;
-    }
-}
-// Deletes indicated workspace.
-function deleteFileConfirm(fileToBeDeleted) {
-    var deletedFile = document.getElementById(fileToBeDeleted);
-    for (var i = 0; i < allFiles.length; i++) {
-        var fileTracker = allFiles[i];
-        // Finds the indicated workspace in allFiles.
-        if (fileTracker == fileToBeDeleted) {
-            // If the current workspace is the indicated file it switches to a different workspace.
-            if ((currentFile == fileToBeDeleted)&&(allFiles.length > 1)) {
-                if (currentFile == allFiles[0]) {
-                    currentFile = allFiles[1];
-                }
-                else {
-                    currentFile = allFiles[0];
-                }
-            }
-            // Removes all HTML elements associated with the indicated worksapce and removes indicated workspace from the map and array.
-            Code.workspace = allWorkspaces.get(allFiles[i]);
-            allFiles.splice(i, 1);
-            var fileButton = document.getElementById(fileToBeDeleted + "_file");
-            var delButton = document.getElementById(fileToBeDeleted + "_del")
-            fileButton.remove();
-            delButton.remove();
-            deletedFile.remove();
-            allWorkspaces.delete(fileTracker);
-            document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
-            if (allFiles.length != 0) {
-                makeFileVisible(currentFile);
-            }
-        }
-    }
-}
-// Deletes all HTML elements associated with any workspaces, clears the workspace array and map.
-function deleteAllFiles() {
-    for (var i = 0; i < allFiles.length; i++) {
-        var deletedFile = document.getElementById(allFiles[i]);
-        Code.workspace = allWorkspaces.get(allFiles[i]);
-        var fileButton = document.getElementById(allFiles[i] + "_file");
-        var delButton = document.getElementById(allFiles[i] + "_del")
-        fileButton.remove();
-        delButton.remove();
-        deletedFile.remove();
-        allWorkspaces.delete(allFiles[i]);
-    }
-    allFiles = [];
-}
-// Displays the New File pop out box. 
-function newFileBox() {
-    var modal = document.querySelector(".modal");
-    modal.style.display = "block";
-}
-// Hides the New File pop out box
-function hideModal() {
-    var modal = document.querySelector(".modal");
-    modal.style.display = "none";
-}
-function loadFileBox() {
-    var modal = document.getElementById("loadFilePopUp");
-    modal.style.display = "block";
-}
-function hideLoadBox() {
-    var modal = document.getElementById("loadFilePopUp");
-    modal.style.display = "none";
-}
-function saveFileCheck() {
-    var confirmSave = window.confirm("Warning!!! (Saved files will have incorrect file names if duplicate files exist in the user directory.)");
-    if (confirmSave == true) {
-        downloadXML();
-    }
-    else {
-        return;
-    }
-}
+//            return true;
+//        }
+//    }
+//    return false;  
+//}
+//// Checks if indicated workspace exists.
+//function deleteFile(fileToBeDeleted) {
+//    if (window.confirm("Delete File (" + fileToBeDeleted + ") ?")) {
+//        deleteFileConfirm(fileToBeDeleted);
+//    }
+//    else {
+//        return;
+//    }
+//}
+//// Deletes indicated workspace.
+//function deleteFileConfirm(fileToBeDeleted) {
+//    var deletedFile = document.getElementById(fileToBeDeleted);
+//    for (var i = 0; i < allFiles.length; i++) {
+//        var fileTracker = allFiles[i];
+//        // Finds the indicated workspace in allFiles.
+//        if (fileTracker == fileToBeDeleted) {
+//            // If the current workspace is the indicated file it switches to a different workspace.
+//            if ((currentFile == fileToBeDeleted)&&(allFiles.length > 1)) {
+//                if (currentFile == allFiles[0]) {
+//                    currentFile = allFiles[1];
+//                }
+//                else {
+//                    currentFile = allFiles[0];
+//                }
+//            }
+//            // Removes all HTML elements associated with the indicated worksapce and removes indicated workspace from the map and array.
+//            Code.workspace = allWorkspaces.get(allFiles[i]);
+//            allFiles.splice(i, 1);
+//            var fileButton = document.getElementById(fileToBeDeleted + "_file");
+//            var delButton = document.getElementById(fileToBeDeleted + "_del")
+//            fileButton.remove();
+//            delButton.remove();
+//            deletedFile.remove();
+//            allWorkspaces.delete(fileTracker);
+//            document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
+//            if (allFiles.length != 0) {
+//                makeFileVisible(currentFile);
+//            }
+//        }
+//    }
+//}
+//// Deletes all HTML elements associated with any workspaces, clears the workspace array and map.
+//function deleteAllFiles() {
+//    for (var i = 0; i < allFiles.length; i++) {
+//        var deletedFile = document.getElementById(allFiles[i]);
+//        Code.workspace = allWorkspaces.get(allFiles[i]);
+//        var fileButton = document.getElementById(allFiles[i] + "_file");
+//        var delButton = document.getElementById(allFiles[i] + "_del")
+//        fileButton.remove();
+//        delButton.remove();
+//        deletedFile.remove();
+//        allWorkspaces.delete(allFiles[i]);
+//    }
+//    allFiles = [];
+//}
+//// Displays the New File pop out box. 
+//function newFileBox() {
+//    var modal = document.querySelector(".modal");
+//    modal.style.display = "block";
+//}
+//// Hides the New File pop out box
+//function hideModal() {
+//    var modal = document.querySelector(".modal");
+//    modal.style.display = "none";
+//}
+//function loadFileBox() {
+//    var modal = document.getElementById("loadFilePopUp");
+//    modal.style.display = "block";
+//}
+//function hideLoadBox() {
+//    var modal = document.getElementById("loadFilePopUp");
+//    modal.style.display = "none";
+//}
+//function saveFileCheck() {
+//    var confirmSave = window.confirm("Warning!!! (Saved files will have incorrect file names if duplicate files exist in the user directory.)");
+//    if (confirmSave == true) {
+//        downloadXML();
+//    }
+//    else {
+//        return;
+//    }
+//}
