@@ -188,7 +188,7 @@ Code.changeLanguage = function () {
  * @param {!Function} func Event handler to bind.
  */
 Code.bindClick = function (el, func) {
-    if (typeof el == 'string') {
+    if (typeof el === 'string') {
         el = document.getElementById(el);
     }
     el.addEventListener('click', func, true);
@@ -268,14 +268,14 @@ Code.tabClick = function (clickedName) {
         }
     }
 
-    if (document.getElementById('tab_blocks').className == 'tabon') {
+    if (document.getElementById('tab_blocks').className === 'tabon') {
         Code.workspace.setVisible(false);		
-    }
+    }''
     // Deselect all tabs and hide all panes.
     for (var i = 0; i < Code.TABS_.length; i++) {
         var name = Code.TABS_[i];
         document.getElementById('tab_' + name).className = 'taboff';
-        if (name == 'blocks') {
+        if (name === 'blocks') {
             for (var j = 0; j < allFiles.length; j++) {
                 document.getElementById(allFiles[j]).style.visibility = 'hidden';
             }
@@ -288,20 +288,18 @@ Code.tabClick = function (clickedName) {
     document.getElementById('c_text').style.visibility = 'hidden';
     // Select the active tab.
     Code.selected = clickedName;
-    if (clickedName == 'c') {
+    if (clickedName === 'c') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
-        document.getElementById('content_' + clickedName).style.visibility =
-            'visible'; 
+        document.getElementById('content_' + clickedName).style.visibility = 'visible'; 
     }
-    else if (clickedName == 'term') {
+    else if (clickedName === 'term') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
-        document.getElementById('content_' + clickedName).style.visibility =
-            'visible';      
+        document.getElementById('content_' + clickedName).style.visibility = 'visible';      
     }
   
-    if (clickedName == 'blocks') {
+    if (clickedName === 'blocks') {
         Code.workspace.setVisible(true);
         document.getElementById(currentFile).style.visibility = 'visible';
 		// Hao Loi: turn on c_text element
@@ -316,24 +314,24 @@ Code.tabClick = function (clickedName) {
  * Populate the currently selected pane with content generated from the blocks.
  */
 Code.renderContent = function () {
-    if (Code.selected == 'blocks') {
+    if (Code.selected === 'blocks') {
         var content = document.getElementById(currentFile);
     }
     else {
         var content = document.getElementById('content_' + Code.selected);
     }
     // Initialize the pane.
-    if (content.id == 'content_xml') {
+    if (content.id === 'content_xml') {
         var xmlTextarea = document.getElementById('content_xml');
         var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
         var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
         xmlTextarea.value = xmlText;
         xmlTextarea.focus();
     }
-    if (content.id == 'content_c') {
+    if (content.id === 'content_c') {
         Code.attemptCodeGeneration(Blockly.C);
     }
-    if (typeof PR == 'object') {
+    if (typeof PR === 'object') {
         PR.prettyPrint();
     }
 };
@@ -344,7 +342,7 @@ Code.renderContent = function () {
  */
 Code.attemptCodeGeneration = function (generator) {
     
-    if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected == 'c') {
+    if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected === 'c') {
 		var content = document.getElementById('content_' + Code.selected);
 		content.textContent = '';
 		console.log("C tab generated code.");
@@ -353,7 +351,7 @@ Code.attemptCodeGeneration = function (generator) {
         // Remove the 'prettyprinted' class, so that Prettify will recalculate.
         content.className = content.className.replace('prettyprinted', '');
     }
-	if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected == "blocks") {
+	if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected === "blocks") {
 		// Hao Loi: generate code to c_text element when blocks tab is selected.
 		var c_text = document.getElementById('c_text');
 		c_text.textContent = '';
@@ -394,14 +392,13 @@ Code.checkAllGeneratorFunctionsDefined = function (generator) {
  */
 Code.init = function () {
     Code.initLanguage();
-
     var rtl = Code.isRtl();
     var container = document.getElementById('content_area');
     var onresize = function (e) {
         var bBox = Code.getBBox_(container);
         // Sets initial code/ workspace areas dimensions and resizes them on change.
         for (var i = 0; i < Code.TABS_.length; i++) {
-            if (Code.TABS_[i] == 'blocks') {
+            if (Code.TABS_[i] === 'blocks') {
                 for (var j = 0; j < allFiles.length; j++) {
                     var el = document.getElementById(allFiles[j]);
                     el.style.top = bBox.y + 'px';
@@ -545,8 +542,6 @@ Code.init = function () {
 	  // move the block to the right and down by 20,50 pixels
 	  newBlock.moveBy(30, 50);
 	  // Hao Loi: simulate click on the tab_c
-
-	
 	// 
     // Lazy-load the syntax-highlighting.
     window.setTimeout(Code.importPrettify, 1);
@@ -608,27 +603,6 @@ Code.initLanguage = function () {
     document.getElementById('linkButton').title = MSG['linkTooltip'];
     document.getElementById('runButton').title = MSG['runTooltip'];
     document.getElementById('trashButton').title = MSG['trashTooltip'];
-};
-
-/**
- * Execute the user's code.
- * Just a quick and dirty eval.  Catch infinite loops.
- */
-Code.runJS = function () {
-    Blockly.C.INFINITE_LOOP_TRAP = 'checkTimeout();\n';
-    var timeouts = 0;
-    var checkTimeout = function () {
-        if (timeouts++ > 1000000) {
-            throw MSG['timeout'];
-        }
-    };
-    var code = Blockly.C.workspaceToCode(Code.workspace);
-    Blockly.C.INFINITE_LOOP_TRAP = null;
-    try {
-        eval(code);
-    } catch (e) {
-        alert(MSG['badCode'].replace('%1', e));
-    }
 };
 
 /**
@@ -792,6 +766,7 @@ function makeFileVisible(fileName) {
     Code.tabClick('blocks');
 }
 // Checks to see if User-Entered File Name is valid.
+//Repeated code
 function checkFileName(newEntry) {
     var projectedName = newEntry;
     // Checks for any existing workspaces.
@@ -799,22 +774,22 @@ function checkFileName(newEntry) {
         for (var i = 0; i < allFiles.length; i++) {
             var fileToCheck = allFiles[i];
             // User entered nothing.
-            if (projectedName == null) {
+            if (projectedName === null) {
                 return true;
             }
-            if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
+            if (projectedName.substring(projectedName.length - 2, projectedName.length) === ".h") {
                 var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
             }
-            else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
+            else if (projectedName.substring(projectedName.length - 4, projectedName.length) === ".cpp") {
                 var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
             }
             // User entered file name that already exists.
-            if (projectedName == fileToCheck) {
+            if (projectedName === fileToCheck) {
                 window.alert("File name is already in use");
                 return true;
             }
             // User didnt specify a file type.
-            if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
+            if ((projectedNameFileType !== ".h") && (projectedNameFileType !== ".cpp")) {
                 window.alert("Please enter a valid file type( .h ) / ( .cpp )") 
                 return true;
             }
@@ -824,7 +799,7 @@ function checkFileName(newEntry) {
     else {
         var fileToCheck = allFiles[i];
         // User entered nothing.
-        if (projectedName == null) {
+        if (projectedName === null) {
             return true;
         }
         // User entered file name that already exists.
@@ -863,10 +838,10 @@ function deleteFileConfirm(fileToBeDeleted) {
     for (var i = 0; i < allFiles.length; i++) {
         var fileTracker = allFiles[i];
         // Finds the indicated workspace in allFiles.
-        if (fileTracker == fileToBeDeleted) {
+        if (fileTrackern === fileToBeDeleted) {
             // If the current workspace is the indicated file it switches to a different workspace.
-            if ((currentFile == fileToBeDeleted)&&(allFiles.length > 1)) {
-                if (currentFile == allFiles[0]) {
+            if ((currentFile === fileToBeDeleted)&&(allFiles.length > 1)) {
+                if (currentFile === allFiles[0]) {
                     currentFile = allFiles[1];
                 }
                 else {

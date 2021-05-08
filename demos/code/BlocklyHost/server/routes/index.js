@@ -1,8 +1,20 @@
+/*
+  Author: Noah Plasse
+  Email: nplasse@qmail.qcc.edu
+  Version: 1.0 
+  2021
+*/
 const 
     url = require('url'),
     chalk = require('chalk'),
     cppService = require('../service/cppService');
 
+/**
+* Request Handler for server 
+*
+* @param  res   the response object returned by the server
+* @param  req   the request object sent by the client 
+*/
 async function requestHandler(req, res) {
     var reqURL = url.parse(req.url);
     var urlPath = reqURL.pathname.substring(1).split("/");
@@ -51,7 +63,7 @@ async function requestHandler(req, res) {
     }
 }
 
-// separate to make stuff more readable
+//CPP Service routing for all CPP requests
 function cppCompileRoute(urlPath, reqMethod, reqBody, res) {
     if(urlPath[1] === 'id' && reqMethod === 'GET' )  {
         cppService.getID(reqBody, res);
