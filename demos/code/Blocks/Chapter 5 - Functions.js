@@ -149,7 +149,7 @@ Blockly.Blocks['function_declaration'] = {
 
         }
 
-        //Check whether this function is a constructor
+        //Check whether this function is a constructor (UPDATE: use class constructor block not functions for constructors/destructors)
         inputBlock = this.getSurroundParent();
         while (inputBlock) {
             switch (inputBlock.getDataStr()) {
