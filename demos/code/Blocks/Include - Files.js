@@ -13,7 +13,6 @@
 */
 
 var includeHUE = 125;
-
 //Define a header file
 Blockly.Blocks['define_file'] = {
 		init: function () {
@@ -100,10 +99,16 @@ Blockly.Blocks['define_file'] = {
 			
 			ptr = ptr.nextConnection.targetBlock();
 		}
-		
-		var CV_manage = C_Var;
-		CV_manage.get.saveClassInfo(this);
-		
+		const CV_manage = C_Var;
+		const currentWorkspace = allWorkspaces.get(this.className_);
+		const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
+		const nodeList = currWorkspaceXML.getElementsByTagName("block");
+		for(let i = 0; i < nodeList.length; i++) {
+			const typeName = nodeList.item(i).getAttribute("type");
+			if( typeName === "define_file") {
+				CV_manage.get.saveClassInfo(this);
+			}
+		}
 	}
 };
 
@@ -111,7 +116,6 @@ Blockly.Blocks['define_file'] = {
 Blockly.C['define_file'] = function (block) {
     var statementCode = 
 		Blockly.C.statementToCode(block, "statementInput");
-	
 	
 	var code = "";
     code += "#ifndef " + this.className_ + "\n";

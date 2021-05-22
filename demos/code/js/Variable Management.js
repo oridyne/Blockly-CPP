@@ -7,7 +7,6 @@ C_Var = {};
 C_Var.get = {};
 
 var classList = new Map();
-var classArrayList = [];
 
 /// A function for returning the data of parameter blocks.
 C_Var.get.parameters = function(block){
@@ -61,47 +60,8 @@ C_Var.get.classParameterMembers = function(block){
 
 //Save information from define block, include block copies that information
 C_Var.get.saveClassInfo = function(block) {
-	var tempBlock = block;
-
-	/*var counter = 0;
-	for (var i = 0; i < classArrayList.length; ++i){
-		if ((classArrayList.i).className_ === block.className_){
-			counter += 0;
-			break;
-		}
+	if(!classList.has(block.className_)) {
+		classList.set(block.className_, block);
+		console.log(`${currentFile} added/updated`);
 	}
-	if (counter !== 0){
-		classArrayList.push(block);
-	}*/
-
-	var doesExist = false;
-	for(var i =0; i < classArrayList.length; i++) { 
-		if(classArrayList[i].className === block.className) {
-		doesExist = true; 
-		break;
-		}
-	}
-	
-	if(!doesExist) classArrayList.push(block);
-	
-	/*var doesExist = false;
-	classArrayList.forEach(item => { 
-	if(item.className === block.className){
-	doesExist = true;
-	break;
-	}
-	});
-	if(!doesExist) {
-		classArrayList.push(block);
-	}
-	*/
-	console.log(classArrayList);
 }
-
-
-/*
-C_Var.get.getClassInfo = function(block) {
-	classList.get(, block);
-}
-
-*/
