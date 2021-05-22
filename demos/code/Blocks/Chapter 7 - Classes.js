@@ -127,6 +127,7 @@ Blockly.Blocks["ds_class"] = {
             }
             ptr = ptr.nextConnection.targetBlock();
         }
+		console.log(this);
     }
 };
 

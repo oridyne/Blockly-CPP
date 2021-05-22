@@ -27,6 +27,7 @@ Blockly.Blocks['define_file'] = {
 		this.setTooltip("");
 		/** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
 		this.setHelpUrl("");
+        this.setDataStr("isClass", true);
 		
 		//append text areas
 		this.appendDummyInput()
@@ -56,6 +57,7 @@ Blockly.Blocks['define_file'] = {
         this.classConParamPrivate_ = [];
 		
 		this.className_ = 'FILE_H';
+		this.getVar_;
 	},
 	
 	onchange: function () {
@@ -86,24 +88,26 @@ Blockly.Blocks['define_file'] = {
 			if (ptr.type !== "ds_class") {
 				break;
 			}
-			this.classVarPublic_.push(ptr.classVarPublic_);
-			this.classFuncProp_.push(ptr.classFuncProp_);
-			this.classFuncParam_.push(ptr.classFuncParam_);
-			this.classConProp_.push(ptr.classConProp_);
-			this.classConParam_.push(ptr.classConParam_);
+			this.classVarPublic_ = (ptr.classVarPublic_);
+			this.classFuncProp_ = (ptr.classFuncProp_);
+			this.classFuncParam_ = (ptr.classFuncParam_);
+			this.classConProp_ = (ptr.classConProp_);
+			this.classConParam_ = (ptr.classConParam_);
 			
-			this.classVarPrivate_.push(ptr.classVarPrivate_);
-			this.classFuncPropPrivate_.push(ptr.classFuncPropPrivate_);
-			this.classFuncParamPrivate_.push(ptr.classFuncParamPrivate_);
-			this.classConPropPrivate_.push(ptr.classConPropPrivate_);
-			this.classConParamPrivate_.push(ptr.classConParamPrivate_);
+			this.classVarPrivate_ = (ptr.classVarPrivate_);
+			this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
 			
-			ptr = ptr.nextConnection.targetBlock();
+			this.getVar_ = ptr.getVar_;
+			
+			break;
 		}
 		
 		var CV_manage = C_Var;
 		CV_manage.get.saveClassInfo(this);
-		
+		console.log(this.getVar_);
 	}
 };
 
@@ -125,15 +129,94 @@ Blockly.C['define_file'] = function (block) {
 Blockly.Blocks['include_file'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("#include file.h");
+            .appendField("#include ")
+			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "classDropdown");
 			
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(includeHUE);
         this.setTooltip("");
         this.setHelpUrl("");
+        this.setDataStr("isClass", true);
 		
-    }
+		this.classVarPublic_ = [];
+        this.classFuncProp_ = [];
+        this.classFuncParam_ = [];
+        this.classConProp_ = [];
+        this.classConParam_ = [];
+		
+		this.classVarPrivate_ = [];
+        this.classFuncPropPrivate_ = [];
+        this.classFuncParamPrivate_ = [];
+        this.classConPropPrivate_ = [];
+        this.classConParamPrivate_ = [];
+		
+		this.className_ = 'FILE_H';
+		this.getVar_;
+    },
+	
+    allocateDropdown: function () {
+        var options = [["", ""]];
+
+		/** add list of defined classes from map to dropdown to select from */
+		if (classArrayList !== 0){
+			for(var i =0; i < classArrayList.length; i++) { 
+				options.push([classArrayList[i].className_, classArrayList[i].className_]);
+			}
+	
+        return options;
+		}
+	},
+	
+	onchange: function () {
+		this.allocateValues();
+	},
+	
+	allocateValues: function () {
+		this.classVarPublic_ = [];
+        this.classFuncProp_ = [];
+        this.classFuncParam_ = [];
+        this.classConProp_ = [];
+        this.classConParam_ = [];
+		
+		this.classVarPrivate_ = [];
+        this.classFuncPropPrivate_ = [];
+        this.classFuncParamPrivate_ = [];
+        this.classConPropPrivate_ = [];
+        this.classConParamPrivate_ = [];
+		
+		this.className_ = this.getField('classDropdown').getText();
+		
+		var ptr;
+		if (classArrayList !== 0) {
+			for(var i =0; i < classArrayList.length; i++) { 
+				if (classArrayList[i].className_ === this.getField('classDropdown').getText()) {
+					ptr = classArrayList[i];
+					break;
+				}
+			}
+		}
+		
+		if (ptr) {
+			this.classVarPublic_ = (ptr.classVarPublic_);
+			this.classFuncProp_ = (ptr.classFuncProp_);
+			this.classFuncParam_ = (ptr.classFuncParam_);
+			this.classConProp_ = (ptr.classConProp_);
+			this.classConParam_ = (ptr.classConParam_);
+			
+			this.classVarPrivate_ = (ptr.classVarPrivate_);
+			this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+			
+			this.getVar_ = ptr.getVar_;
+		}
+		console.log(this);
+		console.log(ptr);
+		console.log(this.getVar_);
+		console.log(ptr.getVar_);
+	}
 };
 
 //Translate to C code output on right.
