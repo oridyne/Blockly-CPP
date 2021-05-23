@@ -6,22 +6,20 @@ C_Var = {};
 
 C_Var.get = {};
 
-var classList = new Map();
+const classList = new Map();
 
 /// A function for returning the data of parameter blocks.
 C_Var.get.parameters = function(block){
 	let ptr = block;
-	var options = [];
+	const options = [];
 	while(ptr)
 	{
 		/// If the block is not a parameter block, exit loop.
-		if (ptr.type !== "func_parameters" && ptr.type !== "class_parameters")
-		{
+		if (ptr.type !== "func_parameters" && ptr.type !== "class_parameters") {
 			return;
 		}
 		/// If it is, begin streaming variables.
-		if (ptr.paramProp_)
-		{
+		if (ptr.paramProp_) {
 			options.push(ptr.paramProp_);
 			//console.log(options);
 		}

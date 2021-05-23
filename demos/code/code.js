@@ -160,15 +160,15 @@ Code.changeLanguage = function () {
     // Store the blocks for the duration of the reload.
     // MSIE 11 does not support sessionStorage on file:// URLs.
     if (window.sessionStorage) {
-        var xml = Blockly.Xml.workspaceToDom(Code.workspace);
-        var text = Blockly.Xml.domToText(xml);
+        const xml = Blockly.Xml.workspaceToDom(Code.workspace);
+        const text = Blockly.Xml.domToText(xml);
         window.sessionStorage.loadOnceBlocks = text;
     }
 
-    var languageMenu = document.getElementById('languageMenu');
-    var newLang = encodeURIComponent(
-            languageMenu.options[languageMenu.selectedIndex].value);
-    var search = window.location.search;
+    const languageMenu = document.getElementById('languageMenu');
+    const newLang = encodeURIComponent(
+        languageMenu.options[languageMenu.selectedIndex].value);
+    let search = window.location.search;
     if (search.length <= 1) {
         search = '?lang=' + newLang;
     } else if (search.match(/[?&]lang=[^&]*/)) {
@@ -199,7 +199,7 @@ Code.bindClick = function (el, func) {
  * Load the Prettify CSS and JavaScript.
  */
 Code.importPrettify = function () {
-    var script = document.createElement('script');
+    const script = document.createElement('script');
     script.setAttribute('src', 'https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js');
     document.head.appendChild(script);
 };
@@ -211,10 +211,10 @@ Code.importPrettify = function () {
  * @private
  */
 Code.getBBox_ = function (element) {
-    var height = element.offsetHeight;
-    var width = element.offsetWidth;
-    var x = 0;
-    var y = 0;
+    const height = element.offsetHeight;
+    const width = element.offsetWidth;
+    let x = 0;
+    let y = 0;
     do {
         x += element.offsetLeft;
         y += element.offsetTop;
@@ -249,9 +249,9 @@ Code.selected = 'blocks';
 Code.tabClick = function (clickedName) {
     // If the XML tab was open, save and render the content.
     if (document.getElementById('tab_xml').className == 'tabon') {
-        var xmlTextarea = document.getElementById('content_xml');
-        var xmlText = xmlTextarea.value;
-        var xmlDom = null;
+        const xmlTextarea = document.getElementById('content_xml');
+        const xmlText = xmlTextarea.value;
+        let xmlDom = null;
         try {
             xmlDom = Blockly.Xml.textToDom(xmlText);
         } catch (e) {

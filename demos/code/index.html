@@ -54,28 +54,16 @@
             <tr>
                 <td>
                     <h1>
-                        <span id="title"></span>
+                        <span id="title">Blockly C++</span>
                         <!--<span id = "version">Beta 1.7</span>-->
                     </h1>
                     <p align="left">
-                    </br>
                         <button onclick="downloadCode()">Download C++ Code</button>
                         <!-- button onclick="updateLog(this)">Download C++</button -->
-                    </p>
-
-                    <p align="left">
                         <button onclick="saveFileCheck()" title="Save your work.">Save Files</button>
                         <button onclick="loadFileBox()" title="Load your work.">Load Files</button>
                         <input type="file" id="fileSaveBtn" onchange="readFile(this)" style="display:none"
                                title="Load a blockly save into the program." multiple></input>
-                    </p>
-
-                    <p align="left">
-                        <button onclick="runCode()">Run Code</button>
-                    </p>
-
-                    <p align="left">
-                        <button onclick="stopCodeRun()">Stop Code</button>
                     </p>
                     <div id="fileDisplayName" style="font-size:150%">Current File: Main.cpp</div>
                 </td>
