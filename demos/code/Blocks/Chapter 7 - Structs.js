@@ -264,7 +264,7 @@ Blockly.Blocks['ds_member'] = {
         this.paramNames_ = [["", ""]];
 
         this.appendValueInput("valinp1")
-            .appendField(new Blockly.FieldDropdown(this.allocateObjDropdown.bind(this)), 'DS')
+            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), 'DS')
             .appendField('', 'operator');
 
 
@@ -408,8 +408,26 @@ Blockly.Blocks['ds_member'] = {
         }
     },
 
-    allocateObjDropdown: function () {
-        return this.paramNames_;
+    allocateDropdown: function () {
+        var options = [["",""]];
+
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            if (ptr.type === "ds_object"){
+               
+                    options.push([ptr.getVar_, ptr.getVar_]);
+                    break;
+            }
+            ptr = ptr.parentBlock_;
+        }
+		ptr = this.getSurroundParent();
+		while (ptr) {
+            if (ptr.type === 'ds_class') {
+				options.push(["this", "this"]);
+			}
+			ptr = ptr.getSurroundParent();
+		}
+        return options;
     },
 
     allocateWarnings: function () {
