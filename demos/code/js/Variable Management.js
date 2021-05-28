@@ -50,7 +50,7 @@ C_Var.get.classParameterMembers = function(block){
 				ptr.classFuncParam_
 			]);
 		}
-		//console.log(ptr);
+
 		/// Get the next parameter block.
 		ptr = ptr.childBlocks_[0];
 	}

@@ -946,7 +946,7 @@ Blockly.Blocks['get_func'] = {
                 ([ptr.isConst_, ptr.typeName_, ptr.ptrType_, ptr.getVar_, true]);
             }
         }
-        console.log(this.funcParam_);
+        
 
         for (var i = 0; i < this.classFuncParam_.length; ++i) {
             if (this.getVar_ === this.classFuncProp_[i][3] &&
@@ -965,11 +965,7 @@ Blockly.Blocks['get_func'] = {
             }
         }
 
-        console.log(this.funcParam_);
-        console.log(this.classFuncProp_);
-        console.log(this.classFuncParam_);
-        console.log(this.classFuncPropPrivate_);
-        console.log(this.classFuncParamPrivate_);
+
     },
 
     allocateConstructors: function (block) {

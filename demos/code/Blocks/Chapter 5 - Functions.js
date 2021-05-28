@@ -2,20 +2,7 @@ var funcHUE = 90;
 
 Blockly.Blocks['function_declaration'] = {
     init: function () {
-
-        /*
-        this.pTypes_ = [
-            ["int", "int"],
-            ["size_t", "size_t"],
-            ["double", "double"],
-            ["char", "char"],
-            ["string", "string"],
-            ["bool", "bool"],
-            ["short", "short"],
-            ["long", "long"],
-            ["long long", "long long"]
-        ];
-        */
+      
 
         this.appendValueInput("valueInput")
             .appendField(new Blockly.FieldDropdown(
@@ -24,21 +11,7 @@ Blockly.Blocks['function_declaration'] = {
                     ["const", "const"]
                 ]),
                 'const')
-            .appendField(new Blockly.FieldDropdown(
-                [
-                    ["void", "void"],
-                    ["int", "int"],
-                    ["size_t", "size_t"],
-                    ["double", "double"],
-                    ["char", "char"],
-                    ["string", "string"],
-                    ["bool", "bool"],
-                    ["short", "short"],
-                    ["long", "long"],
-                    ["long long", "long long"]
-                ]),
-                "myFuncReturn"
-            )
+            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "myFuncReturn")
             .appendField(new Blockly.FieldTextInput("myFunction"), "identifier")
             .appendField('(');
         this.appendDummyInput()
@@ -100,10 +73,37 @@ Blockly.Blocks['function_declaration'] = {
     },
 
     onchange: function () {
-
         this.allocateValues();
         this.allocateWarnings();
     },
+	
+    allocateDropdown: function () {
+        var options = [
+			["void", "void"],
+            ["int", "int"],
+            ["size_t", "size_t"],
+            ["double", "double"],
+            ["char", "char"],
+            ["string", "string"],
+            ["bool", "bool"],
+            ["short", "short"],
+            ["long", "long"],
+            ["long long", "long long"]];
+
+		/** add list of declared classes to dropdown*/
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            if (ptr.getDataStr() === 'isClass') {
+				/** Add class name to dropdown list. */
+                options.push([ptr.getVar_, ptr.getVar_]);
+            }
+            ptr = ptr.parentBlock_;
+        }
+
+
+        return options;
+		
+	},
 
     allocateValues: function () {
         // Modified by David Hazell (SP21)
