@@ -3,9 +3,7 @@
  */
 
 /*TODO:
-	How to access current file name
-	Set current file name for define/include blocks
-	Create a way to pass information between workspaces
+
 	
 
 
@@ -158,7 +156,6 @@ Blockly.Blocks['include_file'] = {
         this.classConParamPrivate_ = [];
 		
 		this.className_ = 'FILE_H';
-		this.getVar_;
     },
 	
     allocateDropdown: function () {
