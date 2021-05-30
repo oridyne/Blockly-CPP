@@ -283,7 +283,7 @@ Blockly.Blocks['ds_member'] = {
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.funcParamClassMembers_ = [];
-
+		this.classObjPrivate_ = [];
         this.isGetter_ = true;
     },
 
@@ -305,6 +305,8 @@ Blockly.Blocks['ds_member'] = {
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.funcParamClassMembers_ = [];
+		this.classObjPrivate_ = [];
+
 
         let ptr = this.parentBlock_;
 
@@ -423,7 +425,9 @@ Blockly.Blocks['ds_member'] = {
 		ptr = this.getSurroundParent();
 		while (ptr) {
             if (ptr.type === 'ds_class') {
-				options.push(["this", "this"]);
+				for (var i = 0; i < ptr.classObjPrivate_.length; i++){
+					options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
+				}
 			}
 			ptr = ptr.getSurroundParent();
 		}

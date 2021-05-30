@@ -52,6 +52,7 @@ Blockly.Blocks['define_file'] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 		
 		this.className_ = currentFile;
 		this.getVar_;
@@ -78,6 +79,7 @@ Blockly.Blocks['define_file'] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 		
 		//only get info from the class declaration block, probably add include here later
 		let ptr = this.getInputTargetBlock("statementInput");
@@ -96,11 +98,13 @@ Blockly.Blocks['define_file'] = {
 			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
 			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
 			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+			this.classObjPrivate_ = (ptr.classObjPrivate_);
 			
 			this.getVar_ = ptr.getVar_;
 			
 			break;
 		}
+<<<<<<< Updated upstream
 		const CV_manage = C_Var;
 		const currentWorkspace = allWorkspaces.get(this.className_);
 		const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
@@ -112,6 +116,12 @@ Blockly.Blocks['define_file'] = {
 
 			}
 		}
+=======
+		
+		var CV_manage = C_Var;
+		CV_manage.get.saveClassInfo(this);
+		
+>>>>>>> Stashed changes
 	}
 };
 
@@ -216,7 +226,10 @@ Blockly.Blocks['include_file'] = {
 			// console.log(ptr);
 			console.log(ptr.getVar_);
 		}
+<<<<<<< Updated upstream
 		// console.log(this.getVar_);
+=======
+>>>>>>> Stashed changes
 	}
 };
 
