@@ -27,6 +27,7 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
+		
 
 		/** Initializing variables to pass in private variable, function, function parameter, class constructor, and class constructor parameter blocks. */
         this.classVarPrivate_ = [];
@@ -34,6 +35,7 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 
 		/** Text input to name class. */
         this.appendDummyInput()
@@ -74,6 +76,7 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 
         /** Public. */
         let ptr = this.getInputTargetBlock("statePublic");
@@ -124,6 +127,9 @@ Blockly.Blocks["ds_class"] = {
                     this.classConPropPrivate_.push(ptr.funcProp_);
                     this.classConParamPrivate_.push(ptr.funcParam_);
                     break;
+				case "ds_object":
+					this.classObjPrivate_.push(ptr.getVar_);
+					break;				
             }
             ptr = ptr.nextConnection.targetBlock();
         }
@@ -351,7 +357,8 @@ Blockly.Blocks['class_parameters'] = {
 		/** Reference */
         this.pPtrs_ = [
             ["", ""],
-            ["&", "&"]
+            ["&", "&"],
+			["*", "*"]
         ];
 
 		/** Constant, data type, pointer, name. */

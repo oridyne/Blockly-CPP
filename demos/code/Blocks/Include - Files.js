@@ -11,7 +11,6 @@
 */
 
 var includeHUE = 125;
-
 //Define a header file
 Blockly.Blocks['define_file'] = {
 		init: function () {
@@ -53,8 +52,10 @@ Blockly.Blocks['define_file'] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 		
-		this.className_ = 'FILE_H';
+		this.className_ = currentFile;
+		this.getVar_;
 	},
 	
 	onchange: function () {
@@ -78,6 +79,7 @@ Blockly.Blocks['define_file'] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 		
 		//only get info from the class declaration block, probably add include here later
 		let ptr = this.getInputTargetBlock("statementInput");
@@ -96,27 +98,42 @@ Blockly.Blocks['define_file'] = {
 			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
 			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
 			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+			this.classObjPrivate_ = (ptr.classObjPrivate_);
 			
 			this.getVar_ = ptr.getVar_;
 			
 			break;
 		}
+<<<<<<< Updated upstream
+		const CV_manage = C_Var;
+		const currentWorkspace = allWorkspaces.get(this.className_);
+		const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
+		const nodeList = currWorkspaceXML.getElementsByTagName("block");
+		for(let i = 0; i < nodeList.length; i++) {
+			const typeName = nodeList.item(i).getAttribute("type");
+			if (typeName === "define_file") {
+				CV_manage.get.saveClassInfo(this);
+
+			}
+		}
+=======
 		
 		var CV_manage = C_Var;
 		CV_manage.get.saveClassInfo(this);
-		console.log(this.getVar_);
+		
+>>>>>>> Stashed changes
 	}
 };
 
 //c code
 Blockly.C['define_file'] = function (block) {
-    var statementCode = 
+	const statementCode =
 		Blockly.C.statementToCode(block, "statementInput");
-	
-	
-	var code = "";
-    code += "#ifndef " + this.className_ + "\n";
-	code += "#define " + this.className_ + "\n";
+	let headerNameArr = block.className_.split(".");
+	let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
+	let code = "";
+	code += "#ifndef " + headerName + "\n";
+	code += "#define " + headerName + "\n";
 	code += statementCode;
 	code += "#endif " + "\n";
     return code;
@@ -152,16 +169,14 @@ Blockly.Blocks['include_file'] = {
     },
 	
     allocateDropdown: function () {
-        var options = [["", ""]];
-
+		const options = [["", ""]];
 		/** add list of defined classes from map to dropdown to select from */
-		if (classArrayList !== 0){
-			for(var i =0; i < classArrayList.length; i++) { 
-				options.push([classArrayList[i].className_, classArrayList[i].className_]);
+		if(classList.size !== 0) {
+			for(const key of classList.keys()) {
+				options.push([key, key]);
 			}
-	
-        return options;
 		}
+		return options;
 	},
 	
 	onchange: function () {
@@ -184,15 +199,16 @@ Blockly.Blocks['include_file'] = {
 		this.className_ = this.getField('classDropdown').getText();
 		
 		var ptr;
-		if (classArrayList !== 0) {
-			for(var i =0; i < classArrayList.length; i++) { 
-				if (classArrayList[i].className_ === this.getField('classDropdown').getText()) {
-					ptr = classArrayList[i];
+
+		if (classList.size !== 0) {
+			for(const value of classList.values()) {
+				if(value.className_ === this.getField('classDropdown').getText()) {
+					ptr = value;
 					break;
 				}
 			}
 		}
-		
+
 		if (ptr) {
 			this.classVarPublic_ = (ptr.classVarPublic_);
 			this.classFuncProp_ = (ptr.classFuncProp_);
@@ -205,22 +221,22 @@ Blockly.Blocks['include_file'] = {
 			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
 			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
 			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
-			
+
 			this.getVar_ = ptr.getVar_;
+			// console.log(ptr);
+			console.log(ptr.getVar_);
 		}
-		console.log(this);
-		console.log(ptr);
-		console.log(this.getVar_);
-		console.log(ptr.getVar_);
+<<<<<<< Updated upstream
+		// console.log(this.getVar_);
+=======
+>>>>>>> Stashed changes
 	}
 };
 
 //Translate to C code output on right.
 Blockly.C['include_file'] = function (block) {
-    // TODO: Assemble C into code variable.
-
-    var code = "#include file.h\n";
-    return code;
+	const code = `#include "${block.className_}"\n`;
+	return code;
 };
 
 
