@@ -62,8 +62,4 @@ C_Var.get.saveClassInfo = function(block) {
 		classList.set(block.className_, block);
 		console.log(`${currentFile} added/updated`);
 	}
-<<<<<<< Updated upstream
-=======
-	
->>>>>>> Stashed changes
 }
