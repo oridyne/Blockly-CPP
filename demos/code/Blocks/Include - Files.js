@@ -115,12 +115,6 @@ Blockly.Blocks['define_file'] = {
 
 			}
 		}
-=======
-		
-		var CV_manage = C_Var;
-		CV_manage.get.saveClassInfo(this);
-		
->>>>>>> Stashed changes
 	}
 };
 
@@ -225,10 +219,6 @@ Blockly.Blocks['include_file'] = {
 			// console.log(ptr);
 			console.log(ptr.getVar_);
 		}
-<<<<<<< Updated upstream
-		// console.log(this.getVar_);
-=======
->>>>>>> Stashed changes
 	}
 };
 
