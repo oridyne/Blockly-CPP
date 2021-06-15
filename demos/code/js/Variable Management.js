@@ -60,6 +60,5 @@ C_Var.get.classParameterMembers = function(block){
 C_Var.get.saveClassInfo = function(block) {
 	if(!classList.has(block.className_)) {
 		classList.set(block.className_, block);
-		console.log(`${currentFile} added/updated`);
 	}
 }

@@ -150,9 +150,7 @@ Blockly.Blocks['get_var'] = {
 
         //Previous declaration
         let ptr = this.parentBlock_;
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isVar':
                     if (ptr.isPointer_ != true) {
@@ -163,9 +161,35 @@ Blockly.Blocks['get_var'] = {
 
                     break;
             }
-
             ptr = ptr.parentBlock_;
         }
+		
+		ptr = this.parentBlock_;
+		while(ptr)
+		{
+			if (ptr.type === 'include_file')
+			{
+                for (var i = 0; i < ptr.classVarPublic_.length; i++)
+				{
+                    options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+                        if (this.getVar_ === ptr.classVarPublic_[i][3]) {
+                            this.isConst_ = ptr.classVarPublic_[i][0];
+                            this.typeName_ = ptr.classVarPublic_[i][1];
+                            this.ptrType_ = ptr.classVarPublic_[i][2];
+                        }
+				}
+                for (var i = 0; i < ptr.classVarPrivate_.length; i++)
+				{
+                    options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
+                        if (this.getVar_ === ptr.classVarPrivate_[i][3]) {
+                            this.isConst_ = ptr.classVarPrivate_[i][0];
+                            this.typeName_ = ptr.classVarPrivate_[i][1];
+                            this.ptrType_ = ptr.classVarPrivate_[i][2];
+                        }
+				}
+			}
+			ptr = ptr.parentBlock_;
+		}
 
         ptr = this.getSurroundParent();
 
@@ -179,7 +203,6 @@ Blockly.Blocks['get_var'] = {
                     if (this.getVar_ === ptr.getVar_) {
                         this.typeName_ = ptr.typeName_;
                     }
-
                     break;
                 case 'ds_member':
                     for (var i = 0; i < ptr.classVarPublic_.length; i++) {
@@ -190,11 +213,9 @@ Blockly.Blocks['get_var'] = {
                             this.ptrType_ = ptr.classVarPublic_[i][2];
                         }
                     }
-
-
-                    break;
+					break;
+					
                 case 'class_constructor':
-                    console.log(ptr.funcParam_);
                     for (var i = 0; i < ptr.funcParam_.length; i++) {
                         options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
                         if (this.getVar_ === ptr.funcParam_[i][3]) {
@@ -244,62 +265,43 @@ Blockly.Blocks['get_var'] = {
     allocateVariableParameters: function () {
         var options = [];
         options.push(["", ""]);
-
         //Loop through to get function variables
         let ptr = this.getSurroundParent();
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isFunc':
-
                     if (ptr.funcParam_) {
-
                         //Loop through the function array to get the names of parameters
                         for (var i = 0; i < ptr.funcParam_.length; ++i) {
                             options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-
                             if (this.getVar_ === ptr.funcParam_[i][3]) {
                                 this.isConst_ = ptr.funcParam_[i][0];
                                 this.typeName_ = ptr.funcParam_[i][1];
                             }
                         }
-
                     }
-
                     break;
             }
-
             ptr = ptr.getSurroundParent();
         }
-
         for (var i = 0; i < options.length; ++i) {
             this.paramNames_.push(options[i]);
         }
-
     },
 
     allocateScope: function () {
-
         //Get Scope variable
-
         let ptr = this.getSurroundParent();
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isFunc':
-
                     for (var i = 0; ptr.paramCount_ && i < ptr.paramCount_; ++i) {
                         (ptr && ptr.paramNames_[i]) ? (this.paramNames_.push([ptr.paramNames_[i], ptr.paramNames_[i]])) : (0);
                     }
-
                     break;
             }
-
             ptr = ptr.getSurroundParent();
         }
-
     },
 
     /**

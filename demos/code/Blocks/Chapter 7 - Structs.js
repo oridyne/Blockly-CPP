@@ -260,13 +260,11 @@ Blockly.C['ds_object'] = function (block) {
 
 Blockly.Blocks['ds_member'] = {
     init: function () {
-
         this.paramNames_ = [["", ""]];
 
         this.appendValueInput("valinp1")
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), 'DS')
             .appendField('', 'operator');
-
 
         this.setInputsInline(false);
         this.setOutput(true);
@@ -305,6 +303,7 @@ Blockly.Blocks['ds_member'] = {
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.funcParamClassMembers_ = [];
+		
 		this.classObjPrivate_ = [];
 
 
@@ -327,18 +326,22 @@ Blockly.Blocks['ds_member'] = {
                         this.ptrType_ = ptr.ptrType_;
                         break;
                     }
-
                     break;
             }
-
             ptr = ptr.parentBlock_;
         }
+		
+
+		
+		
+		
 
         ptr = this.childBlocks_[0];
-
         if (ptr) {
             this.typeName_ = ptr.typeName_;
         }
+
+		
 
         //Allocate pointer type
         let C = C_Logic;
@@ -378,13 +381,12 @@ Blockly.Blocks['ds_member'] = {
         ptr = this.getSurroundParent();
 
         while (ptr) {
-            if (ptr.type === 'user_function' || ptr.type === 'class_constructor') {
+            if (ptr.type === 'function_declaration' || ptr.type === 'class_constructor') {
                 console.log(ptr.funcParamClassMembers_);
                 if (ptr.funcParamClassMembers_) {
                     this.funcParamClassMembers_ = ptr.funcParamClassMembers_;
                     //this.allocateMemberProperties();
                     for (var i = 0; i < ptr.funcParamClassMembers_.length; ++i) {
-                        console.log(ptr.funcParam_);
                         options.push([ptr.funcParamClassMembers_[i][3], ptr.funcParamClassMembers_[i][3]]);
                     }
                 }
@@ -410,6 +412,7 @@ Blockly.Blocks['ds_member'] = {
         }
     },
 
+	//just adding name of classes to the dropdown
     allocateDropdown: function () {
         var options = [["",""]];
 
@@ -420,13 +423,36 @@ Blockly.Blocks['ds_member'] = {
                     options.push([ptr.getVar_, ptr.getVar_]);
                     break;
             }
+            if (ptr.type === 'include_file')
+			{
+				for (var i = 0; i < ptr.classObj_.length; i++)
+				{
+					options.push([ptr.classObj_[i], ptr.classObj_[i]]);
+				}
+				for (var i = 0; i < ptr.classObjPrivate_.length; i++)
+				{
+					options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
+				}
+                    break;
+            }
             ptr = ptr.parentBlock_;
         }
+		
 		ptr = this.getSurroundParent();
 		while (ptr) {
             if (ptr.type === 'ds_class') {
 				for (var i = 0; i < ptr.classObjPrivate_.length; i++){
 					options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
+				}
+			}
+			ptr = ptr.getSurroundParent();
+		}
+		
+		ptr = this.getSurroundParent();
+		while (ptr) {
+            if (ptr.type === 'class_function_definition') {
+				for (var i = 0; i < ptr.funcParam_.length; i++){
+					options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
 				}
 			}
 			ptr = ptr.getSurroundParent();
