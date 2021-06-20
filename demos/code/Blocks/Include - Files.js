@@ -64,9 +64,11 @@ Blockly.Blocks['define_file'] = {
 	},
 	
 	allocateValues: function () {
+		let headerNameArr = currentFile.split(".");
+		let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
 		//TODO: Get the workspace's current file name to replace default <file name>
-		this.setFieldValue(currentFile, "ifndefText");
-		this.setFieldValue(currentFile, "defineText");
+		this.setFieldValue(headerName, "ifndefText");
+		this.setFieldValue(headerName, "defineText");
 		this.className_ = currentFile;
 		
 		this.classVarPublic_ = [];
