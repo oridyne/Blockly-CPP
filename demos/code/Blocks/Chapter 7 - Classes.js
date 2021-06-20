@@ -27,6 +27,7 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
+		this.classObjPublic_ = [];
 		
 
 		/** Initializing variables to pass in private variable, function, function parameter, class constructor, and class constructor parameter blocks. */
@@ -76,6 +77,8 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		
+		this.classObjPublic_ = [];
 		this.classObjPrivate_ = [];
 
         /** Public. */
@@ -100,6 +103,9 @@ Blockly.Blocks["ds_class"] = {
                     this.classConProp_.push(ptr.funcProp_);
                     this.classConParam_.push(ptr.funcParam_);
                     break;
+				case "ds_object":
+					this.classObjPublic_.push(ptr.getVar_);
+					break;	
             }
 			
             ptr = ptr.nextConnection.targetBlock();
@@ -133,6 +139,7 @@ Blockly.Blocks["ds_class"] = {
             }
             ptr = ptr.nextConnection.targetBlock();
         }
+
     }
 };
 
@@ -470,7 +477,7 @@ Blockly.Blocks['class_parameters'] = {
 		/** Check if the block is connected to a function parameter block, function block, or class constructor block. */
         if (!this.parentBlock_) {
             TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
-        } else if (ptr.type !== "func_parameters" && ptr.type !== "user_function" && ptr.type !== "class_constructor") {
+        } else if (ptr.type !== "func_parameters" && ptr.type !== "function_declaration" && ptr.type !== "class_constructor" && ptr.type !== "class_function_definition" && ptr.type !== "class_function_declaration" ) {
             TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
         }
 

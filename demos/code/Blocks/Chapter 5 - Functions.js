@@ -168,10 +168,6 @@ Blockly.Blocks['function_declaration'] = {
 
     },
 
-    allocateParameters: function () {
-
-    },
-
     allocateWarnings: function () {
         var TT = '';
         let C = C_Logic;
@@ -260,7 +256,7 @@ Blockly.Blocks['function_declaration'] = {
         let inputBlock = this.getInputTargetBlock('valueInput');
         while (inputBlock) {
 
-            if (inputBlock.type !== "function_parameters" && inputBlock.type !== "pointer_operator" && inputBlock.type !== "class_parameters") {
+            if (inputBlock.type !== "function_parameters" && inputBlock.type !== "pointer_operator" && inputBlock.type !== "class_parameters" && inputBlock.type !== "class_function_definition") {
                 TT += 'Error, only the function parameter block is allowed in the function parameter.\n';
                 break;
             }
@@ -295,6 +291,7 @@ Blockly.Blocks['function_declaration'] = {
     }
 
 };
+
 Blockly.C['function_declaration'] = function (block) {
 
     // Modified by David Hazell (SP21)
@@ -400,7 +397,7 @@ Blockly.Blocks['function_parameters'] = {
         this.paramProp_[3] = this.getVar_;
         //Default initialization to true
         this.paramProp_[4] = true;
-
+		
     },
 
     allocateWarnings: function () {
@@ -410,7 +407,7 @@ Blockly.Blocks['function_parameters'] = {
 
         if (!this.parentBlock_) {
             TT += 'Error, this block has a return and must be connected.\n';
-        } else if (!["function_parameters", "function_declaration", "pointer_operator", "class_constructor", "class_parameters"].includes(ptr.type)) {
+        } else if (!["function_parameters", "function_declaration", "pointer_operator", "class_constructor", "class_parameters", "class_function_definition"].includes(ptr.type)) {
             TT += 'Error, parameter block must be connected to a parameter block or a function block.\n';
         }
 
@@ -423,6 +420,7 @@ Blockly.Blocks['function_parameters'] = {
     }
 
 };
+
 Blockly.C['function_parameters'] = function (block) {
     let val = Blockly.C.valueToCode(this, 'valueInput', Blockly.C.ORDER_NONE);
     let code = "";
