@@ -690,7 +690,6 @@ Blockly.Blocks['class_function_definition'] = {
             }
             inputBlock = inputBlock.getSurroundParent();
         }
-		console.log(this.funcParam_);
     }
 }
 
