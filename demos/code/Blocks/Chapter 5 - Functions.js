@@ -548,7 +548,7 @@ Blockly.Blocks['function_return'] = {
                 TT += 'Error, attempting to return data in a void function.\n';
             } else if (this.typeName_ !== block.typeName_) {
 
-                TT += 'Error, function must return type "' + this.typeName_ + '", currently returning type "' + block.typeName_ + '".\n';
+                TT += `Error, function must return type "${this.typeName_}", currently returning type "${block.typeName_}".\n`;
 
                 if (this.input_.length < 1) {
                     TT += 'Error, no data is being returned.\n ';
@@ -556,15 +556,14 @@ Blockly.Blocks['function_return'] = {
 
             }
 
-
             if (this.isConst_ !== block.isConst_) {
-                //TT += "Error, function const and return const must be the same.\n";
+                TT += "Error, function const and return const must be the same.\n";
             }
 
         } else {
 
             if (this.typeName_ !== "void") {
-                TT += 'Error, a non-void return must return a "' + this.typeName_ + this.ptrType_ + '".\n';
+                TT += `Error, a non-void return must return a "${this.typeName_} ${this.ptrType_}".\n`;
             }
         }
 
