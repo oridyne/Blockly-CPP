@@ -875,12 +875,16 @@ Blockly.Blocks['get_func'] = {
         options.push(["", ""]);
 
         //Stream the function and parameter
+		
         this.classFuncProp_ = block.classFuncProp_;
         this.classFuncParam_ = block.classFuncParam_;
-
+		
+		
+		
         for (var i = 0; i < block.classFuncProp_.length; ++i) {
             options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
         }
+		
 
         this.paramNames_ = options;
 
@@ -971,12 +975,16 @@ Blockly.Blocks['get_func'] = {
     },
 
     allocateConstructors: function (block) {
+		//initialize empty dropdown
         var options = [];
         options.push(["", ""]);
+		
+		//populate with class name for constructor
         if (block.getField('DS').getText().length > 0) {
             options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
         }
 
+		//array for holding the # of params, and allows for checking type
         var types = [];
 
         for (var i = 1; i <= this.paramCount_; ++i) {
@@ -986,6 +994,9 @@ Blockly.Blocks['get_func'] = {
                 types.push(ptr.typeName_);
             }
         }
+
+		
+		
         for (var i = 0; i < block.classConParam_.length; ++i) {
             if (types.length === block.classConParam_[i].length) {
                 var allEqual = true;
@@ -995,6 +1006,7 @@ Blockly.Blocks['get_func'] = {
                     }
                 }
                 if (allEqual) {
+					
                     this.funcParam_ = block.classConParam_[i];
                     break;
                 }
@@ -1018,8 +1030,8 @@ Blockly.Blocks['get_func'] = {
 
             switch (this.typeName_) {
                 case 'void':
-
-                    if (this.parentBlock_.type !== "get_func_void") {
+					console.log(this.parentBlock_.parentBlock_.type);
+                    if (this.parentBlock_.type !== "get_func_void" && this.parentBlock_.parentBlock_.type !== 'ds_member2') {
                         TT += "Error, cannot return a void. (use void function block).\n"
                     }
 

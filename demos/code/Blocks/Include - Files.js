@@ -57,6 +57,8 @@ Blockly.Blocks['define_file'] = {
 		
 		this.className_ = currentFile;
 		this.getVar_;
+		
+		this.includedClasses_ = [];
 	},
 	
 	onchange: function () {
@@ -85,32 +87,49 @@ Blockly.Blocks['define_file'] = {
         this.classConParamPrivate_ = [];
 		this.classObjPrivate_ = [];
 		
+       /**
+         * OtherFiles Properties
+         *
+         * [0] - getVar_ | name of included class selected
+         *
+         * [1] - function properties
+         *
+         * [2] - parameter properties
+         */
+		this.includedClasses_ = [];
+		
 		//only get info from the class declaration block, probably add include here later
 		let ptr = this.getInputTargetBlock("statementInput");
 		while (ptr) {
-			if (ptr.type !== "ds_class") {
-				break;
+			if (ptr.type === "ds_class")
+			{
+				this.classVarPublic_ = (ptr.classVarPublic_);
+				this.classFuncProp_ = (ptr.classFuncProp_);
+				this.classFuncParam_ = (ptr.classFuncParam_);
+				this.classConProp_ = (ptr.classConProp_);
+				this.classConParam_ = (ptr.classConParam_);
+				this.classObj_ = (ptr.classObjPublic_);
+				
+				this.classVarPrivate_ = (ptr.classVarPrivate_);
+				this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+				this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+				this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+				this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+				this.classObjPrivate_ = (ptr.classObjPrivate_);
+				
+				this.getVar_ = ptr.getVar_;
 			}
-			this.classVarPublic_ = (ptr.classVarPublic_);
-			this.classFuncProp_ = (ptr.classFuncProp_);
-			this.classFuncParam_ = (ptr.classFuncParam_);
-			this.classConProp_ = (ptr.classConProp_);
-			this.classConParam_ = (ptr.classConParam_);
-			this.classObj_ = (ptr.classObjPublic_);
-			
-			this.classVarPrivate_ = (ptr.classVarPrivate_);
-			this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
-			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
-			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
-			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
-			this.classObjPrivate_ = (ptr.classObjPrivate_);
-			
-			this.getVar_ = ptr.getVar_;
-			
-
-			
-			break;
+			ptr = ptr.getNextBlock();
 		}
+		ptr = this.getInputTargetBlock("statementInput");
+		while (ptr) {
+			if (ptr.type === "include_file")
+			{			
+				this.includedClasses_.push(ptr.includedClassesProps_);
+			}
+			ptr = ptr.getNextBlock();
+		}
+		
 		const CV_manage = C_Var;
 		const currentWorkspace = allWorkspaces.get(this.className_);
 		const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
@@ -122,6 +141,7 @@ Blockly.Blocks['define_file'] = {
 
 			}
 		}
+		
 	}
 };
 
@@ -168,6 +188,9 @@ Blockly.Blocks['include_file'] = {
         this.classConParamPrivate_ = [];
 		this.classObjPrivate_ = [];
 		
+		this.includedClasses_ = [];
+		this.includedClassesProps_ = [];
+		
 		this.className_ = 'FILE_H';
     },
 	
@@ -201,6 +224,9 @@ Blockly.Blocks['include_file'] = {
         this.classConParamPrivate_ = [];
 		this.classObjPrivate_ = [];
 		
+		this.includedClasses_ = [];
+		this.includedClassesProps_ = [];
+		
 		this.className_ = this.getField('classDropdown').getText();
 		
 		var ptr;
@@ -229,10 +255,14 @@ Blockly.Blocks['include_file'] = {
 			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
 			this.classObjPrivate_ = (ptr.classObjPrivate_);
 
-			this.getVar_ = ptr.getVar_;
+			this.includedClassesProps_[0] = ptr.getVar_;
+			this.includedClassesProps_[1] = ptr.classFuncProp_;
+			this.includedClassesProps_[2] = ptr.classFuncParam_;
 			
-
+			this.includedClasses_ = (ptr.includedClasses_);
+			this.getVar_ = ptr.getVar_;
 		}
+		
 	}
 };
 
@@ -257,7 +287,8 @@ Blockly.Blocks['class_function_declaration'] = {
             .appendField(new Blockly.FieldDropdown(
                 [
                     ["", ""],
-                    ["const", "const"]
+                    ["const", "const"],
+					["virtual", "virtual"]
                 ]),
                 'const')
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "myFuncReturn")
@@ -325,6 +356,7 @@ Blockly.Blocks['class_function_declaration'] = {
 	
     allocateDropdown: function () {
         var options = [
+			["", ""],
 			["void", "void"],
             ["int", "int"],
             ["size_t", "size_t"],
@@ -357,7 +389,7 @@ Blockly.Blocks['class_function_declaration'] = {
         // - Got rid of funProp[] ... this is just storing existing variables
         //   in an array.  No need to store these values twice.  If you need
         //   to access the function type use this.type_ instead of this.funcProp[1]
-        this.isConst_ = (this.getFieldValue('const') === "const");
+        this.isConst_ = (this.getFieldValue('const'));
         this.type_ = this.getFieldValue('myFuncReturn');
         this.identifier_ = this.getFieldValue('identifier');
 		this.ptr_ = this.getFieldValue('pointer');
@@ -366,7 +398,7 @@ Blockly.Blocks['class_function_declaration'] = {
         // Old variables names - left in place so as not to break existing code that uses these variables
         this.typeName_ = this.getFieldValue('myFuncReturn');
         this.getVar_ = this.getFieldValue('identifier');
-        this.isConst_ = (this.getFieldValue('const') === "const");
+        this.isConst_ = (this.getFieldValue('const'));
         this.isConstructor_ = false;
         this.isDestructor_ = false;
 
@@ -397,7 +429,7 @@ Blockly.Blocks['class_function_declaration'] = {
 
         }
 
-        //Check whether this function is a constructor (UPDATE: use class constructor block not functions for constructors/destructors)
+        //Check whether this function is a constructor
         inputBlock = this.getSurroundParent();
         while (inputBlock) {
             switch (inputBlock.getDataStr()) {
@@ -405,15 +437,17 @@ Blockly.Blocks['class_function_declaration'] = {
                 case 'isClass':
                     if (this.getVar_ === inputBlock.getVar_) {
                         this.isConstructor_ = true;
+						
                     }
                     if (this.getVar_ === ('~' + inputBlock.getVar_)) {
                         this.isDestructor_ = true;
                     }
+					
                     break;
             }
             inputBlock = inputBlock.getSurroundParent();
         }
-
+		
     }
 }
 
@@ -428,30 +462,35 @@ Blockly.C['class_function_declaration'] = function (block) {
     let statementInput = Blockly.C.statementToCode(block, 'statementInput');
     let code = '';
 
-    if (!block.isConstructor_ && !block.isDestructor_) {
-        if (block.isConst_) {
-            code += "const ";
-        }
-
-        if (block.type_ === "string" && !C_Include.using.std(block)) {
-            code += "std::";
-        }
+    
+    if (block.isConst_ === 'const')
+	{
+        code += "const ";
     }
+	else if (block.isConst_ === 'virtual')
+	{
+		code += "virtual "
+	}
+
+    if (block.type_ === "string" && !C_Include.using.std(block)) {
+        code += "std::";
+    }
+    
 	
-    code += block.type_ + block.funcProp_[2] + " " + block.identifier_ + " (" + valueInput + ");\n";
+	if (block.type_ === "")
+	{
+		code += block.identifier_ + "(" + valueInput + ");\n";
+		return code;
+	}
+	
+    code += block.type_ + block.funcProp_[2] + " " + block.identifier_ + "(" + valueInput + ");\n";
+	
     return code;
 };
 
 //def
 Blockly.Blocks['class_function_definition'] = {
     init: function () {
-        this.pPtrs_ = [
-            ["", ""],
-            ["*", "*"],
-            ["&", "&"],
-            ["**", "**"],
-            ["*&", "*&"]
-        ];
 
         this.appendValueInput("valueInput")
             .appendField('const', 'const')
@@ -512,10 +551,6 @@ Blockly.Blocks['class_function_definition'] = {
          * [1] = [true, "string", "&", "myParam2", false]
          */
         this.funcParam_ = [];
-
-        this.isConstructor_ = false;
-
-        this.isDestructor_ = false;
 		
 		this.className_ = 'none';
 
@@ -532,7 +567,8 @@ Blockly.Blocks['class_function_definition'] = {
 		
 		//go up
 		let ptr = this.parentBlock_;
-        while (ptr) {
+        while (ptr)
+		{
 			//find the include file block
             if (ptr.type === 'include_file') {
 				//match the include block to the selected class
@@ -565,9 +601,6 @@ Blockly.Blocks['class_function_definition'] = {
             }
             ptr = ptr.parentBlock_;
         }
-		
-		
-		
 		return options;
 	},
 	
@@ -643,8 +676,6 @@ Blockly.Blocks['class_function_definition'] = {
         this.typeName_ = this.getFieldValue('type');
         this.getVar_ = this.getFieldValue('identifier');
         this.isConst_ = (this.getFieldValue('const') === "const");
-        this.isConstructor_ = false;
-        this.isDestructor_ = false;
 
         //Allocate function properties
         this.funcProp_[0] = this.isConst_;
@@ -673,23 +704,6 @@ Blockly.Blocks['class_function_definition'] = {
             inputBlock = inputBlock.childBlocks_[0];
 
         }
-
-        //Check whether this function is a constructor (UPDATE: use class constructor block not functions for constructors/destructors)
-        inputBlock = this.getSurroundParent();
-        while (inputBlock) {
-            switch (inputBlock.getDataStr()) {
-                case 'isStruct':
-                case 'isClass':
-                    if (this.getVar_ === inputBlock.getVar_) {
-                        this.isConstructor_ = true;
-                    }
-                    if (this.getVar_ === ('~' + inputBlock.getVar_)) {
-                        this.isDestructor_ = true;
-                    }
-                    break;
-            }
-            inputBlock = inputBlock.getSurroundParent();
-        }
     }
 }
 
@@ -704,20 +718,23 @@ Blockly.C['class_function_definition'] = function (block) {
     let statementInput = Blockly.C.statementToCode(block, 'statementInput');
     let code = '';
 
-    if (!block.isConstructor_ && !block.isDestructor_) {
-        if (block.isConst_) {
-            code += "const ";
-        }
+    if (block.isConst_ === 'const')
+	{
+        code += "const ";
+    }
 
-        if (block.type_ === "string" && !C_Include.using.std(block)) {
-            code += "std::";
-        }
+    if (block.type_ === "string" && !C_Include.using.std(block)) {
+        code += "std::";
     }
 	
-    code += block.type_ + block.funcProp_[2] + " " + block.className_ + "::" + block.identifier_ + "(" + valueInput + ") {\n"
+	if (block.type_ !== "")
+	{
+		code += block.type_ + block.funcProp_[2] + " ";
+	}
+	
+    code += block.className_ + "::" + block.identifier_ + "(" + valueInput + ") {\n"
         + statementInput
         + "}\n";
 		
     return code;
 };
-

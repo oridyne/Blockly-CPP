@@ -92,8 +92,18 @@ Blockly.Blocks["ds_class"] = {
 					
 				/** If the block is a function then push data. */
                 case 'isFunc':
+					if (ptr.type === 'class_function_declaration')
+					{
+						//constructor
+						if (ptr.getVar_ === this.getVar_)
+						{
+							this.classConProp_.push(ptr.funcProp_);
+							this.classConParam_.push(ptr.funcParam_);
+						}
+					} 
                     this.classFuncProp_.push(ptr.funcProp_);
                     this.classFuncParam_.push(ptr.funcParam_);
+					
                     break;
             }
 			
@@ -104,7 +114,7 @@ Blockly.Blocks["ds_class"] = {
                     this.classConParam_.push(ptr.funcParam_);
                     break;
 				case "ds_object":
-					this.classObjPublic_.push(ptr.getVar_);
+					this.classObjPublic_.push(ptr.objProp_);
 					break;	
             }
 			
@@ -134,12 +144,12 @@ Blockly.Blocks["ds_class"] = {
                     this.classConParamPrivate_.push(ptr.funcParam_);
                     break;
 				case "ds_object":
-					this.classObjPrivate_.push(ptr.getVar_);
+					this.classObjPrivate_.push(ptr.objProp_);
 					break;				
             }
             ptr = ptr.nextConnection.targetBlock();
         }
-
+		
     }
 };
 
@@ -417,6 +427,7 @@ Blockly.Blocks['class_parameters'] = {
     onchange: function () {
         this.allocateValues();
         this.allocateWarnings();
+		
     },
 
 	/** The allocateValues function is where we stream values into arrays. */
@@ -446,7 +457,19 @@ Blockly.Blocks['class_parameters'] = {
                 this.classVarPublic_ = ptr.classVarPublic_;
                 this.classFuncProp_ = ptr.classFuncProp_;
                 this.classFuncParam_ = ptr.classFuncParam_;
-            }
+            }else if (ptr.type === 'include_file')
+			{
+				for (var i = 0; i < ptr.includedClasses_.length; i++)
+				{
+					//includedClasses_[i][classname:getvar][funcprop][funcparam]
+						if (this.typeName_ === ptr.includedClasses_[i][0])
+						{
+							
+							this.classFuncProp_ = ptr.includedClasses_[i][1];
+							this.classFuncParam_ = ptr.includedClasses_[i][2];
+						}
+				}
+			}
             ptr = ptr.parentBlock_;
         }
     },
@@ -462,6 +485,13 @@ Blockly.Blocks['class_parameters'] = {
 				/** Add class name to dropdown list. */
                 options.push([ptr.getVar_, ptr.getVar_]);
             }
+			if (ptr.type === 'include_file')
+			{
+				for (var i = 0; i < ptr.includedClasses_.length; i++)
+				{
+					options.push([ptr.includedClasses_[i][0],ptr.includedClasses_[i][0]]);
+				}
+			}
             ptr = ptr.parentBlock_;
         }
         return options;
