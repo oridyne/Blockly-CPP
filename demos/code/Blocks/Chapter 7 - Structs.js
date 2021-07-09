@@ -170,7 +170,9 @@ Blockly.Blocks['ds_object'] = {
             switch (ptr.getDataStr()) {
                 case 'isStruct':
                 case 'isClass':
-                    options.push([ptr.getVar_, ptr.getVar_]);
+                    if(!C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                        options.push([ptr.getVar_, ptr.getVar_]);
+                    }
                     break;
             }
             ptr = ptr.parentBlock_;

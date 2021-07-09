@@ -268,8 +268,7 @@ Blockly.Blocks['include_file'] = {
 
 //Translate to C code output on right.
 Blockly.C['include_file'] = function (block) {
-	const code = `#include "${block.className_}"\n`;
-	return code;
+    return `#include "${block.className_}"\n`;
 };
 
 //class function declaration block
@@ -372,8 +371,11 @@ Blockly.Blocks['class_function_declaration'] = {
         let ptr = this.parentBlock_;
         while (ptr) {
             if (ptr.getDataStr() === 'isClass') {
-				/** Add class name to dropdown list. */
-                options.push([ptr.getVar_, ptr.getVar_]);
+                /** Add class name to dropdown list. */
+                const className = ptr.getVar_;
+                if(!C_Var.get.dropdownCheck(options,className)) {
+                    options.push([className, className]);
+                }
             }
             ptr = ptr.parentBlock_;
         }
@@ -562,8 +564,7 @@ Blockly.Blocks['class_function_definition'] = {
 	
 	//dropdown for function type
     allocateDropdown: function () {
-        var options = [
-			["",""]];
+        var options = [["",""]];
 		
 		//go up
 		let ptr = this.parentBlock_;
@@ -590,8 +591,7 @@ Blockly.Blocks['class_function_definition'] = {
 	
 	//dropdown for class ::
 	allocateDropdown2: function () {
-		var options = [
-			["", ""]];
+		var options = [["", ""]];
 			
         let ptr = this.parentBlock_;
         while (ptr) {
@@ -606,8 +606,7 @@ Blockly.Blocks['class_function_definition'] = {
 	
 	//dropdown for function name
 	allocateDropdown3: function () {
-		var options = [
-			["", ""]];
+		var options = [["", ""]];
 			
         let ptr = this.parentBlock_;
         while (ptr) {
@@ -624,7 +623,6 @@ Blockly.Blocks['class_function_definition'] = {
             }
             ptr = ptr.parentBlock_;
         }
-		
 		return options;
 	},
 
