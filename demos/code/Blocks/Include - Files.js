@@ -449,7 +449,7 @@ Blockly.Blocks['class_function_declaration'] = {
         }
 		
     }
-}
+};
 
 //c code
 Blockly.C['class_function_declaration'] = function (block) {
@@ -705,15 +705,10 @@ Blockly.Blocks['class_function_definition'] = {
 
         }
     }
-}
+};
 
 //c code
 Blockly.C['class_function_definition'] = function (block) {
-
-    // Modified by David Hazell (SP21)
-    // - more descriptive variable names
-    // - code string construction easier to follow
-
     let valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
     let statementInput = Blockly.C.statementToCode(block, 'statementInput');
     let code = '';
@@ -738,3 +733,63 @@ Blockly.C['class_function_definition'] = function (block) {
 		
     return code;
 };
+
+Blockly.Blocks['delete_block'] = {
+    init: function () {
+		this.setPreviousStatement(true, null);
+		this.setNextStatement(true, null);
+		this.setOutput(false);
+		
+		this.setColour(includeHUE);
+		this.setTooltip("");
+		this.setHelpUrl("");
+		
+        this.appendValueInput("valinp1")
+            .setCheck(null)
+            .appendField("delete")
+            .appendField("");
+	},
+	
+    onchange: function () {
+       this.allocateWarnings();
+    },
+	
+	allocateWarnings: function () {
+        var TT = "";
+
+        if (this.childBlocks_[0])
+		{
+			ptr = this.childBlocks_[0];
+			if (ptr.type === 'ds_member')
+			{
+				if (ptr.isNew !== true)
+				{
+					TT += "Error, must use delete on object created with new.\n";
+				}
+			}
+		}
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+	}
+};
+
+Blockly.C['delete_block'] = function (block) {
+	var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    var code = '';
+
+    code += 'delete';
+
+	
+	if (val1 != 0) {
+		code += ' ' + val1;
+	}
+    
+    code += ';\n';
+
+    return code;
+};
+

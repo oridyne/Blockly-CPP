@@ -1030,7 +1030,6 @@ Blockly.Blocks['get_func'] = {
 
             switch (this.typeName_) {
                 case 'void':
-					console.log(this.parentBlock_.parentBlock_.type);
                     if (this.parentBlock_.type !== "get_func_void" && this.parentBlock_.parentBlock_.type !== 'ds_member2') {
                         TT += "Error, cannot return a void. (use void function block).\n"
                     }

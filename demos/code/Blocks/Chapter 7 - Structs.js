@@ -146,6 +146,7 @@ Blockly.Blocks['ds_object'] = {
 		this.typeName_ = "";
 		this.getVar_ = "";
 		this.ptrType_ = "";
+		this.isNew = true;
 		
 		//[0] is typeName_ [1] is ptr [2] is var
         this.objProp_ = ["", "", ""];
@@ -201,15 +202,25 @@ Blockly.Blocks['ds_object'] = {
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
+		this.isNew = true;
 
         //variable is the new object
         this.typeName_ = this.getFieldValue('DS');
         this.getVar_ = this.getFieldValue('obj');
         this.ptrType_ = this.getFieldValue('ptr');
 		
+		if (this.childBlocks_[0]) {
+			if (this.childBlocks_[0].type === 'ds_member') {
+				this.isNew = false;
+			}
+		}
+		
         this.objProp_[0] = this.typeName_;
         this.objProp_[1] = this.ptrType_;
         this.objProp_[2] = this.getVar_;
+        this.objProp_[3] = this.isNew;
+		
+		
 
         let ptr = this.parentBlock_;
 
@@ -257,6 +268,18 @@ Blockly.Blocks['ds_object'] = {
         if (this.getFieldValue('DS').length < 1) {
             TT += 'Error, type class needed.\n';
         }
+		
+		if (this.childBlocks_[0])
+		{
+			ptr = this.childBlocks_[0];
+			if (ptr.type === 'ds_member')
+			{
+				if (this.ptrType_ !== ptr.ptrType_)
+				{
+					TT += "Error, pointer level mismatch\n";
+				}
+			}
+		}
 
         if (TT.length > 0) {
             this.setWarningText(TT);
@@ -276,6 +299,18 @@ Blockly.C['ds_object'] = function (block) {
 
     var code = "";
 
+	if (nextBlock && nextBlock.type === "ds_member") {
+		
+		code += DS;
+		if (ptr.length > 0)
+		{
+			code += ptr;
+		}
+		code += ' ' + obj + ' = ' + nextBlock.getVar_ + ';\n';
+		
+		return code;
+	}
+
     if (ptr.length > 0) {
         code += DS + ptr + ' ' + obj + ' = new ' + DS;
     } else {
@@ -285,6 +320,8 @@ Blockly.C['ds_object'] = function (block) {
     if (nextBlock && nextBlock.type === "get_func" && val1.length > 0) {
         code += val1;
     }
+	
+
 
     code += ';\n';
 
@@ -320,6 +357,7 @@ Blockly.Blocks['ds_member'] = {
         this.typeName_ = "";
         this.getVar_ = "";
         this.ptrType_ = "";
+		this.isNew = true;
     },
 
     onchange: function () {
@@ -335,6 +373,7 @@ Blockly.Blocks['ds_member'] = {
         this.getVar_ = this.getField("DS").getText();
         this.typeName_ = "";
 		this.ptrType_ = '';
+		this.isNew = true;
 
         this.classVarPublic_ = [];
         this.classArrPublic_ = [];
@@ -359,6 +398,7 @@ Blockly.Blocks['ds_member'] = {
                         this.classVecPublic_ = ptr.classVecPublic_;
                         this.classFuncProp_ = ptr.classFuncProp_;
                         this.classFuncParam_ = ptr.classFuncParam_;
+						this.isNew = ptr.isNew;
                     }
 					break;
                 case 'include_file':
@@ -368,6 +408,7 @@ Blockly.Blocks['ds_member'] = {
 						{
 							this.typeName_ = ptr.classObjPrivate_[i][0];
 							this.ptrType_ = ptr.classObjPrivate_[i][1];
+							this.isNew = ptr.classObjPrivate_[i][3];
 						}
 					}
                     break;
@@ -432,8 +473,6 @@ Blockly.Blocks['ds_member'] = {
         } else {
             this.setFieldValue('', 'operator');
         }
-		
-		
     },
 
 
@@ -475,7 +514,7 @@ Blockly.Blocks['ds_member'] = {
                 if (this.funcParamClassMembers_[i][j]) {
                     //this.classVarPublic_.push(this.funcParamClassMembers_[i][j]);
                 }
-                console.log(this.funcParamClassMembers_[i][j]);
+                
             }
         }
     },
