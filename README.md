@@ -1,16 +1,16 @@
-##Blockly C++
+# Blockly C++
 
 To access Blockly C++, go to:
 demos->code->index.html
 
-##Library changes
+# Library changes
 In Blockly C++, two core files have been edited.
 
 - core/block.js
 
 - core/field_dropdown.js
 
-##Credits
+# Credits
 
 Thanks to the blockly team, blockly can be found here
 https://github.com/google/blockly
