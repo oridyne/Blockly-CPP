@@ -150,9 +150,7 @@ Blockly.Blocks['get_var'] = {
 
         //Previous declaration
         let ptr = this.parentBlock_;
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isVar':
                     if (ptr.isPointer_ != true) {
@@ -163,9 +161,35 @@ Blockly.Blocks['get_var'] = {
 
                     break;
             }
-
             ptr = ptr.parentBlock_;
         }
+		
+		ptr = this.parentBlock_;
+		while(ptr)
+		{
+			if (ptr.type === 'include_file')
+			{
+                for (var i = 0; i < ptr.classVarPublic_.length; i++)
+				{
+                    options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
+                        if (this.getVar_ === ptr.classVarPublic_[i][3]) {
+                            this.isConst_ = ptr.classVarPublic_[i][0];
+                            this.typeName_ = ptr.classVarPublic_[i][1];
+                            this.ptrType_ = ptr.classVarPublic_[i][2];
+                        }
+				}
+                for (var i = 0; i < ptr.classVarPrivate_.length; i++)
+				{
+                    options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
+                        if (this.getVar_ === ptr.classVarPrivate_[i][3]) {
+                            this.isConst_ = ptr.classVarPrivate_[i][0];
+                            this.typeName_ = ptr.classVarPrivate_[i][1];
+                            this.ptrType_ = ptr.classVarPrivate_[i][2];
+                        }
+				}
+			}
+			ptr = ptr.parentBlock_;
+		}
 
         ptr = this.getSurroundParent();
 
@@ -179,7 +203,6 @@ Blockly.Blocks['get_var'] = {
                     if (this.getVar_ === ptr.getVar_) {
                         this.typeName_ = ptr.typeName_;
                     }
-
                     break;
                 case 'ds_member':
                     for (var i = 0; i < ptr.classVarPublic_.length; i++) {
@@ -190,11 +213,9 @@ Blockly.Blocks['get_var'] = {
                             this.ptrType_ = ptr.classVarPublic_[i][2];
                         }
                     }
-
-
-                    break;
+					break;
+					
                 case 'class_constructor':
-                    console.log(ptr.funcParam_);
                     for (var i = 0; i < ptr.funcParam_.length; i++) {
                         options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
                         if (this.getVar_ === ptr.funcParam_[i][3]) {
@@ -220,18 +241,18 @@ Blockly.Blocks['get_var'] = {
                     for (var i = 0; i < ptr.classVarPublic_.length; ++i) {
                         options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
                     }
-
                     for (var i = 0; i < ptr.classVarPrivate_.length; ++i) {
                         options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
                     }
-
+                    for (var i = 0; i < ptr.classVarProtected_.length; ++i) {
+                        options.push([ptr.classVarProtected_[i][3], ptr.classVarProtected_[i][3]]);
+                    }
                     break;
 
 
             }
 
 
-            //console.log(ptr.type);
             ptr = ptr.getSurroundParent();
         }
 
@@ -244,62 +265,43 @@ Blockly.Blocks['get_var'] = {
     allocateVariableParameters: function () {
         var options = [];
         options.push(["", ""]);
-
         //Loop through to get function variables
         let ptr = this.getSurroundParent();
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isFunc':
-
                     if (ptr.funcParam_) {
-
                         //Loop through the function array to get the names of parameters
                         for (var i = 0; i < ptr.funcParam_.length; ++i) {
                             options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-
                             if (this.getVar_ === ptr.funcParam_[i][3]) {
                                 this.isConst_ = ptr.funcParam_[i][0];
                                 this.typeName_ = ptr.funcParam_[i][1];
                             }
                         }
-
                     }
-
                     break;
             }
-
             ptr = ptr.getSurroundParent();
         }
-
         for (var i = 0; i < options.length; ++i) {
             this.paramNames_.push(options[i]);
         }
-
     },
 
     allocateScope: function () {
-
         //Get Scope variable
-
         let ptr = this.getSurroundParent();
-
         while (ptr) {
-
             switch (ptr.getDataStr()) {
                 case 'isFunc':
-
                     for (var i = 0; ptr.paramCount_ && i < ptr.paramCount_; ++i) {
                         (ptr && ptr.paramNames_[i]) ? (this.paramNames_.push([ptr.paramNames_[i], ptr.paramNames_[i]])) : (0);
                     }
-
                     break;
             }
-
             ptr = ptr.getSurroundParent();
         }
-
     },
 
     /**
@@ -353,12 +355,19 @@ Blockly.Blocks['get_var'] = {
                             this.isInClass_ = true;
                         }
                     }
-
                     for (var i = 0; i < ptr.classVarPrivate_.length; ++i) {
                         if (this.getVar_ === ptr.classVarPrivate_[i][3]) {
                             this.isConst_ = ptr.classVarPrivate_[i][0];
                             this.typeName_ = ptr.classVarPrivate_[i][1];
                             this.ptrType_ = ptr.classVarPrivate_[i][2];
+                            this.isInClass_ = true;
+                        }
+                    }
+                    for (var i = 0; i < ptr.classVarProtected_.length; ++i) {
+                        if (this.getVar_ === ptr.classVarProtected_[i][3]) {
+                            this.isConst_ = ptr.classVarProtected_[i][0];
+                            this.typeName_ = ptr.classVarProtected_[i][1];
+                            this.ptrType_ = ptr.classVarProtected_[i][2];
                             this.isInClass_ = true;
                         }
                     }
@@ -873,12 +882,16 @@ Blockly.Blocks['get_func'] = {
         options.push(["", ""]);
 
         //Stream the function and parameter
+		
         this.classFuncProp_ = block.classFuncProp_;
         this.classFuncParam_ = block.classFuncParam_;
-
+		
+		
+		
         for (var i = 0; i < block.classFuncProp_.length; ++i) {
             options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
         }
+		
 
         this.paramNames_ = options;
 
@@ -959,7 +972,6 @@ Blockly.Blocks['get_func'] = {
                 }
                 if (allEqual) {
                     //this.funcParam_ = this.classFuncParam_[i];
-                    console.log(this.classFuncParam_[i]);
                     break;
                 }
             }
@@ -969,12 +981,16 @@ Blockly.Blocks['get_func'] = {
     },
 
     allocateConstructors: function (block) {
+		//initialize empty dropdown
         var options = [];
         options.push(["", ""]);
+		
+		//populate with class name for constructor
         if (block.getField('DS').getText().length > 0) {
             options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
         }
 
+		//array for holding the # of params, and allows for checking type
         var types = [];
 
         for (var i = 1; i <= this.paramCount_; ++i) {
@@ -984,6 +1000,9 @@ Blockly.Blocks['get_func'] = {
                 types.push(ptr.typeName_);
             }
         }
+
+		
+		
         for (var i = 0; i < block.classConParam_.length; ++i) {
             if (types.length === block.classConParam_[i].length) {
                 var allEqual = true;
@@ -993,6 +1012,7 @@ Blockly.Blocks['get_func'] = {
                     }
                 }
                 if (allEqual) {
+					
                     this.funcParam_ = block.classConParam_[i];
                     break;
                 }
@@ -1016,8 +1036,7 @@ Blockly.Blocks['get_func'] = {
 
             switch (this.typeName_) {
                 case 'void':
-
-                    if (this.parentBlock_.type !== "get_func_void") {
+                    if (this.parentBlock_.type !== "get_func_void" && this.parentBlock_.parentBlock_.type !== 'ds_member2') {
                         TT += "Error, cannot return a void. (use void function block).\n"
                     }
 

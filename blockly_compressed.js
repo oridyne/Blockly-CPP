@@ -27952,14 +27952,25 @@ Blockly.Trashcan.prototype.mouseOut_ = function() {
 
 Blockly.Trashcan.prototype.onDelete_ = function(a) {
 
-	if (!(0 >= this.workspace_.options.maxTrashcanContents) && a.type == Blockly.Events.BLOCK_DELETE && "shadow" != a.oldXml.tagName.toLowerCase() && (a = this.cleanBlockXML_(a.oldXml), -1 == this.contents_.indexOf(a))) {
+	if (!(0 >= this.workspace_.options.maxTrashcanContents) && a.type === Blockly.Events.BLOCK_DELETE && "shadow" !== a.oldXml.tagName.toLowerCase() ) {
 
-		for (this.contents_.unshift(a); this.contents_.length > this.workspace_.options.maxTrashcanContents;) this.contents_.pop();
+		if (a.oldXml.getAttribute("type") === "define_file") {
 
-		this.minOpenness_ = this.HAS_BLOCKS_LID_ANGLE;
+			classList.delete(currentFile);
 
-		this.setLidAngle_(45 * this.minOpenness_)
+			console.log(`${currentFile} removed`);
 
+		}
+
+		if((a = this.cleanBlockXML_(a.oldXml), -1 === this.contents_.indexOf(a))) {
+
+			for (this.contents_.unshift(a); this.contents_.length > this.workspace_.options.maxTrashcanContents;) this.contents_.pop();
+
+			this.minOpenness_ = this.HAS_BLOCKS_LID_ANGLE;
+
+			this.setLidAngle_(45 * this.minOpenness_)
+
+		}
 	}
 
 };

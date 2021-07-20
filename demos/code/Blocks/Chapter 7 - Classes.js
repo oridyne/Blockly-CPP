@@ -27,6 +27,8 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
+		this.classObjPublic_ = [];
+		
 
 		/** Initializing variables to pass in private variable, function, function parameter, class constructor, and class constructor parameter blocks. */
         this.classVarPrivate_ = [];
@@ -34,11 +36,13 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		this.classObjPrivate_ = [];
 
 		/** Text input to name class. */
         this.appendDummyInput()
             .appendField("class")
-            .appendField(new Blockly.FieldTextInput("myClass"), "myClassDec");
+            .appendField(new Blockly.FieldTextInput("myClass"), "myClassDec")
+			.appendField(" {");
 
 		/** Area for blocks to be defined in public class section. */
         this.appendDummyInput()
@@ -51,6 +55,9 @@ Blockly.Blocks["ds_class"] = {
             .appendField("private:");
         this.appendStatementInput("statePrivate")
             .setCheck(null);
+			
+        this.appendDummyInput()
+            .appendField('}');
     },
 
 	/** The onchange function is called when a block is moved or updated. */
@@ -74,6 +81,9 @@ Blockly.Blocks["ds_class"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
+		
+		this.classObjPublic_ = [];
+		this.classObjPrivate_ = [];
 
         /** Public. */
         let ptr = this.getInputTargetBlock("statePublic");
@@ -86,8 +96,18 @@ Blockly.Blocks["ds_class"] = {
 					
 				/** If the block is a function then push data. */
                 case 'isFunc':
+					if (ptr.type === 'class_function_declaration')
+					{
+						//constructor
+						if (ptr.getVar_ === this.getVar_)
+						{
+							this.classConProp_.push(ptr.funcProp_);
+							this.classConParam_.push(ptr.funcParam_);
+						}
+					} 
                     this.classFuncProp_.push(ptr.funcProp_);
                     this.classFuncParam_.push(ptr.funcParam_);
+					
                     break;
             }
 			
@@ -97,6 +117,9 @@ Blockly.Blocks["ds_class"] = {
                     this.classConProp_.push(ptr.funcProp_);
                     this.classConParam_.push(ptr.funcParam_);
                     break;
+				case "ds_object":
+					this.classObjPublic_.push(ptr.objProp_);
+					break;	
             }
 			
             ptr = ptr.nextConnection.targetBlock();
@@ -124,9 +147,13 @@ Blockly.Blocks["ds_class"] = {
                     this.classConPropPrivate_.push(ptr.funcProp_);
                     this.classConParamPrivate_.push(ptr.funcParam_);
                     break;
+				case "ds_object":
+					this.classObjPrivate_.push(ptr.objProp_);
+					break;				
             }
             ptr = ptr.nextConnection.targetBlock();
         }
+		
     }
 };
 
@@ -143,15 +170,17 @@ Blockly.C["ds_class"] = function (block) {
     var code = "";
 	
 	/** Begin class declaration with user input text; class myClass{ */
-    code += "class " + this.getVar_ + "{\n";
+    code += "class " + this.getVar_ + " {\n";
 
+	if (codeStatePublic) {
 	/** Formate public code. */
     code += "public:\n";
-    code += codeStatePublic;
+    code += codeStatePublic;}
 
+	if (codestatePrivate) {
 	/** Format private code. */
     code += "private:\n";
-    code += codestatePrivate;
+    code += codestatePrivate;}
 
 	/** End class declaration. */
     code += "};\n";
@@ -287,9 +316,7 @@ Blockly.Blocks['class_constructor'] = {
 		/** Utilizing prototype helper function to simplify allocateValues function. */
         var CV_manage = C_Var;
         this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParam_);
         this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParamClassMembers_);
 		
 		/** Default the text for when not in class. */
         this.setFieldValue("class name", "con_name");
@@ -351,7 +378,8 @@ Blockly.Blocks['class_parameters'] = {
 		/** Reference */
         this.pPtrs_ = [
             ["", ""],
-            ["&", "&"]
+            ["&", "&"],
+			["*", "*"]
         ];
 
 		/** Constant, data type, pointer, name. */
@@ -403,6 +431,7 @@ Blockly.Blocks['class_parameters'] = {
     onchange: function () {
         this.allocateValues();
         this.allocateWarnings();
+		
     },
 
 	/** The allocateValues function is where we stream values into arrays. */
@@ -427,12 +456,23 @@ Blockly.Blocks['class_parameters'] = {
         let ptr = this.parentBlock_;
 
         while (ptr) {
-            //console.log(this.typeName_ + " " + ptr.getVar_);
             if (ptr.getDataStr() === 'isClass' && this.typeName_ === ptr.getVar_) {
                 this.classVarPublic_ = ptr.classVarPublic_;
                 this.classFuncProp_ = ptr.classFuncProp_;
                 this.classFuncParam_ = ptr.classFuncParam_;
-            }
+            }else if (ptr.type === 'include_file')
+			{
+				for (var i = 0; i < ptr.includedClasses_.length; i++)
+				{
+					//includedClasses_[i][classname:getvar][funcprop][funcparam]
+						if (this.typeName_ === ptr.includedClasses_[i][0])
+						{
+							
+							this.classFuncProp_ = ptr.includedClasses_[i][1];
+							this.classFuncParam_ = ptr.includedClasses_[i][2];
+						}
+				}
+			}
             ptr = ptr.parentBlock_;
         }
     },
@@ -448,6 +488,13 @@ Blockly.Blocks['class_parameters'] = {
 				/** Add class name to dropdown list. */
                 options.push([ptr.getVar_, ptr.getVar_]);
             }
+			if (ptr.type === 'include_file')
+			{
+				for (var i = 0; i < ptr.includedClasses_.length; i++)
+				{
+					options.push([ptr.includedClasses_[i][0],ptr.includedClasses_[i][0]]);
+				}
+			}
             ptr = ptr.parentBlock_;
         }
         return options;
@@ -463,7 +510,7 @@ Blockly.Blocks['class_parameters'] = {
 		/** Check if the block is connected to a function parameter block, function block, or class constructor block. */
         if (!this.parentBlock_) {
             TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
-        } else if (ptr.type !== "func_parameters" && ptr.type !== "user_function" && ptr.type !== "class_constructor") {
+        } else if (ptr.type !== "func_parameters" && ptr.type !== "function_declaration" && ptr.type !== "class_constructor" && ptr.type !== "class_function_definition" && ptr.type !== "class_function_declaration" ) {
             TT += 'Error, parameter block must be connected to a parameter block or a constructor block.\n';
         }
 
