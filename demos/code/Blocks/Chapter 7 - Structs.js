@@ -464,7 +464,6 @@ Blockly.Blocks['ds_member'] = {
         let C = C_Logic;
 
         if (val1.length > 0) {
-			//console.log(this.ptrType_); //for checking pointer types
             if (C.help.ptr_is_deref(this.ptrType_)) {
                 this.setFieldValue('->', 'operator');
             } else {
@@ -487,7 +486,6 @@ Blockly.Blocks['ds_member'] = {
         ptr = this.getSurroundParent();
         while (ptr) {
             if (ptr.type === 'function_declaration' || ptr.type === 'class_constructor') {
-                console.log(ptr.funcParamClassMembers_);
                 if (ptr.funcParamClassMembers_) {
                     this.funcParamClassMembers_ = ptr.funcParamClassMembers_;
                     //this.allocateMemberProperties();
@@ -508,7 +506,6 @@ Blockly.Blocks['ds_member'] = {
 
 	//doesnt work
     allocateMemberProperties: function () {
-        console.log(this.funcParamClassMembers_);
         for (var i = 0; i < this.funcParamClassMembers_.length; ++i) {
             for (var j = 0; j < this.funcParamClassMembers_[i].length; ++j) {
                 if (this.funcParamClassMembers_[i][j]) {

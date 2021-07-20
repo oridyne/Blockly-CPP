@@ -316,9 +316,7 @@ Blockly.Blocks['class_constructor'] = {
 		/** Utilizing prototype helper function to simplify allocateValues function. */
         var CV_manage = C_Var;
         this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParam_);
         this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParamClassMembers_);
 		
 		/** Default the text for when not in class. */
         this.setFieldValue("class name", "con_name");
@@ -458,7 +456,6 @@ Blockly.Blocks['class_parameters'] = {
         let ptr = this.parentBlock_;
 
         while (ptr) {
-            //console.log(this.typeName_ + " " + ptr.getVar_);
             if (ptr.getDataStr() === 'isClass' && this.typeName_ === ptr.getVar_) {
                 this.classVarPublic_ = ptr.classVarPublic_;
                 this.classFuncProp_ = ptr.classFuncProp_;

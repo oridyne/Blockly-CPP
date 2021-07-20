@@ -253,7 +253,6 @@ Blockly.Blocks['get_var'] = {
             }
 
 
-            //console.log(ptr.type);
             ptr = ptr.getSurroundParent();
         }
 
@@ -973,7 +972,6 @@ Blockly.Blocks['get_func'] = {
                 }
                 if (allEqual) {
                     //this.funcParam_ = this.classFuncParam_[i];
-                    console.log(this.classFuncParam_[i]);
                     break;
                 }
             }

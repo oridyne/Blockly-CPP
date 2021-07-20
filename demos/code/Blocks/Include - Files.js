@@ -757,7 +757,6 @@ Blockly.Blocks['delete_block'] = {
 	allocateWarnings: function () {
         var TT = "";
 		
-		console.log(this.childBlocks_[0]);
         if (this.childBlocks_[0])
 		{
 			ptr = this.childBlocks_[0];
