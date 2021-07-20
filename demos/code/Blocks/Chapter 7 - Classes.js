@@ -41,7 +41,8 @@ Blockly.Blocks["ds_class"] = {
 		/** Text input to name class. */
         this.appendDummyInput()
             .appendField("class")
-            .appendField(new Blockly.FieldTextInput("myClass"), "myClassDec");
+            .appendField(new Blockly.FieldTextInput("myClass"), "myClassDec")
+			.appendField(" {");
 
 		/** Area for blocks to be defined in public class section. */
         this.appendDummyInput()
@@ -54,6 +55,9 @@ Blockly.Blocks["ds_class"] = {
             .appendField("private:");
         this.appendStatementInput("statePrivate")
             .setCheck(null);
+			
+        this.appendDummyInput()
+            .appendField('}');
     },
 
 	/** The onchange function is called when a block is moved or updated. */
@@ -166,15 +170,17 @@ Blockly.C["ds_class"] = function (block) {
     var code = "";
 	
 	/** Begin class declaration with user input text; class myClass{ */
-    code += "class " + this.getVar_ + "{\n";
+    code += "class " + this.getVar_ + " {\n";
 
+	if (codeStatePublic) {
 	/** Formate public code. */
     code += "public:\n";
-    code += codeStatePublic;
+    code += codeStatePublic;}
 
+	if (codestatePrivate) {
 	/** Format private code. */
     code += "private:\n";
-    code += codestatePrivate;
+    code += codestatePrivate;}
 
 	/** End class declaration. */
     code += "};\n";
@@ -310,9 +316,7 @@ Blockly.Blocks['class_constructor'] = {
 		/** Utilizing prototype helper function to simplify allocateValues function. */
         var CV_manage = C_Var;
         this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParam_);
         this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
-        //console.log(this.funcParamClassMembers_);
 		
 		/** Default the text for when not in class. */
         this.setFieldValue("class name", "con_name");
@@ -452,7 +456,6 @@ Blockly.Blocks['class_parameters'] = {
         let ptr = this.parentBlock_;
 
         while (ptr) {
-            //console.log(this.typeName_ + " " + ptr.getVar_);
             if (ptr.getDataStr() === 'isClass' && this.typeName_ === ptr.getVar_) {
                 this.classVarPublic_ = ptr.classVarPublic_;
                 this.classFuncProp_ = ptr.classFuncProp_;

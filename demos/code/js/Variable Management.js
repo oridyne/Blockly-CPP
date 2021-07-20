@@ -21,7 +21,6 @@ C_Var.get.parameters = function(block){
 		/// If it is, begin streaming variables.
 		if (ptr.paramProp_) {
 			options.push(ptr.paramProp_);
-			//console.log(options);
 		}
 		/// Get next parameter block.
 		ptr = ptr.childBlocks_[0];
@@ -52,7 +51,6 @@ C_Var.get.classParameterMembers = function(block){
 		/// Get the next parameter block.
 		ptr = ptr.childBlocks_[0];
 	}
-	//console.log(options);
 	return options;
 };
 
