@@ -705,7 +705,7 @@ let allWorkspaces = new Map();
 
 function newFileName() {     
     const initialFileName = document.getElementById("fileTypeName").value;
-    if (initialFileName == "") {
+    if (initialFileName === "") {
         window.alert("File name cannot be empty.");
         return;
     }
@@ -739,15 +739,6 @@ function newFile(newFileName) {
         makeFileVisible(newFileName)
     });
     document.getElementById("fileDropDown").appendChild(newFileTag);
-    // Create new file drop down anchor tag (delete button).
-    const newDeleteTag = document.createElement('a');
-    newDeleteTag.href = "javascript:void(0)";
-    newDeleteTag.innerText = "X";
-    newDeleteTag.id = newFileName + "_del";
-    newDeleteTag.addEventListener('click', function () {
-        deleteFile(newFileName)
-    });
-    document.getElementById("fileDropDownDelete").appendChild(newDeleteTag);
     // Create new div(workspace).
     const newFileDiv = document.createElement('div');
     newFileDiv.id = newFileName;
@@ -850,13 +841,11 @@ function checkFileName(newEntry) {
         }
         if (projectedName === fileToCheck) {
             window.alert("File name is already in use");
-
             return true;
         }
         // User didnt specify a file type.
         if ((projectedNameFileType !== ".h") && (projectedNameFileType !== ".cpp")) {
             window.alert("Please enter a valid file type( .h ) / ( .cpp )")
-
             return true;
         }
     }
@@ -865,21 +854,21 @@ function checkFileName(newEntry) {
 
 // Checks if indicated workspace exists.
 function deleteFile() {
-    var filesToBeDeleted = document.getElementById("deleteAllFilesCB").checked;
-    var fileToBeDeleted = document.getElementById("originDeleteFileDD1").value;
-    if (filesToBeDeleted == true && fileToBeDeleted != "") {
-        var checker = window.confirm("Are you sure you want to delete all files? This action cannot be undone.")
-        if (checker == true) {
+    const filesToBeDeleted = document.getElementById("deleteAllFilesCB").checked;
+    const fileToBeDeleted = document.getElementById("originDeleteFileDD1").value;
+    if (filesToBeDeleted === true && fileToBeDeleted !== "") {
+        const checker = window.confirm("Are you sure you want to delete all files? This action cannot be undone.");
+        if (checker === true) {
             deleteAllFiles();
             hideFilePopUp('deleteFilePopUp');
             window.alert("All Files succesfully deleted.");
             return;
         }
-        if (checker == false) {
+        if (checker === false) {
             return;
         }
     }
-    if (fileToBeDeleted != "") {
+    if (fileToBeDeleted !== "") {
         deleteFileConfirm(fileToBeDeleted);
         hideFilePopUp('deleteFilePopUp');
         window.alert("File succesfully deleted.");
@@ -905,7 +894,7 @@ function deleteFileConfirm(fileToBeDeleted) {
                     currentFile = allFiles[0];
                 }
             }
-            if (allFiles.length == 1) {
+            if (allFiles.length === 1) {
                 Code.workspace.clear();
                 Code.attemptCodeGeneration(Blockly.C);
                 document.getElementById('c_text').style.visibility = 'hidden';
@@ -946,7 +935,7 @@ function deleteAllFiles() {
 function showFilePopUp(popUpShow) {
     populateDropDowns("originDeleteFileDD1");
     populateDropDowns("originCopyFileDD1");
-    var popUp = document.getElementById(popUpShow);
+    const popUp = document.getElementById(popUpShow);
     const toolbox = document.querySelectorAll(".blocklyToolboxDiv.blocklyNonSelectable");
     if (toolbox) {
         for (var i = 0; i < toolbox.length; i++) {
@@ -954,7 +943,6 @@ function showFilePopUp(popUpShow) {
         }
     }
     popUp.style.display = "block";
-    toolbox.style.display = "none";
 }
 
 // Hides the New File pop out box
@@ -975,24 +963,25 @@ function saveFileCheck() {
 }
 
 
-function renameFileChecker() {   
-    var newFileName = document.getElementById("renameFileName").value;
-    if (newFileName == "") {
+function renameFileChecker() {
+    let newFileName = document.getElementById("renameFileName").value;
+    if (newFileName === "") {
         window.alert("File name cannot be empty.");
         return;
     }
-    var newFileTypeList = document.getElementsByName("renameFileTypeButton");
+    let fileType;
+    const newFileTypeList = document.getElementsByName("renameFileTypeButton");
     // Checks radio button for selected file type(.h/.c)
-    for (var i = 0; i < newFileTypeList.length; i++) {
-        if (newFileTypeList[i].checked == true) {
-            var fileType = newFileTypeList[i].value;
+    for (let i = 0; i < newFileTypeList.length; i++) {
+        if (newFileTypeList[i].checked === true) {
+            fileType = newFileTypeList[i].value;
         }
         newFileTypeList[i].checked = false;
     }
-    var newFileName = newFileName + fileType;
+    newFileName = newFileName + fileType;
     //check for repeat names    
-    var isNameTaken = checkFileName(newFileName);
-    if (isNameTaken == true || !newFileName) {
+    const isNameTaken = checkFileName(newFileName);
+    if (isNameTaken === true || !newFileName) {
         return;
     }
     renameFile(newFileName);
@@ -1000,17 +989,17 @@ function renameFileChecker() {
 }
 function renameFile(newName) {
     document.getElementById("fileDisplayName").innerHTML = "Current File:   " + newName;
-    var oldFileName = document.getElementById("originCopyFileDD1").value;
+    const oldFileName = document.getElementById("originCopyFileDD1").value;
     Code.workspace = allWorkspaces.get(oldFileName);
     allWorkspaces.delete(oldFileName);
-    for (var i = 0; i < allFiles.length; i++) {
-        if (allFiles[i] == oldFileName) {
+    for (let i = 0; i < allFiles.length; i++) {
+        if (allFiles[i] === oldFileName) {
             allFiles[i] = newName;
         }
     }
-    var oldFile = document.getElementById(oldFileName);
+    const oldFile = document.getElementById(oldFileName);
     oldFile.id = newName;
-    var newFileTag = document.getElementById(oldFileName + "_file");
+    const newFileTag = document.getElementById(oldFileName + "_file");
     newFileTag.innerText = newName;
     newFileTag.id = newName + "_file"
     newFileTag.removeAttribute("onclick");
@@ -1020,15 +1009,16 @@ function renameFile(newName) {
     makeFileVisible(newName);  
 }
 function populateDropDowns(ddName) {
-    var dropDown = document.getElementById(ddName);
+    let i;
+    const dropDown = document.getElementById(ddName);
     if (dropDown.options.length) {
-        for (var i = dropDown.options.length - 1; i >= 0; i--) {
-            dropDown.remove(i);
+        for (i = dropDown.options.length - 1; i >= 0; i--) {
+            dropDown.item(i).remove();
         }
     }
-    for (var i = 0; i < allFiles.length; i++) {
-        var newOptionName = allFiles[i];
-        var newOption = document.createElement("option");
+    for (i = 0; i < allFiles.length; i++) {
+        const newOptionName = allFiles[i];
+        const newOption = document.createElement("option");
         newOption.text = newOptionName;
         newOption.value = newOptionName;
         dropDown.add(newOption);
