@@ -651,12 +651,10 @@ Blockly.Blocks['var_reinit'] = {
         ];
 
         //To compare values, the second block must have an input
-        if (block[1]) {
-
-            if (block[0].typeName_ !== block[1].typeName_) {
+        if (block[1] && block[0]) {
+            if (block[0].typeName_ !== block[1].typeName_ && !(block[0].type === 'ds_member' && block[1].type === 'pointer_nullptr')) {
                 TT += 'Error, first input is of type "' + block[0].typeName_ + '", second input is of type "' + block[1].typeName_ + '".\n';
             }
-
         }
 
 

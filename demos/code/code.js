@@ -97,7 +97,7 @@ Code.workspace = null;
  */
 
 Code.getStringParamFromUrl = function (name, defaultValue) {
-    var val = location.search.match(new RegExp('[?&]' + name + '=([^&]+)'));
+    const val = location.search.match(new RegExp('[?&]' + name + '=([^&]+)'));
     return val ? decodeURIComponent(val[1].replace(/\+/g, '%20')) : defaultValue;
 };
 
@@ -106,7 +106,7 @@ Code.getStringParamFromUrl = function (name, defaultValue) {
  * @return {string} User's language.
  */
 Code.getLang = function () {
-    var lang = Code.getStringParamFromUrl('lang', '');
+    let lang = Code.getStringParamFromUrl('lang', '');
     if (Code.LANGUAGE_NAME[lang] === undefined) {
         // Default to English.
         lang = 'en';
@@ -119,7 +119,7 @@ Code.getLang = function () {
  * @return {boolean} True if RTL, false if LTR.
  */
 Code.isRtl = function () {
-    return Code.LANGUAGE_RTL.indexOf(Code.LANG) != -1;
+    return Code.LANGUAGE_RTL.indexOf(Code.LANG) !== -1;
 };
 
 /**
@@ -127,12 +127,14 @@ Code.isRtl = function () {
  * @param {string} defaultXml Text representation of default blocks.
  */
 Code.loadBlocks = function (defaultXml) {
+    let loadOnce;
+    let xml;
     try {
-        var loadOnce = window.sessionStorage.loadOnceBlocks;
+        loadOnce = window.sessionStorage.loadOnceBlocks;
     } catch (e) {
         // Firefox sometimes throws a SecurityError when accessing sessionStorage.
         // Restarting Firefox fixes this, so it looks like a bug.
-        var loadOnce = null;
+        loadOnce = null;
     }
     if ('BlocklyStorage' in window && window.location.hash.length > 1) {
         // An href with #key trigers an AJAX call to retrieve saved blocks.
@@ -140,11 +142,11 @@ Code.loadBlocks = function (defaultXml) {
     } else if (loadOnce) {
         // Language switching stores the blocks during the reload.
         delete window.sessionStorage.loadOnceBlocks;
-        var xml = Blockly.Xml.textToDom(loadOnce);
+        xml = Blockly.Xml.textToDom(loadOnce);
         Blockly.Xml.domToWorkspace(xml, Code.workspace);
     } else if (defaultXml) {
         // Load the editor with default starting blocks.
-        var xml = Blockly.Xml.textToDom(defaultXml);
+        xml = Blockly.Xml.textToDom(defaultXml);
         Blockly.Xml.domToWorkspace(xml, Code.workspace);
     } else if ('BlocklyStorage' in window) {
         // Restore saved blocks in a separate thread so that subsequent
@@ -160,15 +162,14 @@ Code.changeLanguage = function () {
     // Store the blocks for the duration of the reload.
     // MSIE 11 does not support sessionStorage on file:// URLs.
     if (window.sessionStorage) {
-        var xml = Blockly.Xml.workspaceToDom(Code.workspace);
-        var text = Blockly.Xml.domToText(xml);
-        window.sessionStorage.loadOnceBlocks = text;
+        const xml = Blockly.Xml.workspaceToDom(Code.workspace);
+        window.sessionStorage.loadOnceBlocks = Blockly.Xml.domToText(xml);
     }
 
-    var languageMenu = document.getElementById('languageMenu');
-    var newLang = encodeURIComponent(
-            languageMenu.options[languageMenu.selectedIndex].value);
-    var search = window.location.search;
+    const languageMenu = document.getElementById('languageMenu');
+    const newLang = encodeURIComponent(
+        languageMenu.options[languageMenu.selectedIndex].value);
+    let search = window.location.search;
     if (search.length <= 1) {
         search = '?lang=' + newLang;
     } else if (search.match(/[?&]lang=[^&]*/)) {
@@ -199,7 +200,7 @@ Code.bindClick = function (el, func) {
  * Load the Prettify CSS and JavaScript.
  */
 Code.importPrettify = function () {
-    var script = document.createElement('script');
+    const script = document.createElement('script');
     script.setAttribute('src', 'https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js');
     document.head.appendChild(script);
 };
@@ -211,10 +212,10 @@ Code.importPrettify = function () {
  * @private
  */
 Code.getBBox_ = function (element) {
-    var height = element.offsetHeight;
-    var width = element.offsetWidth;
-    var x = 0;
-    var y = 0;
+    const height = element.offsetHeight;
+    const width = element.offsetWidth;
+    let x = 0;
+    let y = 0;
     do {
         x += element.offsetLeft;
         y += element.offsetTop;
@@ -248,14 +249,14 @@ Code.selected = 'blocks';
  */
 Code.tabClick = function (clickedName) {
     // If the XML tab was open, save and render the content.
-    if (document.getElementById('tab_xml').className == 'tabon') {
-        var xmlTextarea = document.getElementById('content_xml');
-        var xmlText = xmlTextarea.value;
-        var xmlDom = null;
+    if (document.getElementById('tab_xml').className === 'tabon') {
+        const xmlTextarea = document.getElementById('content_xml');
+        const xmlText = xmlTextarea.value;
+        let xmlDom = null;
         try {
             xmlDom = Blockly.Xml.textToDom(xmlText);
         } catch (e) {
-            var q =
+            const q =
                 window.confirm(MSG['badXml'].replace('%1', e));
             if (!q) {
                 // Leave the user on the XML tab.
@@ -268,19 +269,18 @@ Code.tabClick = function (clickedName) {
         }
     }
 
-    if (document.getElementById('tab_blocks').className == 'tabon') {
-        Code.workspace.setVisible(false);		
+    if (document.getElementById('tab_blocks').className === 'tabon') {
+        Code.workspace.setVisible(false);
     }
     // Deselect all tabs and hide all panes.
-    for (var i = 0; i < Code.TABS_.length; i++) {
-        var name = Code.TABS_[i];
+    for (let i = 0; i < Code.TABS_.length; i++) {
+        const name = Code.TABS_[i];
         document.getElementById('tab_' + name).className = 'taboff';
-        if (name == 'blocks') {
+        if (name === 'blocks') {
             for (var j = 0; j < allFiles.length; j++) {
                 document.getElementById(allFiles[j]).style.visibility = 'hidden';
             }
-        }
-        else {
+        } else {
             document.getElementById('content_' + name).style.visibility = 'hidden';
         }
     }
@@ -288,17 +288,16 @@ Code.tabClick = function (clickedName) {
     document.getElementById('c_text').style.visibility = 'hidden';
     // Select the active tab.
     Code.selected = clickedName;
-    if (clickedName == 'c') {
+    if (clickedName === 'c') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
         document.getElementById('content_' + clickedName).style.visibility =
-            'visible'; 
-    }
-    else if (clickedName == 'term') {
+            'visible';
+    } else if (clickedName === 'term') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
         document.getElementById('content_' + clickedName).style.visibility =
-            'visible';      
+            'visible';
     }
   
     if (clickedName == 'blocks') {
@@ -306,10 +305,9 @@ Code.tabClick = function (clickedName) {
         Code.workspace.setVisible(true);
         
         document.getElementById(currentFile).style.visibility = 'visible';
-		// Hao Loi: turn on c_text element
+		    // Hao Loi: turn on c_text element
         document.getElementById('c_text').style.visibility = 'visible';	
         Code.attemptCodeGeneration(Blockly.C);
-        
     }
     Code.renderContent();
     Blockly.svgResize(Code.workspace);
@@ -320,21 +318,20 @@ Code.tabClick = function (clickedName) {
  * Populate the currently selected pane with content generated from the blocks.
  */
 Code.renderContent = function () {
-    if (Code.selected == 'blocks') {
-        var content = document.getElementById(currentFile);
-    }
-    else {
-        var content = document.getElementById('content_' + Code.selected);
+    let content;
+    if (Code.selected === 'blocks') {
+        content = document.getElementById(currentFile);
+    } else {
+        content = document.getElementById('content_' + Code.selected);
     }
     // Initialize the pane.
-    if (content.id == 'content_xml') {
-        var xmlTextarea = document.getElementById('content_xml');
-        var xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
-        var xmlText = Blockly.Xml.domToPrettyText(xmlDom);
-        xmlTextarea.value = xmlText;
+    if (content.id === 'content_xml') {
+        const xmlTextarea = document.getElementById('content_xml');
+        const xmlDom = Blockly.Xml.workspaceToDom(Code.workspace);
+        xmlTextarea.value = Blockly.Xml.domToPrettyText(xmlDom);
         xmlTextarea.focus();
     }
-    if (content.id == 'content_c') {
+    if (content.id === 'content_c') {
         Code.attemptCodeGeneration(Blockly.C);
     }
     if (typeof PR == 'object') {
@@ -347,25 +344,26 @@ Code.renderContent = function () {
  * @param generator {!Blockly.Generator} The generator to use.
  */
 Code.attemptCodeGeneration = function (generator) {
-    
-    if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected == 'c') {
-		var content = document.getElementById('content_' + Code.selected);
-		content.textContent = '';
-		console.log("C tab generated code.");
-        var code = generator.workspaceToCode(Code.workspace);
+
+    let code;
+    if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected === 'c') {
+        const content = document.getElementById('content_' + Code.selected);
+        content.textContent = '';
+        console.log("C tab generated code.");
+        code = generator.workspaceToCode(Code.workspace);
         content.textContent = code;
         // Remove the 'prettyprinted' class, so that Prettify will recalculate.
         content.className = content.className.replace('prettyprinted', '');
     }
-	if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected == "blocks") {
-		// Hao Loi: generate code to c_text element when blocks tab is selected.
-		var c_text = document.getElementById('c_text');
-		c_text.textContent = '';
-		var code = generator.workspaceToCode(Code.workspace);
-		c_text.textContent = code;
-		c_text.className = c_text.className.replace('prettyprinted', '');
-	}
-		
+    if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected === "blocks") {
+        // Hao Loi: generate code to c_text element when blocks tab is selected.
+        const c_text = document.getElementById('c_text');
+        c_text.textContent = '';
+        code = generator.workspaceToCode(Code.workspace);
+        c_text.textContent = code;
+        c_text.className = c_text.className.replace('prettyprinted', '');
+    }
+
 };
 
 /**
@@ -373,20 +371,20 @@ Code.attemptCodeGeneration = function (generator) {
  * @param generator {!Blockly.Generator} The generator to use.
  */
 Code.checkAllGeneratorFunctionsDefined = function (generator) {
-    var blocks = Code.workspace.getAllBlocks(false);
-    var missingBlockGenerators = [];
-    for (var i = 0; i < blocks.length; i++) {
-        var blockType = blocks[i].type;
+    const blocks = Code.workspace.getAllBlocks(false);
+    const missingBlockGenerators = [];
+    for (let i = 0; i < blocks.length; i++) {
+        const blockType = blocks[i].type;
         if (!generator[blockType]) {
-            if (missingBlockGenerators.indexOf(blockType) == -1) {
+            if (missingBlockGenerators.indexOf(blockType) === -1) {
                 missingBlockGenerators.push(blockType);
             }
         }
     }
 
-    var valid = missingBlockGenerators.length == 0;
+    const valid = missingBlockGenerators.length === 0;
     if (!valid) {
-        var msg = 'The generator code for the following blocks not specified for ' +
+        const msg = 'The generator code for the following blocks not specified for ' +
             generator.name_ + ':\n - ' + missingBlockGenerators.join('\n - ');
         Blockly.alert(msg); // Assuming synchronous. No callback.
     }
@@ -399,15 +397,15 @@ Code.checkAllGeneratorFunctionsDefined = function (generator) {
 Code.init = function () {
     Code.initLanguage();
 
-    var rtl = Code.isRtl();
-    var container = document.getElementById('content_area');
-    var onresize = function (e) {
-        var bBox = Code.getBBox_(container);
+    const rtl = Code.isRtl();
+    const container = document.getElementById('content_area');
+    const onresize = function (e) {
+        const bBox = Code.getBBox_(container);
         // Sets initial code/ workspace areas dimensions and resizes them on change.
-        for (var i = 0; i < Code.TABS_.length; i++) {
-            if (Code.TABS_[i] == 'blocks') {
-                for (var j = 0; j < allFiles.length; j++) {
-                    var el = document.getElementById(allFiles[j]);
+        for (let i = 0; i < Code.TABS_.length; i++) {
+            if (Code.TABS_[i] === 'blocks') {
+                for (let j = 0; j < allFiles.length; j++) {
+                    const el = document.getElementById(allFiles[j]);
                     el.style.top = bBox.y + 'px';
                     el.style.left = bBox.x + 'px';
                     el.style.height = bBox.height + 'px';
@@ -417,27 +415,26 @@ Code.init = function () {
                 }
                 // Hao Loi: add c_text box to tab_blocks.  Set c_text visible; Important
                 // console.log('blocks');
-                var code_area = document.getElementById('code_area');
-                var bBox1 = Code.getBBox_(code_area);
-                var el1 = document.getElementById('c_text');
+                const code_area = document.getElementById('code_area');
+                const bBox1 = Code.getBBox_(code_area);
+                const el1 = document.getElementById('c_text');
                 el1.style.top = bBox1.y + 'px';
                 el1.style.left = bBox1.x + 'px';
                 el1.style.height = bBox1.height + 'px';
                 el1.style.height = (2 * bBox1.height - el1.offsetHeight) + 'px';
                 el1.style.width = bBox1.width + 'px';
                 el1.style.width = (2 * bBox1.width - el1.offsetWidth) + 'px';
-               
-            }
-            else {
-            var el2 = document.getElementById('content_' + Code.TABS_[i]);
-            el2.style.top = bBox.y + 'px';
-            el2.style.left = bBox.x + 'px';
-            // Height and width need to be set, read back, then set again to
-            // compensate for scrollbars.
-            el2.style.height = bBox.height + 'px';
-            el2.style.height = (2 * bBox.height - el2.offsetHeight) + 'px';
-            el2.style.width = bBox.width + 'px';
-            el2.style.width = (2 * bBox.width - el2.offsetWidth) + 'px';			               
+                el1.style.visibility = 'visible';
+            } else {
+                const el2 = document.getElementById('content_' + Code.TABS_[i]);
+                el2.style.top = bBox.y + 'px';
+                el2.style.left = bBox.x + 'px';
+                // Height and width need to be set, read back, then set again to
+                // compensate for scrollbars.
+                el2.style.height = bBox.height + 'px';
+                el2.style.height = (2 * bBox.height - el2.offsetHeight) + 'px';
+                el2.style.width = bBox.width + 'px';
+                el2.style.width = (2 * bBox.width - el2.offsetWidth) + 'px';
             }
         }
         // Make the 'Blocks' tab line up with the toolbox.
@@ -457,8 +454,8 @@ Code.init = function () {
     // into `Blockly.Msg`.
     // TODO: Clean up the message files so this is done explicitly instead of
     // through this for-loop.
-    for (var messageKey in MSG) {
-        if (messageKey.indexOf('cat') == 0) {
+    for (const messageKey in MSG) {
+        if (messageKey.indexOf('cat') === 0) {
             Blockly.Msg[messageKey.toUpperCase()] = MSG[messageKey];
         }
     }
@@ -466,9 +463,9 @@ Code.init = function () {
     // Construct the toolbox XML, replacing translated variable names.
     var toolboxText = document.getElementById('toolbox').outerHTML;
     toolboxText = toolboxText.replace(/(^|[^%]){(\w+)}/g,
-            function (m, p1, p2) {
-        return p1 + MSG[p2];
-    });
+        function (m, p1, p2) {
+            return p1 + MSG[p2];
+        });
     var toolboxXml = Blockly.Xml.textToDom(toolboxText);
 
     Code.workspace = Blockly.inject('Main.cpp', {
@@ -486,11 +483,11 @@ Code.init = function () {
             wheel: true
         }
     });
-	// Hao Loi: realtime code generation.
-	Code.workspace.addChangeListener(Code.generateCode);
-	
+    // Hao Loi: realtime code generation.
+    Code.workspace.addChangeListener(Code.generateCode);
 
-	// Blockly.workspace.addChangeListener(Code.generateCode);
+
+    // Blockly.workspace.addChangeListener(Code.generateCode);
     // Add to reserved word list: Local variables in execution environment (runJS)
     // and the infinite loop detection function.
     Blockly.C.addReservedWords('code,timeouts,checkTimeout');
@@ -506,12 +503,12 @@ Code.init = function () {
 
     Code.bindClick('trashButton',
         function () {
-        Code.discard();
-        Code.renderContent();
-    });
+            Code.discard();
+            Code.renderContent();
+        });
     Code.bindClick('runButton', Code.runJS);
     // Disable the link button if page isn't backed by App Engine storage.
-    var linkButton = document.getElementById('linkButton');
+    const linkButton = document.getElementById('linkButton');
     if ('BlocklyStorage' in window) {
         BlocklyStorage['HTTPREQUEST_ERROR'] = MSG['httpRequestError'];
         BlocklyStorage['LINK_ALERT'] = MSG['linkAlert'];
@@ -519,39 +516,39 @@ Code.init = function () {
         BlocklyStorage['XML_ERROR'] = MSG['xmlError'];
         Code.bindClick(linkButton,
             function () {
-            BlocklyStorage.link(Code.workspace);
-        });
+                BlocklyStorage.link(Code.workspace);
+            });
     } else if (linkButton) {
         linkButton.className = 'disabled';
     }
 
-    for (var i = 0; i < Code.TABS_.length; i++) {
-        var name = Code.TABS_[i];
+    for (let i = 0; i < Code.TABS_.length; i++) {
+        const name = Code.TABS_[i];
         Code.bindClick('tab_' + name,
             function (name_) {
-            return function () {
-                Code.tabClick(name_);
-            };
-        }
+                return function () {
+                    Code.tabClick(name_);
+                };
+            }
             (name));
     }
     onresize();
     Blockly.svgResize(Code.workspace);
 
-	// Hao Loi add main block to the workspace
-	  var workspace = Code.workspace // your current workspace name what you given
-	  var blockName = "main" // Name of block to add
+    // Hao Loi add main block to the workspace
+    const workspace = Code.workspace; // your current workspace name what you given
+    const blockName = "main"; // Name of block to add
 
-      allWorkspaces.set("Main.cpp", workspace);
-	  var newBlock = workspace.newBlock(blockName);
-	  newBlock.initSvg();
-	  newBlock.render();
-	  // move the block to the right and down by 20,50 pixels
-	  newBlock.moveBy(30, 50);
-	  // Hao Loi: simulate click on the tab_c
+    allWorkspaces.set("Main.cpp", workspace);
+    const newBlock = workspace.newBlock(blockName);
+    newBlock.initSvg();
+    newBlock.render();
+    // move the block to the right and down by 20,50 pixels
+    newBlock.moveBy(30, 50);
+    // Hao Loi: simulate click on the tab_c
 
-	
-	// 
+
+    //
     // Lazy-load the syntax-highlighting.
     window.setTimeout(Code.importPrettify, 1);
 };
@@ -563,7 +560,7 @@ Code.init = function () {
 Code.generateCode = function (event) {
     // Code.tabClick('c');
     // Code.tabClick('blocks');
-	Code.attemptCodeGeneration(Blockly.C);
+    Code.attemptCodeGeneration(Blockly.C);
 };
 
 
@@ -571,14 +568,15 @@ Code.generateCode = function (event) {
  * Initialize the page language.
  */
 Code.initLanguage = function () {
-    // Set the HTML's language and direction.
-    var rtl = Code.isRtl();
+    let lang;
+// Set the HTML's language and direction.
+    const rtl = Code.isRtl();
     document.dir = rtl ? 'rtl' : 'ltr';
     document.head.parentElement.setAttribute('lang', Code.LANG);
 
     // Sort languages alphabetically.
-    var languages = [];
-    for (var lang in Code.LANGUAGE_NAME) {
+    const languages = [];
+    for (lang in Code.LANGUAGE_NAME) {
         languages.push([Code.LANGUAGE_NAME[lang], lang]);
     }
     var comp = function (a, b) {
@@ -591,13 +589,13 @@ Code.initLanguage = function () {
     };
     languages.sort(comp);
     // Populate the language selection menu.
-    var languageMenu = document.getElementById('languageMenu');
+    const languageMenu = document.getElementById('languageMenu');
     languageMenu.options.length = 0;
-    for (var i = 0; i < languages.length; i++) {
-        var tuple = languages[i];
-        var lang = tuple[tuple.length - 1];
-        var option = new Option(tuple[0], lang);
-        if (lang == Code.LANG) {
+    for (let i = 0; i < languages.length; i++) {
+        const tuple = languages[i];
+        lang = tuple[tuple.length - 1];
+        const option = new Option(tuple[0], lang);
+        if (lang === Code.LANG) {
             option.selected = true;
         }
         languageMenu.options.add(option);
@@ -620,13 +618,13 @@ Code.initLanguage = function () {
  */
 Code.runJS = function () {
     Blockly.C.INFINITE_LOOP_TRAP = 'checkTimeout();\n';
-    var timeouts = 0;
-    var checkTimeout = function () {
+    let timeouts = 0;
+    const checkTimeout = function () {
         if (timeouts++ > 1000000) {
             throw MSG['timeout'];
         }
     };
-    var code = Blockly.C.workspaceToCode(Code.workspace);
+    const code = Blockly.C.workspaceToCode(Code.workspace);
     Blockly.C.INFINITE_LOOP_TRAP = null;
     try {
         eval(code);
@@ -639,7 +637,7 @@ Code.runJS = function () {
  * Discard all blocks from the workspace.
  */
 Code.discard = function () {
-    var count = Code.workspace.getAllBlocks(false).length;
+    const count = Code.workspace.getAllBlocks(false).length;
     if (count < 2 ||
         window.confirm(Blockly.Msg['DELETE_ALL_BLOCKS'].replace('%1', count))) {
         Code.workspace.clear();
@@ -657,93 +655,108 @@ document.write('<script src="../../msg/js/' + Code.LANG + '.js"></script>\n');
 window.addEventListener('load', Code.init);
 
 function autoInclude(libname, BlockScope, options) {
-	var libstring = 'include_' + libname;
-	//save the current scope
-		// let BlockScope = this;
-	
-	var librarySearch = C_Include;
-	var libFound = librarySearch.search_library(this, [libstring]);
-	
-		
-		//Create the option to automate a string library creation
-		if(!libFound){
-			var automate_library = {
-				text: 'include <'+libname+'>',
-				enabled: true,
+    const libstring = 'include_' + libname;
+    //save the current scope
+    // let BlockScope = this;
 
-				callback: function(){
-					var newBlock = BlockScope.workspace.newBlock(libstring);
-					let ptr = BlockScope;
+    const librarySearch = C_Include;
+    const libFound = librarySearch.search_library(this, [libstring]);
 
-					while(ptr){
-						//if we're at the top
-						if(!ptr.parentBlock_){
-							newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
-							newBlock.nextConnection.connect(ptr.previousConnection);
-							newBlock.initSvg();
-							newBlock.render();
 
-							return;
-						}
-	
-						ptr = ptr.parentBlock_;
-					}
-	
-				}
+    //Create the option to automate a string library creation
+    if (!libFound) {
+        const automate_library = {
+            text: 'include <' + libname + '>',
+            enabled: true,
 
-			}
-			options.push(automate_library);
-		}
+            callback: function () {
+                const newBlock = BlockScope.workspace.newBlock(libstring);
+                let ptr = BlockScope;
+
+                while (ptr) {
+                    //if we're at the top
+                    if (!ptr.parentBlock_) {
+                        newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                        newBlock.nextConnection.connect(ptr.previousConnection);
+                        newBlock.initSvg();
+                        newBlock.render();
+
+                        return;
+                    }
+
+                    ptr = ptr.parentBlock_;
+                }
+
+            }
+
+        };
+        options.push(automate_library);
+    }
 }
+
 // Holds the name of each workspace.
 var allFiles = ["Main.cpp",];
 // Tracks the currently visible workspace.
 var currentFile = "Main.cpp";
 // Map of all the divs holding workspaces.
-var allWorkspaces = new Map();
+let allWorkspaces = new Map();
 
 // Gets user input for name of new workspace.
-function newFileName() {   
-    var initialFileName = document.getElementById("fileTypeName").value;
+
+function newFileName() {     
+    const initialFileName = document.getElementById("fileTypeName").value;
     if (initialFileName == "") {
         window.alert("File name cannot be empty.");
         return;
     }
-    var fileTypeList = document.getElementsByName("fileTypeButton");
+    const fileTypeList = document.getElementsByName("fileTypeButton");
+    let fileType
     // Checks radio button for selected file type(.h/.c)
-    for (var i = 0; i < fileTypeList.length; i++) {
-        if (fileTypeList[i].checked == true) {
-            var fileType = fileTypeList[i].value;
+    for (let i = 0; i < fileTypeList.length; i++) {
+        if (fileTypeList[i].checked === true) {
+            fileType = fileTypeList[i].value;
         }
         fileTypeList[i].checked = false;
     }
-    var newFileName = initialFileName + fileType;
+    const newFileName = initialFileName + fileType;
     //check for repeat names    
-    var isNameTaken = checkFileName(newFileName);
-    if (isNameTaken == true || !newFileName) {
+    const isNameTaken = checkFileName(newFileName);
+    if (isNameTaken === true || !newFileName) {
         return;
     }
     newFile(newFileName);
     hideFilePopUp('newFilePopUp');
 }
+
 // Creates a new workspace that represents a file.
 function newFile(newFileName) {
     // Create new file drop down anchor tag (file access).
-    var newFileTag = document.createElement('a');
+    const newFileTag = document.createElement('a');
     newFileTag.href = "javascript:void(0)";
     newFileTag.innerText = newFileName;
     newFileTag.id = newFileName + "_file"
-    newFileTag.addEventListener('click', function () { makeFileVisible(newFileName) });
+    newFileTag.addEventListener('click', function () {
+        makeFileVisible(newFileName)
+    });
     document.getElementById("fileDropDown").appendChild(newFileTag);
+    // Create new file drop down anchor tag (delete button).
+    const newDeleteTag = document.createElement('a');
+    newDeleteTag.href = "javascript:void(0)";
+    newDeleteTag.innerText = "X";
+    newDeleteTag.id = newFileName + "_del";
+    newDeleteTag.addEventListener('click', function () {
+        deleteFile(newFileName)
+    });
+    document.getElementById("fileDropDownDelete").appendChild(newDeleteTag);
     // Create new div(workspace).
-    var newFileDiv = document.createElement('div');
+    const newFileDiv = document.createElement('div');
     newFileDiv.id = newFileName;
     newFileDiv.className = "content";
-    var rtl = Code.isRtl();
+    const rtl = Code.isRtl();
     document.body.insertBefore(newFileDiv, document.getElementById('content_c'));
     // Gives dimensions to new workspace.
-    var container = document.getElementById('content_c');
-    var bBox = Code.getBBox_(container);
+    const container = document.getElementById('content_c');
+    const bBox = Code.getBBox_(container);
     newFileDiv.style.top = bBox.y + 'px';
     newFileDiv.style.left = bBox.x + 'px';
     newFileDiv.style.height = bBox.height + 'px';
@@ -769,13 +782,14 @@ function newFile(newFileName) {
     });
     allWorkspaces.set(newFileName, newWorkspace);
     allFiles.push(newFileName);
-    makeFileVisible(newFileName);    
+    makeFileVisible(newFileName);
 }
+
 // Indicated workspace generates c code, is resized, becomes visible, and all other workspaces become hidden.
 function makeFileVisible(fileName) {
-    for (var i = 0; i < allFiles.length; i++) {
-        var showOrHide = document.getElementById(allFiles[i]);
-        if (allFiles[i] == fileName) {
+    for (let i = 0; i < allFiles.length; i++) {
+        const showOrHide = document.getElementById(allFiles[i]);
+        if (allFiles[i] === fileName) {
             showOrHide.style.visibility = 'visible';
             currentFile = fileName;
             document.getElementById("fileDisplayName").innerHTML = "Current File:   " + currentFile;
@@ -783,71 +797,72 @@ function makeFileVisible(fileName) {
             Code.attemptCodeGeneration(Blockly.C);
             Code.workspace.addChangeListener(Code.generateCode);
             Blockly.svgResize(Code.workspace);
-        }
-        else {
+        } else {
             showOrHide.visibility = 'hidden';
         }
     }
     // Simulates click on tab 'blocks'
     Code.tabClick('blocks');
 }
+
 // Checks to see if User-Entered File Name is valid.
 function checkFileName(newEntry) {
-    var projectedName = newEntry;
+    let i;
+    let fileToCheck;
+    let projectedNameFileType;
+    const projectedName = newEntry;
     // Checks for any existing workspaces.
     if (allFiles.length > 0) {
-        for (var i = 0; i < allFiles.length; i++) {
-            var fileToCheck = allFiles[i];
+        for (i = 0; i < allFiles.length; i++) {
+            fileToCheck = allFiles[i];
             // User entered nothing.
             if (projectedName == null) {
                 return true;
             }
-            if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
-                var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
-            }
-            else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
-                var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
+            if (projectedName.substring(projectedName.length - 2, projectedName.length) === ".h") {
+                projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
+            } else if (projectedName.substring(projectedName.length - 4, projectedName.length) === ".cpp") {
+                projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
             }
             // User entered file name that already exists.
-            if (projectedName == fileToCheck) {
+            if (projectedName === fileToCheck) {
                 window.alert("File name is already in use");
                 return true;
             }
             // User didnt specify a file type.
-            if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
-                window.alert("Please enter a valid file type( .h ) / ( .cpp )") 
+            if ((projectedNameFileType !== ".h") && (projectedNameFileType !== ".cpp")) {
+                window.alert("Please enter a valid file type( .h ) / ( .cpp )")
                 return true;
             }
         }
         return false;
-    }
-    else {
-        var fileToCheck = allFiles[i];
+    } else {
+        fileToCheck = allFiles[i];
         // User entered nothing.
         if (projectedName == null) {
             return true;
         }
         // User entered file name that already exists.
-        if (projectedName.substring(projectedName.length - 2, projectedName.length) == ".h") {
-            var projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
+        if (projectedName.substring(projectedName.length - 2, projectedName.length) === ".h") {
+            projectedNameFileType = projectedName.substring(projectedName.length - 2, projectedName.length);
+        } else if (projectedName.substring(projectedName.length - 4, projectedName.length) === ".cpp") {
+            projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
         }
-        else if (projectedName.substring(projectedName.length - 4, projectedName.length) == ".cpp") {
-            var projectedNameFileType = projectedName.substring(projectedName.length - 4, projectedName.length);
-        }
-        if (projectedName == fileToCheck) {
+        if (projectedName === fileToCheck) {
             window.alert("File name is already in use");
- 
+
             return true;
         }
         // User didnt specify a file type.
-        if ((projectedNameFileType != ".h") && (projectedNameFileType != ".cpp")) {
+        if ((projectedNameFileType !== ".h") && (projectedNameFileType !== ".cpp")) {
             window.alert("Please enter a valid file type( .h ) / ( .cpp )")
-           
+
             return true;
         }
     }
-    return false;  
+    return false;
 }
+
 // Checks if indicated workspace exists.
 function deleteFile() {
     var filesToBeDeleted = document.getElementById("deleteAllFilesCB").checked;
@@ -868,26 +883,26 @@ function deleteFile() {
         deleteFileConfirm(fileToBeDeleted);
         hideFilePopUp('deleteFilePopUp');
         window.alert("File succesfully deleted.");
-    }
-    else {
+    } else {
         hideFilePopUp('deleteFilePopUp');
         window.alert("There are no files to delete.");
     }
 }
+
 // Deletes indicated workspace.
 function deleteFileConfirm(fileToBeDeleted) {
-    var deletedFile = document.getElementById(fileToBeDeleted);
-    for (var i = 0; i < allFiles.length; i++) {
-        var fileTracker = allFiles[i];
+    const deletedFile = document.getElementById(fileToBeDeleted);
+    for (let i = 0; i < allFiles.length; i++) {
+        const fileTracker = allFiles[i];
         // Finds the indicated workspace in allFiles.
-        if (fileTracker == fileToBeDeleted) {
+        if (fileTracker === fileToBeDeleted) {
             // If the current workspace is the indicated file it switches to a different workspace.
-            if ((currentFile == fileToBeDeleted) && (allFiles.length > 1)) {
-                if (currentFile == allFiles[0]) {
+
+            if ((currentFile === fileToBeDeleted) && (allFiles.length > 1)) {
+                if (currentFile === allFiles[0]) {
                     currentFile = allFiles[1];
-                }
-                else {
-                    currentFile = allFiles[0];                  
+                } else {
+                    currentFile = allFiles[0];
                 }
             }
             if (allFiles.length == 1) {
@@ -898,25 +913,26 @@ function deleteFileConfirm(fileToBeDeleted) {
             // Removes all HTML elements associated with the indicated workspace and removes indicated workspace from the map and array.
             Code.workspace = allWorkspaces.get(allFiles[i]);
             allFiles.splice(i, 1);
-            var fileButton = document.getElementById(fileToBeDeleted + "_file");
+            const fileButton = document.getElementById(fileToBeDeleted + "_file");
             fileButton.remove();
             deletedFile.remove();
             allWorkspaces.delete(fileTracker);
             document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
-            if (allFiles.length != 0) {
+            if (allFiles.length !== 0) {
                 makeFileVisible(currentFile);
             }
         }
     }
 }
+
 // Deletes all HTML elements associated with any workspaces, clears the workspace array and map.
 function deleteAllFiles() {
     Code.workspace.clear();
     Code.attemptCodeGeneration(Blockly.C);
-    for (var i = 0; i < allFiles.length; i++) {
-        var deletedFile = document.getElementById(allFiles[i]);
+    for (let i = 0; i < allFiles.length; i++) {
+        const deletedFile = document.getElementById(allFiles[i]);
         Code.workspace = allWorkspaces.get(allFiles[i]);
-        var fileButton = document.getElementById(allFiles[i] + "_file");
+        const fileButton = document.getElementById(allFiles[i] + "_file");
         fileButton.remove();
         deletedFile.remove();
         allWorkspaces.delete(allFiles[i]);
@@ -931,14 +947,16 @@ function showFilePopUp(popUpShow) {
     populateDropDowns("originDeleteFileDD1");
     populateDropDowns("originCopyFileDD1");
     var popUp = document.getElementById(popUpShow);
-    var toolbox = document.querySelectorAll(".blocklyToolboxDiv.blocklyNonSelectable");
+    const toolbox = document.querySelectorAll(".blocklyToolboxDiv.blocklyNonSelectable");
     if (toolbox) {
         for (var i = 0; i < toolbox.length; i++) {
             toolbox[i].style.display = "none";
         }
     }
     popUp.style.display = "block";
+    toolbox.style.display = "none";
 }
+
 // Hides the New File pop out box
 function hideFilePopUp(popUpHide) {
     var popUp = document.getElementById(popUpHide);
@@ -1016,3 +1034,4 @@ function populateDropDowns(ddName) {
         dropDown.add(newOption);
     }
 }
+

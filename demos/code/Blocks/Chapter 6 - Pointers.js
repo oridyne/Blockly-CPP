@@ -1,6 +1,32 @@
+/* Author:    David J. Hazell                            */
+/* Professor: Hao Loi                                    */
+/* School:    Quinsigamond Community College             */
+/* Class:     CSC212: Introduction to Computer Science   */
+/* Semester:  Spring 2021                                */
+
+/* ToDo:                                                 */
+/*   * Use global variables for common values like       */
+/*     the available variable types, available pointer   */
+/*     operators, etc                                    */
+/*   * Reduce the amount of "duplicated code" reported   */
+/*     by IDEs                                           */
+/*   * Use common variable names to describe identical   */
+/*     information. (Example: some blocks assign the     */
+/*     variable identifier to "this.getVar_" while other */
+/*     blocks use "this.name_"                           */
+/*   * Test the use of pointers with classes.  This is   */
+/*     currently un-tested and may require additional    */
+/*     work to be supported.                             */
+
 const pointerBlockHue = 200;
 
-/* Pointer Declaration */
+/* ------------------------------------------------------ */
+/* Pointer Declaration                                    */
+/* ------------------------------------------------------ */
+
+/* This "pointer_declare" block is used to declare a      */
+/* pointer.  This block can be initialized using blocks   */
+/* defined in the "Pointer Initialization" section below. */
 Blockly.Blocks['pointer_declare'] = {
     init: function () {
 
@@ -218,8 +244,13 @@ Blockly.C['pointer_declare'] = function (block) {
 
 };
 
-/* Pointer Initialization */
+/* ------------------------------------------------------ */
+/* Pointer Initialization                                 */
+/* ------------------------------------------------------ */
 
+/* The "pointer_getter" block returns a list of pointers  */
+/* in the current scope.  This can be used to assign the  */
+/* value of a pointer to another pointer.                 */
 Blockly.Blocks['pointer_getter'] = {
     init: function () {
 
@@ -339,9 +370,9 @@ Blockly.Blocks['pointer_getter'] = {
                                 break;
                         }
 
-                        console.debug("pointer_getter: identifier_    = " + this.getVar_);
-                        console.debug("pointer_getter: pointerLevel_  =  " + this.pointerLevel_);
-                        console.debug("");
+                        // console.debug("pointer_getter: identifier_    = " + this.getVar_);
+                        // console.debug("pointer_getter: pointerLevel_  =  " + this.pointerLevel_);
+                        // console.debug("");
 
                         return;
                     }
@@ -550,6 +581,13 @@ Blockly.C['pointer_getter'] = function (block) {
     return [code, Blockly.C.ORDER_NONE];
 };
 
+/* The "pointer_reference" block returns a list of        */
+/* non-pointer variables in the current scope. The block  */
+/* inserts the "address of" (&) operator before the       */
+/* non-pointer variable name and returns the address of   */
+/* the variable which can be assigned to a pointer using  */
+/* both the "pointer_declare" and "pointer_assignment"    */
+/* blocks.                                                */
 Blockly.Blocks['pointer_reference'] = {
     init: function () {
 
@@ -618,6 +656,24 @@ Blockly.Blocks['pointer_reference'] = {
                                 this.ptrType_ = parentBlock.funcParam_[i][2];
                                 this.isInitialized_ = parentBlock.funcParam_[i][4];
                             }
+
+                            // Set pointer level
+                            if (parentBlock.isPointer_) {
+                                this.pointerLevel_ = 1 + parentBlock.pointerLevel_;
+                            } else {
+                                this.pointerLevel_ = 1;
+                            }
+                            switch (this.pointerLevel_) {
+                                case 1:
+                                    this.operator_ = "*";
+                                    break;
+                                case 2:
+                                    this.operator_ = "**";
+                                    break;
+                                case 3:
+                                    this.operator_ = "***";
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -653,6 +709,7 @@ Blockly.Blocks['pointer_reference'] = {
                         this.isNull_ = parentBlock.isNull_;
                         this.ptrType_ = parentBlock.ptrType_;
                         this.type_ = parentBlock.type_;
+                        this.typeName_ = parentBlock.type_;
 
                         //stream const option
                         this.isConst_ = parentBlock.isConst_;
@@ -675,9 +732,9 @@ Blockly.Blocks['pointer_reference'] = {
                                 break;
                         }
 
-                        console.debug("pointer_reference: identifier_   = " + this.getVar_);
-                        console.debug("pointer_reference: pointerLevel_ = " + this.pointerLevel_);
-                        console.debug("");
+                        // console.debug("pointer_reference: identifier_   = " + this.getVar_);
+                        // console.debug("pointer_reference: pointerLevel_ = " + this.pointerLevel_);
+                        // console.debug("");
 
                         return;
                     }
@@ -886,6 +943,9 @@ Blockly.C['pointer_reference'] = function (block) {
     return [code, Blockly.C.ORDER_NONE];
 };
 
+/* The "pointer_null" block is a simple NULL value that   */
+/* can be assigned to a pointer using both the            */
+/* "pointer_declare" and "pointer_assignment" blocks.     */
 Blockly.Blocks['pointer_null'] = {
     init: function () {
         this.appendDummyInput()
@@ -928,6 +988,9 @@ Blockly.C['pointer_null'] = function () {
     return [code, Blockly.C.ORDER_NONE];
 };
 
+/* The "pointer_nullptr" block is a simple nullptr value  */
+/* that can be assigned to a pointer using both the       */
+/* "pointer_declare" and "pointer_assignment" blocks.     */
 Blockly.Blocks['pointer_nullptr'] = {
     init: function () {
         this.appendDummyInput()
@@ -971,8 +1034,13 @@ Blockly.C['pointer_nullptr'] = function () {
     return [code, Blockly.C.ORDER_NONE];
 };
 
-/* Pointer Assignment */
+/* ------------------------------------------------------ */
+/* Pointer Assignment                                     */
+/* ------------------------------------------------------ */
 
+/* The "pointer_assignment" block is used to assign value */
+/* to pointers that have already been declared in the     */
+/* current scope.                                         */
 Blockly.Blocks['pointer_assignment'] = {
     init: function () {
 
@@ -1042,7 +1110,7 @@ Blockly.Blocks['pointer_assignment'] = {
         //To compare values, the second block must have an input
         if (block[1]) {
 
-            console.debug("block[1].isNull_ = " + block[1].isNull_);
+            // console.debug("block[1].isNull_ = " + block[1].isNull_);
 
             if (!block[1].isNull_) {
                 if (block[0].type_ !== block[1].type_) {
@@ -1078,8 +1146,14 @@ Blockly.C['pointer_assignment'] = function (block) {
     return code;
 };
 
+/* ------------------------------------------------------ */
 /* Pointer Operators */
+/* ------------------------------------------------------ */
 
+/* The "pointer_operator" block is meant to provide       */
+/* flexible use of the "address of" (&) and "dereference" */
+/* (*) operators. This block can be placed both before    */
+/* and after other blocks.                                */
 Blockly.Blocks['pointer_operator'] = {
     init: function () {
         // BLOCK PROPERTIES
@@ -1129,9 +1203,9 @@ Blockly.Blocks['pointer_operator'] = {
                     break;
             }
 
-            console.debug("pointer_operator: identifier_   = " + this.getVar_);
-            console.debug("pointer_operator: pointerLevel_ = " + this.pointerLevel_);
-            console.debug("");
+            // console.debug("pointer_operator: identifier_   = " + this.getVar_);
+            // console.debug("pointer_operator: pointerLevel_ = " + this.pointerLevel_);
+            // console.debug("");
         }
     },
 

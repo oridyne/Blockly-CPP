@@ -292,20 +292,22 @@ Blockly.Blocks['printf'] = {
 };
 
 Blockly.C['printf'] = function (block) {
-    var code = "";
+    let i;
+    let arg;
+    let code = "";
 
     //The code representing %s, %d, etc
-    var str = [];
+    const str = [];
     //The code in the format section
-    var format = [];
+    const format = [];
     //
-    var formattedCode = [];
+    const formattedCode = [];
 
     code += 'printf("';
 
 
-    for (var i = 0; i <= block.printfCount_; ++i) {
-        var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+    for (i = 0; i <= block.printfCount_; ++i) {
+        arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
 
         let ptr = block.getInputTargetBlock('valinp' + i);
 
@@ -323,7 +325,7 @@ Blockly.C['printf'] = function (block) {
 
     }
 
-    for (var i = 0; i < formattedCode.length; ++i) {
+    for (i = 0; i < formattedCode.length; ++i) {
         code += formattedCode[i];
 
         if (formattedCode[i].length < 1) {
@@ -338,9 +340,9 @@ Blockly.C['printf'] = function (block) {
     if (format.length > 0) {
         code += ', ';
 
-        for (var i = 0; i < format.length; ++i) {
+        for (i = 0; i < format.length; ++i) {
             if (str[i] === "%s") {
-                var arg = this.getInputTargetBlock('valinp' + (i + 0));
+                arg = this.getInputTargetBlock('valinp' + (i));
 
                 if (arg && arg.isGetter_) {
                     format[i] += ".c_str()";

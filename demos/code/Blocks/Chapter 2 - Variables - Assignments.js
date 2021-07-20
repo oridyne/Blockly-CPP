@@ -550,7 +550,7 @@ Blockly.Blocks['number_rand'] = {
 
 
     allocateWarnings: function () {
-        console.log(this.typeName_);
+        //console.log(this.typeName_);
         let C = C_Logic;
 
         var TT = "";
