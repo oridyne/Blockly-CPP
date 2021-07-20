@@ -322,7 +322,7 @@ Blockly.Blocks['class_constructor'] = {
         this.setFieldValue("class name", "con_name");
 
 		/** If the ~ is selected then it is flagged as a destructor. */
-        if (this.constructorType_ != '') {
+        if (this.constructorType_ !== '') {
             this.isConstructor_ = false;
             this.isDestructor_ = true;
         }
@@ -485,8 +485,10 @@ Blockly.Blocks['class_parameters'] = {
         let ptr = this.parentBlock_;
         while (ptr) {
             if (ptr.getDataStr() === 'isClass') {
-				/** Add class name to dropdown list. */
-                options.push([ptr.getVar_, ptr.getVar_]);
+                /** Add class name to dropdown list. */
+                if(!C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                    options.push([ptr.getVar_, ptr.getVar_]);
+                }
             }
 			if (ptr.type === 'include_file')
 			{

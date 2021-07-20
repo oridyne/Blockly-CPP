@@ -171,7 +171,9 @@ Blockly.Blocks['ds_object'] = {
             switch (ptr.getDataStr()) {
                 case 'isStruct':
                 case 'isClass':
-                    options.push([ptr.getVar_, ptr.getVar_]);
+                    if(!C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                        options.push([ptr.getVar_, ptr.getVar_]);
+                    }
                     break;
             }
             ptr = ptr.parentBlock_;
@@ -461,10 +463,9 @@ Blockly.Blocks['ds_member'] = {
         }
 
         //Allocate pointer type
-        let C = C_Logic;
-
         if (val1.length > 0) {
-            if (C.help.ptr_is_deref(this.ptrType_)) {
+			//console.log(this.ptrType_); //for checking pointer types
+            if (C_Logic.help.ptr_is_deref(this.ptrType_)) {
                 this.setFieldValue('->', 'operator');
             } else {
                 this.setFieldValue('.', 'operator');
@@ -518,24 +519,21 @@ Blockly.Blocks['ds_member'] = {
 
 	//just adding name of classes to the dropdown
     allocateDropdown: function () {
-        var options = [["",""]];
-		
+        let i;
+        const options = [["", ""]];
+
         let ptr = this.parentBlock_;
         while (ptr) {
-            if (ptr.type === "ds_object"){
-               
-                    options.push([ptr.getVar_, ptr.getVar_]);
+            if (ptr.type === "ds_object") {
+                options.push([ptr.getVar_, ptr.getVar_]);
             }
-            if (ptr.type === 'include_file')
-			{
-				for (var i = 0; i < ptr.classObj_.length; i++)
-				{
-					options.push([ptr.classObj_[i][2], ptr.classObj_[i][2]]);
-				}
-				for (var i = 0; i < ptr.classObjPrivate_.length; i++)
-				{
-					options.push([ptr.classObjPrivate_[i][2], ptr.classObjPrivate_[i][2]]);
-				}
+            if (ptr.type === 'include_file') {
+                for (i = 0; i < ptr.classObj_.length; i++) {
+                    options.push([ptr.classObj_[i][2], ptr.classObj_[i][2]]);
+                }
+                for (i = 0; i < ptr.classObjPrivate_.length; i++) {
+                    options.push([ptr.classObjPrivate_[i][2], ptr.classObjPrivate_[i][2]]);
+                }
             }
             ptr = ptr.parentBlock_;
         }
@@ -543,20 +541,23 @@ Blockly.Blocks['ds_member'] = {
 		ptr = this.getSurroundParent();
 		while (ptr) {
             if (ptr.type === 'ds_class') {
-				for (var i = 0; i < ptr.classObjPrivate_.length; i++){
-					options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
-				}
-			}
+                for (i = 0; i < ptr.classObjPrivate_.length; i++) {
+                    options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
+                }
+            }
 			ptr = ptr.getSurroundParent();
 		}
 		
 		ptr = this.getSurroundParent();
 		while (ptr) {
             if (ptr.type === 'class_function_definition') {
-				for (var i = 0; i < ptr.funcParam_.length; i++){
-					options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-				}
-			}
+                for (i = 0; i < ptr.funcParam_.length; i++) {
+                    if (classList.has(ptr.funcParam_[i][3])) {
+                        options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
+                    }
+                }
+                console.log(ptr);
+            }
 			ptr = ptr.getSurroundParent();
 		}
 		
@@ -564,11 +565,10 @@ Blockly.Blocks['ds_member'] = {
 		while (ptr) {
 			if (ptr.type === 'class_function_definition')
 			{
-				options.push(["this", "this"]);
+                options.push(["this", "this"]);
 			}
 			ptr = ptr.getSurroundParent();
 		}
-		
         return options;
     },
 

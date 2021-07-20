@@ -56,7 +56,18 @@ C_Var.get.classParameterMembers = function(block){
 
 //Save information from define block, include block copies that information
 C_Var.get.saveClassInfo = function(block) {
-	if(!classList.has(block.className_)) {
+	if(!classList.has(block.className_) || classList.get(block.className_) === null) {
 		classList.set(block.className_, block);
 	}
+}
+
+C_Var.get.dropdownCheck = function(options, optionName) {
+	var hasOption = false;
+	for(var i = 0; i < options.length; i++) {
+		if(options[i][0] === optionName){
+			hasOption = true;
+			break;
+		}
+	}
+	return hasOption;
 }
