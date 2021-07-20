@@ -68,26 +68,27 @@ Blockly.Blocks['define_file'] = {
 	allocateValues: function () {
 		let headerNameArr = currentFile.split(".");
 		let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
+		console.log(headerName);
 		//TODO: Get the workspace's current file name to replace default <file name>
 		this.setFieldValue(headerName, "ifndefText");
 		this.setFieldValue(headerName, "defineText");
 		this.className_ = currentFile;
-		
+
 		this.classVarPublic_ = [];
-        this.classFuncProp_ = [];
-        this.classFuncParam_ = [];
-        this.classConProp_ = [];
-        this.classConParam_ = [];
+		this.classFuncProp_ = [];
+		this.classFuncParam_ = [];
+		this.classConProp_ = [];
+		this.classConParam_ = [];
 		this.classObj_ = [];
-		
+
 		this.classVarPrivate_ = [];
-        this.classFuncPropPrivate_ = [];
-        this.classFuncParamPrivate_ = [];
-        this.classConPropPrivate_ = [];
-        this.classConParamPrivate_ = [];
+		this.classFuncPropPrivate_ = [];
+		this.classFuncParamPrivate_ = [];
+		this.classConPropPrivate_ = [];
+		this.classConParamPrivate_ = [];
 		this.classObjPrivate_ = [];
-		
-       /**
+
+		/**
          * OtherFiles Properties
          *
          * [0] - getVar_ | name of included class selected

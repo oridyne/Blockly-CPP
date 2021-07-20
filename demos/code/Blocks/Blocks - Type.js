@@ -153,7 +153,7 @@ Blockly.Blocks['get_var'] = {
         while (ptr) {
             switch (ptr.getDataStr()) {
                 case 'isVar':
-                    if (ptr.isPointer_ != true) {
+                    if (ptr.isPointer_ !== true) {
                         options.push([ptr.getVar_, ptr.getVar_]);
                     }
 
@@ -1030,7 +1030,7 @@ Blockly.Blocks['get_func'] = {
 
             switch (this.typeName_) {
                 case 'void':
-					console.log(this.parentBlock_.parentBlock_.type);
+                    // console.log(this.parentBlock_.parentBlock_.type);
                     if (this.parentBlock_.type !== "get_func_void" && this.parentBlock_.parentBlock_.type !== 'ds_member2') {
                         TT += "Error, cannot return a void. (use void function block).\n"
                     }
@@ -1228,12 +1228,10 @@ Blockly.Blocks['get_char'] = {
      * Sets all the warnings
      */
     allocateWarnings: function () {
-        var TT = "";
-
-        let C = C_Logic;
+        let TT = "";
 
         //Char formatting warnings and errors
-        TT += C.logic.char_format(this.value_);
+        TT += C_Logic.logic.char_format(this.value_);
 
         //If this block's return is not connected
         if (!this.parentBlock_) {
@@ -1292,12 +1290,10 @@ Blockly.Blocks['get_str'] = {
      * Sets all the warnings
      */
     allocateWarnings: function () {
-        var TT = "";
-
-        let C = C_Logic;
+        let TT = "";
 
         //String format warnings and errors
-        TT += C.logic.string_format(this.value_);
+        TT += C_Logic.logic.string_format(this.value_);
 
         //If this block's return is not connected
         if (!this.parentBlock_) {

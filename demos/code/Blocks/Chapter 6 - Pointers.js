@@ -339,9 +339,9 @@ Blockly.Blocks['pointer_getter'] = {
                                 break;
                         }
 
-                        console.debug("pointer_getter: identifier_    = " + this.getVar_);
-                        console.debug("pointer_getter: pointerLevel_  =  " + this.pointerLevel_);
-                        console.debug("");
+                        // console.debug("pointer_getter: identifier_    = " + this.getVar_);
+                        // console.debug("pointer_getter: pointerLevel_  =  " + this.pointerLevel_);
+                        // console.debug("");
 
                         return;
                     }
@@ -675,9 +675,9 @@ Blockly.Blocks['pointer_reference'] = {
                                 break;
                         }
 
-                        console.debug("pointer_reference: identifier_   = " + this.getVar_);
-                        console.debug("pointer_reference: pointerLevel_ = " + this.pointerLevel_);
-                        console.debug("");
+                        // console.debug("pointer_reference: identifier_   = " + this.getVar_);
+                        // console.debug("pointer_reference: pointerLevel_ = " + this.pointerLevel_);
+                        // console.debug("");
 
                         return;
                     }
@@ -1042,7 +1042,7 @@ Blockly.Blocks['pointer_assignment'] = {
         //To compare values, the second block must have an input
         if (block[1]) {
 
-            console.debug("block[1].isNull_ = " + block[1].isNull_);
+            // console.debug("block[1].isNull_ = " + block[1].isNull_);
 
             if (!block[1].isNull_) {
                 if (block[0].type_ !== block[1].type_) {
@@ -1129,9 +1129,9 @@ Blockly.Blocks['pointer_operator'] = {
                     break;
             }
 
-            console.debug("pointer_operator: identifier_   = " + this.getVar_);
-            console.debug("pointer_operator: pointerLevel_ = " + this.pointerLevel_);
-            console.debug("");
+            // console.debug("pointer_operator: identifier_   = " + this.getVar_);
+            // console.debug("pointer_operator: pointerLevel_ = " + this.pointerLevel_);
+            // console.debug("");
         }
     },
 
