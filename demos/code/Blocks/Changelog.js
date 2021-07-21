@@ -2,56 +2,60 @@
 
 //Function for readme button
 function updateLog() {
-    var code = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
-    document.getElementById('code').value = code;
+    document.getElementById('code').value = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
 }
 
 
 //Function to download code
 function downloadCode() {
-    var code = Blockly.C.workspaceToCode();
-    var codeArray = [];
+    const code = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
+    const codeArray = [];
     codeArray.push(code);
 
-    var codeBlob = new Blob(codeArray, {type: "text/plain;charset=utf-8"});
+    const codeBlob = new Blob(codeArray, {type: "text/plain;charset=utf-8"});
     saveAs(codeBlob, "main.cpp");
 }
 
-var yesNoCancelLoadBtn = 'Cancel';
+let yesNoCancelLoadBtn = 'Cancel';
+
 //function to load
 function readFile(input) {
-    if (yesNoCancelLoadBtn == 'Cancel') {
+    let wasFileDeleted;
+    let filesToRead;
+    let i;
+    let fileName;
+    if (yesNoCancelLoadBtn === 'Cancel') {
         return;
     }
     let files = input.files;
     // Checks if user wants to clear existing workspaces.
-    if (yesNoCancelLoadBtn == 'Yes') {
+    if (yesNoCancelLoadBtn === 'Yes') {
         deleteAllFiles();
-        var filesToRead = 0;
-    } else if (yesNoCancelLoadBtn == 'No') {
+        filesToRead = 0;
+    } else if (yesNoCancelLoadBtn === 'No') {
         // Checks if workspace names are already in use and removes existing if true.
         do {
-            var wasFileDeleted = 0;
-            for (var i = 0; i < files.length; i++) {
-                for (var j = 0; j < allFiles.length; j++) {
+            wasFileDeleted = 0;
+            for (i = 0; i < files.length; i++) {
+                for (let j = 0; j < allFiles.length; j++) {
                     let file = input.files[i];
-                    var fileName = file.name;
+                    fileName = file.name;
                     fileName = fileName.substring(0, (fileName.length - 4));
-                    var existingFile = allFiles[j];
-                    if (fileName == existingFile) {
+                    const existingFile = allFiles[j];
+                    if (fileName === existingFile) {
                         deleteFileConfirm(fileName);
                         wasFileDeleted++;
                     }
                 }
             }
-        } while (wasFileDeleted != 0);
-        var filesToRead = allFiles.length;
+        } while (wasFileDeleted !== 0);
+        filesToRead = allFiles.length;
     }
-    for (var i = 0; i < files.length; i++) {
+    for (i = 0; i < files.length; i++) {
         let file = input.files[i];
         let reader = new FileReader();
         reader.readAsText(file);
-        var fileName = file.name;
+        fileName = file.name;
         fileName = fileName.substring(0, (fileName.length - 4));
         newFile(fileName);
         /// Reads files contents into new workspaces.
@@ -59,9 +63,27 @@ function readFile(input) {
             filesToRead++
             Code.workspace = allWorkspaces.get(allFiles[filesToRead - 1]);
             let saveXML = reader.result;
-            let textToDom = Blockly.Xml.textToDom(saveXML);
+            let textToDom = Blockly.Xml.textToDom(saveXML.toString());
             Blockly.Xml.domToWorkspace(textToDom, Code.workspace);
             input.value = '';
+            // let currFile = allFiles[filesToRead - 1];
+            // console.log("current file is " + currFile);
+            // const nodeList = textToDom.getElementsByTagName("block");
+            // for(let i = 0; i < nodeList.length; i++) {
+            //     let currItem = nodeList.item(i);
+            //     const typeName = currItem.getAttribute("type");
+            //     if (typeName === "define_file") {
+            //         if (!classList.has(currFile)) {
+            //             nodeList.item(i).className = currFile;
+            //             allWorkspaces.get(currFile).getBlockById(currItem.id).allocateValues(currFile);
+            //             currItem = nodeList.item(i);
+            //             console.log(currItem);
+            //         }
+            //     }
+            //     else if (typeName === "include_file") {
+            //         allWorkspaces.get(currFile).getBlockById(currItem.id).allocateValues();
+            //     }
+            // }
         }
         reader.onerror = function () {
             console.log(reader.error);
@@ -73,16 +95,16 @@ function readFile(input) {
 // Reads code from workspace into XML.
 function downloadXML() {
     //Grab the workspace XML
-    for (var i = 0; i < allFiles.length; i++) {
+    for (let i = 0; i < allFiles.length; i++) {
         Code.workspace = allWorkspaces.get(allFiles[i]);
         let codeXML = Blockly.Xml.workspaceToDom(Code.workspace);
         //Prettify the XML
         let saveXML = Blockly.Xml.domToPrettyText(codeXML);
-        var codeArray = [];
+        const codeArray = [];
         codeArray.push(saveXML);
         console.log(Code.workspace);
         console.log(saveXML);
-        var codeBlob = new Blob(codeArray, {type: "text/plain;charset=utf-8"});
+        const codeBlob = new Blob(codeArray, {type: "text/plain;charset=utf-8"});
         saveAs(codeBlob, allFiles[i] + ".xml");
     }
 }
@@ -92,8 +114,8 @@ function saveAs(Blob, fName) {
     if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveOrOpenBlob(Blob, fName);
     } else {
-        var saveFileTag = document.createElement('a');
-        var saveFileTagName = window.URL.createObjectURL(Blob);
+        const saveFileTag = document.createElement('a');
+        const saveFileTagName = window.URL.createObjectURL(Blob);
         saveFileTag.href = saveFileTagName;
         saveFileTag.download = fName;
         document.body.appendChild(saveFileTag);

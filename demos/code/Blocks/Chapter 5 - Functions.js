@@ -2,20 +2,7 @@ var funcHUE = 90;
 
 Blockly.Blocks['function_declaration'] = {
     init: function () {
-
-        /*
-        this.pTypes_ = [
-            ["int", "int"],
-            ["size_t", "size_t"],
-            ["double", "double"],
-            ["char", "char"],
-            ["string", "string"],
-            ["bool", "bool"],
-            ["short", "short"],
-            ["long", "long"],
-            ["long long", "long long"]
-        ];
-        */
+      
 
         this.appendValueInput("valueInput")
             .appendField(new Blockly.FieldDropdown(
@@ -24,21 +11,7 @@ Blockly.Blocks['function_declaration'] = {
                     ["const", "const"]
                 ]),
                 'const')
-            .appendField(new Blockly.FieldDropdown(
-                [
-                    ["void", "void"],
-                    ["int", "int"],
-                    ["size_t", "size_t"],
-                    ["double", "double"],
-                    ["char", "char"],
-                    ["string", "string"],
-                    ["bool", "bool"],
-                    ["short", "short"],
-                    ["long", "long"],
-                    ["long long", "long long"]
-                ]),
-                "myFuncReturn"
-            )
+            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "myFuncReturn")
             .appendField(new Blockly.FieldTextInput("myFunction"), "identifier")
             .appendField('(');
         this.appendDummyInput()
@@ -100,10 +73,37 @@ Blockly.Blocks['function_declaration'] = {
     },
 
     onchange: function () {
-
         this.allocateValues();
         this.allocateWarnings();
     },
+	
+    allocateDropdown: function () {
+        var options = [
+			["void", "void"],
+            ["int", "int"],
+            ["size_t", "size_t"],
+            ["double", "double"],
+            ["char", "char"],
+            ["string", "string"],
+            ["bool", "bool"],
+            ["short", "short"],
+            ["long", "long"],
+            ["long long", "long long"]];
+
+		/** add list of declared classes to dropdown*/
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            if (ptr.getDataStr() === 'isClass') {
+				/** Add class name to dropdown list. */
+                options.push([ptr.getVar_, ptr.getVar_]);
+            }
+            ptr = ptr.parentBlock_;
+        }
+
+
+        return options;
+		
+	},
 
     allocateValues: function () {
         // Modified by David Hazell (SP21)
@@ -149,7 +149,7 @@ Blockly.Blocks['function_declaration'] = {
 
         }
 
-        //Check whether this function is a constructor
+        //Check whether this function is a constructor (UPDATE: use class constructor block not functions for constructors/destructors)
         inputBlock = this.getSurroundParent();
         while (inputBlock) {
             switch (inputBlock.getDataStr()) {
@@ -165,10 +165,6 @@ Blockly.Blocks['function_declaration'] = {
             }
             inputBlock = inputBlock.getSurroundParent();
         }
-
-    },
-
-    allocateParameters: function () {
 
     },
 
@@ -260,7 +256,7 @@ Blockly.Blocks['function_declaration'] = {
         let inputBlock = this.getInputTargetBlock('valueInput');
         while (inputBlock) {
 
-            if (inputBlock.type !== "function_parameters" && inputBlock.type !== "pointer_operator" && inputBlock.type !== "class_parameters") {
+            if (inputBlock.type !== "function_parameters" && inputBlock.type !== "pointer_operator" && inputBlock.type !== "class_parameters" && inputBlock.type !== "class_function_definition") {
                 TT += 'Error, only the function parameter block is allowed in the function parameter.\n';
                 break;
             }
@@ -295,6 +291,7 @@ Blockly.Blocks['function_declaration'] = {
     }
 
 };
+
 Blockly.C['function_declaration'] = function (block) {
 
     // Modified by David Hazell (SP21)
@@ -400,7 +397,7 @@ Blockly.Blocks['function_parameters'] = {
         this.paramProp_[3] = this.getVar_;
         //Default initialization to true
         this.paramProp_[4] = true;
-
+		
     },
 
     allocateWarnings: function () {
@@ -410,7 +407,7 @@ Blockly.Blocks['function_parameters'] = {
 
         if (!this.parentBlock_) {
             TT += 'Error, this block has a return and must be connected.\n';
-        } else if (!["function_parameters", "function_declaration", "pointer_operator", "class_constructor", "class_parameters"].includes(ptr.type)) {
+        } else if (!["function_parameters", "function_declaration", "pointer_operator", "class_constructor", "class_parameters", "class_function_definition"].includes(ptr.type)) {
             TT += 'Error, parameter block must be connected to a parameter block or a function block.\n';
         }
 
@@ -423,6 +420,7 @@ Blockly.Blocks['function_parameters'] = {
     }
 
 };
+
 Blockly.C['function_parameters'] = function (block) {
     let val = Blockly.C.valueToCode(this, 'valueInput', Blockly.C.ORDER_NONE);
     let code = "";
@@ -550,7 +548,7 @@ Blockly.Blocks['function_return'] = {
                 TT += 'Error, attempting to return data in a void function.\n';
             } else if (this.typeName_ !== block.typeName_) {
 
-                TT += 'Error, function must return type "' + this.typeName_ + '", currently returning type "' + block.typeName_ + '".\n';
+                TT += `Error, function must return type "${this.typeName_}", currently returning type "${block.typeName_}".\n`;
 
                 if (this.input_.length < 1) {
                     TT += 'Error, no data is being returned.\n ';
@@ -558,15 +556,14 @@ Blockly.Blocks['function_return'] = {
 
             }
 
-
             if (this.isConst_ !== block.isConst_) {
-                //TT += "Error, function const and return const must be the same.\n";
+                TT += "Error, function const and return const must be the same.\n";
             }
 
         } else {
 
             if (this.typeName_ !== "void") {
-                TT += 'Error, a non-void return must return a "' + this.typeName_ + this.ptrType_ + '".\n';
+                TT += `Error, a non-void return must return a "${this.typeName_} ${this.ptrType_}".\n`;
             }
         }
 
