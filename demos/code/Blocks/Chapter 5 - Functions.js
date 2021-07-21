@@ -401,7 +401,7 @@ Blockly.Blocks['function_parameters'] = {
     },
 
     allocateWarnings: function () {
-        var TT = "";
+        let TT = "";
 
         let ptr = this.getSurroundParent();
 
@@ -481,7 +481,7 @@ Blockly.Blocks['function_return'] = {
         this.typeName_ = "";
 
         //Stream from and/or into the child block
-        var block = this.getInputTargetBlock('valinp1');
+        const block = this.getInputTargetBlock('valinp1');
 
         if (block) {
             this.value_ = block.value_;
@@ -519,13 +519,13 @@ Blockly.Blocks['function_return'] = {
     },
 
     allocateWarnings: function () {
-        var TT = "";
+        let TT = "";
 
         let block = this.getInputTargetBlock('valinp1');
 
         let ptr = this.getSurroundParent();
 
-        var found = false;
+        let found = false;
         while (ptr) {
 
             //check if there is a function
@@ -577,7 +577,7 @@ Blockly.Blocks['function_return'] = {
     }
 };
 Blockly.C['function_return'] = function (block) {
-    var code = '';
+    let code = '';
 
     code += 'return';
 
@@ -613,12 +613,12 @@ Blockly.Blocks['func_parameters_call'] = {
     }
 };
 Blockly.C['func_parameters_call'] = function (block) {
-    var variable_myparamname = Blockly.C.variableDB_.getName(block.getFieldValue('myParamName'), Blockly.Variables.NAME_TYPE);
-    var value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
-    var dropdown_myptr = this.getField('myPtr').getText();
+    const variable_myparamname = Blockly.C.variableDB_.getName(block.getFieldValue('myParamName'), Blockly.Variables.NAME_TYPE);
+    const value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
+    const dropdown_myptr = this.getField('myPtr').getText();
 
     // TODO: Assemble C into code variable.
-    var code = '';
+    let code = '';
 
 
     code += dropdown_myptr + ' ' + variable_myparamname;
@@ -650,8 +650,7 @@ Blockly.Blocks['func_call_return'] = {
     },
 
     mutationToDom: function () {
-        var container = document.createElement('mutation');
-        return container;
+        return document.createElement('mutation');
     },
 
     domToMutation: function (xmlElement) {
@@ -659,7 +658,7 @@ Blockly.Blocks['func_call_return'] = {
     },
 
     decompose: function (workspace) {
-        var containerBlock = workspace.newBlock(['function_mutator']);
+        const containerBlock = workspace.newBlock(['function_mutator']);
         containerBlock.initSvg();
         return containerBlock;
     },
@@ -669,11 +668,11 @@ Blockly.Blocks['func_call_return'] = {
     }
 };
 Blockly.C['func_call_return'] = function (block) {
-    var variable_myfunc = Blockly.C.variableDB_.getName(block.getFieldValue('myFunc'), Blockly.Variables.NAME_TYPE);
-    var value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
+    const variable_myfunc = Blockly.C.variableDB_.getName(block.getFieldValue('myFunc'), Blockly.Variables.NAME_TYPE);
+    const value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
     // TODO: Assemble C into code variable.
 
-    code = '';
+    let code = '';
 
     code += variable_myfunc;
 
@@ -725,11 +724,11 @@ Blockly.Blocks['function_call'] = {
     }
 };
 Blockly.C['function_call'] = function (block) {
-    var variable_myfunc = Blockly.C.variableDB_.getName(block.getFieldValue('myFunc'), Blockly.Variables.NAME_TYPE);
-    var value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
+    const variable_myfunc = Blockly.C.variableDB_.getName(block.getFieldValue('myFunc'), Blockly.Variables.NAME_TYPE);
+    const value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);
     // TODO: Assemble C into code variable.
 
-    code = '';
+    let code = '';
 
     code += variable_myfunc;
 

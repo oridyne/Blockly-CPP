@@ -85,7 +85,7 @@ Blockly.Blocks['ds_struct'] = {
             //Get the next bottom block
             ptr = ptr.nextConnection.targetBlock();
         }
-		
+
     },
 
     allocateWarnings: function () {
@@ -142,15 +142,15 @@ Blockly.Blocks['ds_object'] = {
 
         this.classConProp_ = [];
         this.classConParam_ = [];
-		
-		this.typeName_ = "";
-		this.getVar_ = "";
-		this.ptrType_ = "";
-		this.isNew = true;
-		
-		//[0] is typeName_ [1] is ptr [2] is var
+
+        this.typeName_ = "";
+        this.getVar_ = "";
+        this.ptrType_ = "";
+        this.isNew = true;
+
+        //[0] is typeName_ [1] is ptr [2] is var
         this.objProp_ = ["", "", ""];
-		
+
     },
 
     onchange: function () {
@@ -161,7 +161,7 @@ Blockly.Blocks['ds_object'] = {
     },
 
     allocateVariables: function () {
-        var options = [];
+        const options = [];
 
         options.push(["", ""]);
 
@@ -171,29 +171,26 @@ Blockly.Blocks['ds_object'] = {
             switch (ptr.getDataStr()) {
                 case 'isStruct':
                 case 'isClass':
-                    if(!C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                    if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
                         options.push([ptr.getVar_, ptr.getVar_]);
                     }
                     break;
             }
             ptr = ptr.parentBlock_;
         }
-		
+
         ptr = this.parentBlock_;
-        while (ptr)
-		{
-            if (ptr.type === 'include_file')
-			{
-				for (var i = 0; i < ptr.includedClasses_.length; i++)
-				{
-					options.push([ptr.includedClasses_[i][0],ptr.includedClasses_[i][0]]);
-				}
+        while (ptr) {
+            if (ptr.type === 'include_file') {
+                for (let i = 0; i < ptr.includedClasses_.length; i++) {
+                    options.push([ptr.includedClasses_[i][0], ptr.includedClasses_[i][0]]);
+                }
             }
             ptr = ptr.parentBlock_;
         }
 
         this.paramNames_ = options;
-		
+
     },
 
     allocateValues: function () {
@@ -204,25 +201,24 @@ Blockly.Blocks['ds_object'] = {
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
-		this.isNew = true;
+        this.isNew = true;
 
         //variable is the new object
         this.typeName_ = this.getFieldValue('DS');
         this.getVar_ = this.getFieldValue('obj');
         this.ptrType_ = this.getFieldValue('ptr');
-		
-		if (this.childBlocks_[0]) {
-			if (this.childBlocks_[0].type === 'ds_member') {
-				this.isNew = false;
-			}
-		}
-		
+
+        if (this.childBlocks_[0]) {
+            if (this.childBlocks_[0].type === 'ds_member') {
+                this.isNew = false;
+            }
+        }
+
         this.objProp_[0] = this.typeName_;
         this.objProp_[1] = this.ptrType_;
         this.objProp_[2] = this.getVar_;
         this.objProp_[3] = this.isNew;
-		
-		
+
 
         let ptr = this.parentBlock_;
 
@@ -239,24 +235,20 @@ Blockly.Blocks['ds_object'] = {
                 this.classFuncParam_ = ptr.classFuncParam_;
                 this.classConProp_ = ptr.classConProp_;
                 this.classConParam_ = ptr.classConParam_;
-            } else if (ptr.type === 'include_file')
-			{
-				for (var i = 0; i < ptr.includedClasses_.length; i++)
-				{
-					//includedClasses_[i][classname:getvar][funcprop][funcparam]
-						if (this.typeName_ === ptr.includedClasses_[i][0])
-						{
-							
-							this.classFuncProp_ = ptr.includedClasses_[i][1];
-							this.classFuncParam_ = ptr.includedClasses_[i][2];
-							this.classConProp_ = ptr.classConProp_;
-							this.classConParam_ = ptr.classConParam_;
-						}
-				}
-			}
+            } else if (ptr.type === 'include_file') {
+                for (var i = 0; i < ptr.includedClasses_.length; i++) {
+                    //includedClasses_[i][classname:getvar][funcprop][funcparam]
+                    if (this.typeName_ === ptr.includedClasses_[i][0]) {
+                        this.classFuncProp_ = ptr.includedClasses_[i][1];
+                        this.classFuncParam_ = ptr.includedClasses_[i][2];
+                        this.classConProp_ = ptr.classConProp_;
+                        this.classConParam_ = ptr.classConParam_;
+                    }
+                }
+            }
             ptr = ptr.parentBlock_;
         }
-		
+
     },
 
     allocateDropdown: function () {
@@ -270,18 +262,15 @@ Blockly.Blocks['ds_object'] = {
         if (this.getFieldValue('DS').length < 1) {
             TT += 'Error, type class needed.\n';
         }
-		
-		if (this.childBlocks_[0])
-		{
-			ptr = this.childBlocks_[0];
-			if (ptr.type === 'ds_member')
-			{
-				if (this.ptrType_ !== ptr.ptrType_)
-				{
-					TT += "Error, pointer level mismatch\n";
-				}
-			}
-		}
+
+        if (this.childBlocks_[0]) {
+            ptr = this.childBlocks_[0];
+            if (ptr.type === 'ds_member') {
+                if (this.ptrType_ !== ptr.ptrType_) {
+                    TT += "Error, pointer level mismatch\n";
+                }
+            }
+        }
 
         if (TT.length > 0) {
             this.setWarningText(TT);
@@ -301,17 +290,16 @@ Blockly.C['ds_object'] = function (block) {
 
     var code = "";
 
-	if (nextBlock && nextBlock.type === "ds_member") {
-		
-		code += DS;
-		if (ptr.length > 0)
-		{
-			code += ptr;
-		}
-		code += ' ' + obj + ' = ' + nextBlock.getVar_ + ';\n';
-		
-		return code;
-	}
+    if (nextBlock && nextBlock.type === "ds_member") {
+
+        code += DS;
+        if (ptr.length > 0) {
+            code += ptr;
+        }
+        code += ' ' + obj + ' = ' + nextBlock.getVar_ + ';\n';
+
+        return code;
+    }
 
     if (ptr.length > 0) {
         code += DS + ptr + ' ' + obj + ' = new ' + DS;
@@ -322,7 +310,6 @@ Blockly.C['ds_object'] = function (block) {
     if (nextBlock && nextBlock.type === "get_func" && val1.length > 0) {
         code += val1;
     }
-	
 
 
     code += ';\n';
@@ -353,20 +340,20 @@ Blockly.Blocks['ds_member'] = {
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.funcParamClassMembers_ = [];
-		this.classObjPrivate_ = [];
+        this.classObjPrivate_ = [];
         this.isGetter_ = true;
-		
+
         this.typeName_ = "";
         this.getVar_ = "";
         this.ptrType_ = "";
-		this.isNew = true;
+        this.isNew = true;
     },
 
     onchange: function () {
         this.allocateValues();
         this.allocateVariables();
         this.allocateWarnings();
-		
+
     },
 
     allocateValues: function () {
@@ -374,8 +361,8 @@ Blockly.Blocks['ds_member'] = {
 
         this.getVar_ = this.getField("DS").getText();
         this.typeName_ = "";
-		this.ptrType_ = '';
-		this.isNew = true;
+        this.ptrType_ = '';
+        this.isNew = true;
 
         this.classVarPublic_ = [];
         this.classArrPublic_ = [];
@@ -383,79 +370,69 @@ Blockly.Blocks['ds_member'] = {
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.funcParamClassMembers_ = [];
-		
-		this.classObjPrivate_ = [];
+
+        this.classObjPrivate_ = [];
 
         let ptr = this.parentBlock_;
-		//actually streaming data values from the initialized block to match ptr level etc
+        //actually streaming data values from the initialized block to match ptr level etc
         while (ptr) {
             switch (ptr.type) {
                 case 'ds_object':
-                    if (this.getVar_ === ptr.getVar_)
-					{
+                    if (this.getVar_ === ptr.getVar_) {
                         this.typeName_ = ptr.typeName_;
-						this.ptrType_ = ptr.ptrType_;
+                        this.ptrType_ = ptr.ptrType_;
                         this.classVarPublic_ = ptr.classVarPublic_;
                         this.classArrPublic_ = ptr.classArrPublic_;
                         this.classVecPublic_ = ptr.classVecPublic_;
                         this.classFuncProp_ = ptr.classFuncProp_;
                         this.classFuncParam_ = ptr.classFuncParam_;
-						this.isNew = ptr.isNew;
+                        this.isNew = ptr.isNew;
                     }
-					break;
+                    break;
                 case 'include_file':
-                    for (var i = 0; i < ptr.classObjPrivate_.length; i++)
-					{
-						if (this.getVar_ === ptr.classObjPrivate_[i][2])
-						{
-							this.typeName_ = ptr.classObjPrivate_[i][0];
-							this.ptrType_ = ptr.classObjPrivate_[i][1];
-							this.isNew = ptr.classObjPrivate_[i][3];
-						}
-					}
+                    for (var i = 0; i < ptr.classObjPrivate_.length; i++) {
+                        if (this.getVar_ === ptr.classObjPrivate_[i][2]) {
+                            this.typeName_ = ptr.classObjPrivate_[i][0];
+                            this.ptrType_ = ptr.classObjPrivate_[i][1];
+                            this.isNew = ptr.classObjPrivate_[i][3];
+                        }
+                    }
                     break;
             }
             ptr = ptr.parentBlock_;
         }
-		
-		ptr = this.getSurroundParent();
-		while (ptr)
-		{
-			if (ptr.type === 'class_function_definition')
-			{
-				
-				//iterate through param blocks
-				for (var i = 0; i < ptr.funcParam_.length; i++)
-				{
-					//check if type = function class name to make sure its class param block
-					if (ptr.funcParam_[i][3] === this.getVar_)
-					{
-						//match values
-						this.typeName_ = ptr.funcParam_[i][1];
-						this.ptrType_ = ptr.funcParam_[i][2];
-						this.classFuncProp_ = ptr.childBlocks_[i].classFuncProp_;
-						this.classFuncParam_ = ptr.childBlocks_[i].classFuncParam_;
-						break;
-						
-					}
-				}
-			}
-			ptr = ptr.getSurroundParent();
-		}
-		
-		if (this.getVar_ === "this")
-		{
-			ptr = this.parentBlock_;
-			while (ptr)
-			{
-				if (ptr.type === 'include_file')
-				{
-					this.typeName_ = ptr.getVar_;
-					this.ptrType_ = '*';
-				}
-				ptr = ptr.parentBlock_;
-			}
-		}
+
+        ptr = this.getSurroundParent();
+        while (ptr) {
+            if (ptr.type === 'class_function_definition') {
+
+                //iterate through param blocks
+                for (var i = 0; i < ptr.funcParam_.length; i++) {
+                    //check if type = function class name to make sure its class param block
+                    if (ptr.funcParam_[i][3] === this.getVar_) {
+                        //match values
+                        this.typeName_ = ptr.funcParam_[i][1];
+                        this.ptrType_ = ptr.funcParam_[i][2];
+                        this.classFuncProp_ = ptr.childBlocks_[i].classFuncProp_;
+                        this.classFuncParam_ = ptr.childBlocks_[i].classFuncParam_;
+                        break;
+
+                    }
+                }
+            }
+            ptr = ptr.getSurroundParent();
+        }
+
+        if (this.getVar_ === "this") {
+            ptr = this.parentBlock_;
+            while (ptr) {
+                if (ptr.type === 'include_file') {
+                    this.typeName_ = ptr.getVar_;
+                    this.ptrType_ = '*';
+                }
+                ptr = ptr.parentBlock_;
+            }
+        }
 
         ptr = this.childBlocks_[0];
         if (ptr) {
@@ -464,7 +441,7 @@ Blockly.Blocks['ds_member'] = {
 
         //Allocate pointer type
         if (val1.length > 0) {
-			//console.log(this.ptrType_); //for checking pointer types
+            //console.log(this.ptrType_); //for checking pointer types
             if (C_Logic.help.ptr_is_deref(this.ptrType_)) {
                 this.setFieldValue('->', 'operator');
             } else {
@@ -481,9 +458,9 @@ Blockly.Blocks['ds_member'] = {
         //Only adding class names for the left dropdown list
         var options = [];
         options.push(["", ""],
-					["this", "this"]);
+            ["this", "this"]);
 
-		//checks function parameters
+        //checks function parameters
         ptr = this.getSurroundParent();
         while (ptr) {
             if (ptr.type === 'function_declaration' || ptr.type === 'class_constructor') {
@@ -492,7 +469,7 @@ Blockly.Blocks['ds_member'] = {
                     //this.allocateMemberProperties();
                     for (var i = 0; i < ptr.funcParamClassMembers_.length; ++i) {
                         options.push([ptr.funcParamClassMembers_[i][3], ptr.funcParamClassMembers_[i][3]]);
-						
+
                     }
                 }
                 break;
@@ -505,19 +482,19 @@ Blockly.Blocks['ds_member'] = {
         this.paramNames_ = options;
     },
 
-	//doesnt work
+    //doesnt work
     allocateMemberProperties: function () {
         for (var i = 0; i < this.funcParamClassMembers_.length; ++i) {
             for (var j = 0; j < this.funcParamClassMembers_[i].length; ++j) {
                 if (this.funcParamClassMembers_[i][j]) {
                     //this.classVarPublic_.push(this.funcParamClassMembers_[i][j]);
                 }
-                
+
             }
         }
     },
 
-	//just adding name of classes to the dropdown
+    //just adding name of classes to the dropdown
     allocateDropdown: function () {
         let i;
         const options = [["", ""]];
@@ -527,7 +504,7 @@ Blockly.Blocks['ds_member'] = {
             if (ptr.type === "ds_object") {
                 options.push([ptr.getVar_, ptr.getVar_]);
             }
-            if (ptr.type === 'include_file') {
+            else if (ptr.type === 'include_file') {
                 for (i = 0; i < ptr.classObj_.length; i++) {
                     options.push([ptr.classObj_[i][2], ptr.classObj_[i][2]]);
                 }
@@ -537,38 +514,37 @@ Blockly.Blocks['ds_member'] = {
             }
             ptr = ptr.parentBlock_;
         }
-		
-		ptr = this.getSurroundParent();
-		while (ptr) {
+
+        ptr = this.getSurroundParent();
+        while (ptr) {
             if (ptr.type === 'ds_class') {
                 for (i = 0; i < ptr.classObjPrivate_.length; i++) {
                     options.push([ptr.classObjPrivate_[i], ptr.classObjPrivate_[i]]);
                 }
             }
-			ptr = ptr.getSurroundParent();
-		}
-		
-		ptr = this.getSurroundParent();
-		while (ptr) {
+            ptr = ptr.getSurroundParent();
+        }
+
+        ptr = this.getSurroundParent();
+        while (ptr) {
             if (ptr.type === 'class_function_definition') {
                 for (i = 0; i < ptr.funcParam_.length; i++) {
-                    if (classList.has(ptr.funcParam_[i][3])) {
+                    if (!classList.has(ptr.funcParam_[i][3])) {
                         options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
                     }
                 }
                 console.log(ptr);
             }
-			ptr = ptr.getSurroundParent();
-		}
-		
-		ptr = this.getSurroundParent();
-		while (ptr) {
-			if (ptr.type === 'class_function_definition')
-			{
+            ptr = ptr.getSurroundParent();
+        }
+
+        ptr = this.getSurroundParent();
+        while (ptr) {
+            if (ptr.type === 'class_function_definition') {
                 options.push(["this", "this"]);
-			}
-			ptr = ptr.getSurroundParent();
-		}
+            }
+            ptr = ptr.getSurroundParent();
+        }
         return options;
     },
 

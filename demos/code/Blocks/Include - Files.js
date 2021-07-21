@@ -1,94 +1,98 @@
 /** Author: Joseph Pauplis
- * 	Version: 0.1
+ *    Version: 0.1
  */
 
 /*TODO:
 
-	
-
-
-
 */
 
-var includeHUE = 140;
+let ClassIncludeHUE = 140;
 //Define a header file
 Blockly.Blocks['define_file'] = {
-		init: function () {
-		/** Adds a notch to connect up. */
-		this.setPreviousStatement(true, null);
-		/** Adds a notch to connect down. */
-		this.setNextStatement(true, null);
-		/** Sets color of the block. */
-		this.setColour(includeHUE);
-		/** This tooltip text appears when hovering block. */
-		this.setTooltip("");
-		/** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
-		this.setHelpUrl("");
+    init: function () {
+        /** Adds a notch to connect up. */
+        this.setPreviousStatement(true, null);
+        /** Adds a notch to connect down. */
+        this.setNextStatement(true, null);
+        /** Sets color of the block. */
+        this.setColour(ClassIncludeHUE);
+        /** This tooltip text appears when hovering block. */
+        this.setTooltip("");
+        /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
+        this.setHelpUrl("");
         this.setDataStr("isClass", true);
-		
-		//append text areas
-		this.appendDummyInput()
-			.appendField("#ifndef")
-			.appendField("FILE_H", "ifndefText");
-		
-		this.appendDummyInput()
-			.appendField("#define")
-			.appendField("FILE_H", "defineText");
-			
+
+        //append text areas
+        this.appendDummyInput()
+            .appendField("#ifndef")
+            .appendField("FILE_H", "ifndefText");
+
+        this.appendDummyInput()
+            .appendField("#define")
+            .appendField("FILE_H", "defineText");
+
         this.appendStatementInput("statementInput").setCheck(null);
-		
+
         this.appendDummyInput()
             .appendField("#endif");
-			
-		//hold all of the info from the class (already held just push in from declaration)
-		this.classVarPublic_ = [];
+
+        //hold all of the info from the class (already held just push in from declaration)
+        this.classVarPublic_ = [];
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
-		this.classObj_ = [];
-		
-		this.classVarPrivate_ = [];
+        this.classObj_ = [];
+
+        this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
-		this.classObjPrivate_ = [];
-		
-		this.className_ = currentFile;
-		this.getVar_;
-		
-		this.includedClasses_ = [];
-	},
-	
-	onchange: function () {
-		this.allocateValues();
-	},
-	
-	allocateValues: function () {
-		let headerNameArr = currentFile.split(".");
-		let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
-		console.log(headerName);
-		//TODO: Get the workspace's current file name to replace default <file name>
-		this.setFieldValue(headerName, "ifndefText");
-		this.setFieldValue(headerName, "defineText");
-		this.className_ = currentFile;
+        this.classObjPrivate_ = [];
 
-		this.classVarPublic_ = [];
-		this.classFuncProp_ = [];
-		this.classFuncParam_ = [];
-		this.classConProp_ = [];
-		this.classConParam_ = [];
-		this.classObj_ = [];
+        this.className_ = currentFile;
+        this.getVar_;
 
-		this.classVarPrivate_ = [];
-		this.classFuncPropPrivate_ = [];
-		this.classFuncParamPrivate_ = [];
-		this.classConPropPrivate_ = [];
-		this.classConParamPrivate_ = [];
-		this.classObjPrivate_ = [];
+        this.includedClasses_ = [];
+    },
 
-		/**
+    onchange: function () {
+        this.allocateValues();
+    },
+
+    allocateValues: function () {
+        let classFile = currentFile;
+        for (const [key, value] of allWorkspaces.entries()) {
+            if (this.workspace === value) {
+                classFile = key;
+                break;
+            }
+        }
+
+        let headerNameArr = classFile.split(".");
+        let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
+        console.log(headerName);
+        /// TODO: Get the workspace's current file name to replace default <file name>
+        this.setFieldValue(headerName, "ifndefText");
+        this.setFieldValue(headerName, "defineText");
+        this.className_ = classFile;
+
+        this.classVarPublic_ = [];
+        this.classFuncProp_ = [];
+        this.classFuncParam_ = [];
+        this.classConProp_ = [];
+        this.classConParam_ = [];
+        this.classObj_ = [];
+
+        this.classVarPrivate_ = [];
+        this.classFuncPropPrivate_ = [];
+        this.classFuncParamPrivate_ = [];
+        this.classConPropPrivate_ = [];
+        this.classConParamPrivate_ = [];
+        this.classObjPrivate_ = [];
+
+        /**
          * OtherFiles Properties
          *
          * [0] - getVar_ | name of included class selected
@@ -97,66 +101,62 @@ Blockly.Blocks['define_file'] = {
          *
          * [2] - parameter properties
          */
-		this.includedClasses_ = [];
-		
-		//only get info from the class declaration block, probably add include here later
-		let ptr = this.getInputTargetBlock("statementInput");
-		while (ptr) {
-			if (ptr.type === "ds_class")
-			{
-				this.classVarPublic_ = (ptr.classVarPublic_);
-				this.classFuncProp_ = (ptr.classFuncProp_);
-				this.classFuncParam_ = (ptr.classFuncParam_);
-				this.classConProp_ = (ptr.classConProp_);
-				this.classConParam_ = (ptr.classConParam_);
-				this.classObj_ = (ptr.classObjPublic_);
-				
-				this.classVarPrivate_ = (ptr.classVarPrivate_);
-				this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
-				this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
-				this.classConPropPrivate_ = (ptr.classConPropPrivate_);
-				this.classConParamPrivate_ = (ptr.classConParamPrivate_);
-				this.classObjPrivate_ = (ptr.classObjPrivate_);
-				
-				this.getVar_ = ptr.getVar_;
-			}
-			ptr = ptr.getNextBlock();
-		}
-		ptr = this.getInputTargetBlock("statementInput");
-		while (ptr) {
-			if (ptr.type === "include_file")
-			{			
-				this.includedClasses_.push(ptr.includedClassesProps_);
-			}
-			ptr = ptr.getNextBlock();
-		}
-		
-		const CV_manage = C_Var;
-		const currentWorkspace = allWorkspaces.get(this.className_);
-		const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
-		const nodeList = currWorkspaceXML.getElementsByTagName("block");
-		for(let i = 0; i < nodeList.length; i++) {
-			const typeName = nodeList.item(i).getAttribute("type");
-			if (typeName === "define_file") {
-				CV_manage.get.saveClassInfo(this);
+        this.includedClasses_ = [];
 
-			}
-		}
-		
-	}
+        //only get info from the class declaration block, probably add include here later
+        let ptr = this.getInputTargetBlock("statementInput");
+        while (ptr) {
+            if (ptr.type === "ds_class") {
+                this.classVarPublic_ = (ptr.classVarPublic_);
+                this.classFuncProp_ = (ptr.classFuncProp_);
+                this.classFuncParam_ = (ptr.classFuncParam_);
+                this.classConProp_ = (ptr.classConProp_);
+                this.classConParam_ = (ptr.classConParam_);
+                this.classObj_ = (ptr.classObjPublic_);
+
+                this.classVarPrivate_ = (ptr.classVarPrivate_);
+                this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+                this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+                this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+                this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+                this.classObjPrivate_ = (ptr.classObjPrivate_);
+
+                this.getVar_ = ptr.getVar_;
+            }
+            ptr = ptr.getNextBlock();
+        }
+        ptr = this.getInputTargetBlock("statementInput");
+        while (ptr) {
+            if (ptr.type === "include_file") {
+                this.includedClasses_.push(ptr.includedClassesProps_);
+            }
+            ptr = ptr.getNextBlock();
+        }
+        const currentWorkspace = allWorkspaces.get(this.className_);
+        const currWorkspaceXML = Blockly.Xml.workspaceToDom(currentWorkspace);
+        const nodeList = currWorkspaceXML.getElementsByTagName("block");
+        for (let i = 0; i < nodeList.length; i++) {
+            const typeName = nodeList.item(i).getAttribute("type");
+            if (typeName === "define_file") {
+                classList.delete(this.className_);
+                classList.set(this.className_, this);
+            }
+        }
+
+    }
 };
 
 //c code
 Blockly.C['define_file'] = function (block) {
-	const statementCode =
-		Blockly.C.statementToCode(block, "statementInput");
-	let headerNameArr = block.className_.split(".");
-	let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
-	let code = "";
-	code += "#ifndef " + headerName + "\n";
-	code += "#define " + headerName + "\n";
-	code += statementCode;
-	code += "#endif " + "\n";
+    const statementCode =
+        Blockly.C.statementToCode(block, "statementInput");
+    let headerNameArr = block.className_.split(".");
+    let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
+    let code = "";
+    code += "#ifndef " + headerName + "\n";
+    code += "#define " + headerName + "\n";
+    code += statementCode;
+    code += "#endif " + "\n";
     return code;
 };
 
@@ -165,106 +165,106 @@ Blockly.Blocks['include_file'] = {
     init: function () {
         this.appendDummyInput()
             .appendField("#include ")
-			.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "classDropdown");
-			
+            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "classDropdown");
+
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(includeHUE);
+        this.setColour(ClassIncludeHUE);
         this.setTooltip("");
         this.setHelpUrl("");
         this.setDataStr("isClass", true);
-		
-		this.classVarPublic_ = [];
+
+        this.classVarPublic_ = [];
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
-		this.classObj_ = [];
+        this.classObj_ = [];
 
-		
-		this.classVarPrivate_ = [];
+
+        this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
-		this.classObjPrivate_ = [];
-		
-		this.includedClasses_ = [];
-		this.includedClassesProps_ = [];
-		
-		this.className_ = 'FILE_H';
+        this.classObjPrivate_ = [];
+
+        this.includedClasses_ = [];
+        this.includedClassesProps_ = [];
+
+        this.className_ = 'FILE_H';
     },
-	
+
     allocateDropdown: function () {
-		const options = [["", ""]];
-		/** add list of defined classes from map to dropdown to select from */
-		if(classList.size !== 0) {
-			for(const key of classList.keys()) {
-				options.push([key, key]);
-			}
-		}
-		return options;
-	},
-	
-	onchange: function () {
-		this.allocateValues();
-	},
-	
-	allocateValues: function () {
-		this.classVarPublic_ = [];
+        const options = [["", ""]];
+        /** add list of defined classes from map to dropdown to select from */
+        if (classList.size !== 0) {
+            for (const key of classList.keys()) {
+                options.push([key, key]);
+            }
+        }
+        return options;
+    },
+
+    onchange: function () {
+        this.allocateValues();
+    },
+
+    allocateValues: function () {
+        this.classVarPublic_ = [];
         this.classFuncProp_ = [];
         this.classFuncParam_ = [];
         this.classConProp_ = [];
         this.classConParam_ = [];
-		this.classObj_ = [];
-		
-		this.classVarPrivate_ = [];
+        this.classObj_ = [];
+
+        this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
-		this.classObjPrivate_ = [];
-		
-		this.includedClasses_ = [];
-		this.includedClassesProps_ = [];
-		
-		this.className_ = this.getField('classDropdown').getText();
-		
-		var ptr;
+        this.classObjPrivate_ = [];
 
-		if (classList.size !== 0) {
-			for(const value of classList.values()) {
-				if(value.className_ === this.getField('classDropdown').getText()) {
-					ptr = value;
-					break;
-				}
-			}
-		}
+        this.includedClasses_ = [];
+        this.includedClassesProps_ = [];
+        let includeDropdownText = "";
+        try {
+            includeDropdownText = this.getField('classDropdown').getText();
+        } catch (e) {
+            console.log("Selected dropdown undefined");
+            includeDropdownText = "";
+        }
+        this.className_ = includeDropdownText;
+        let ptr;
+        const value = classList.get(includeDropdownText);
+        if (value) {
+            ptr = value;
+        }
 
-		if (ptr) {
-			this.classVarPublic_ = (ptr.classVarPublic_);
-			this.classFuncProp_ = (ptr.classFuncProp_);
-			this.classFuncParam_ = (ptr.classFuncParam_);
-			this.classConProp_ = (ptr.classConProp_);
-			this.classConParam_ = (ptr.classConParam_);
-			this.classObj_ = (ptr.classObj_);
-			
-			this.classVarPrivate_ = (ptr.classVarPrivate_);
-			this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
-			this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
-			this.classConPropPrivate_ = (ptr.classConPropPrivate_);
-			this.classConParamPrivate_ = (ptr.classConParamPrivate_);
-			this.classObjPrivate_ = (ptr.classObjPrivate_);
+        if (ptr) {
+            this.classVarPublic_ = (ptr.classVarPublic_);
+            this.classFuncProp_ = (ptr.classFuncProp_);
+            this.classFuncParam_ = (ptr.classFuncParam_);
+            this.classConProp_ = (ptr.classConProp_);
+            this.classConParam_ = (ptr.classConParam_);
+            this.classObj_ = (ptr.classObj_);
 
-			this.includedClassesProps_[0] = ptr.getVar_;
-			this.includedClassesProps_[1] = ptr.classFuncProp_;
-			this.includedClassesProps_[2] = ptr.classFuncParam_;
-			
-			this.includedClasses_ = (ptr.includedClasses_);
-			this.getVar_ = ptr.getVar_;
-		}
-		
-	}
+            this.classVarPrivate_ = (ptr.classVarPrivate_);
+            this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+            this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+            this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+            this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+            this.classObjPrivate_ = (ptr.classObjPrivate_);
+
+            this.includedClassesProps_[0] = ptr.getVar_;
+            this.includedClassesProps_[1] = ptr.classFuncProp_;
+            this.includedClassesProps_[2] = ptr.classFuncParam_;
+
+            this.includedClasses_ = (ptr.includedClasses_);
+            this.getVar_ = ptr.getVar_;
+        }
+
+    }
 };
 
 //Translate to C code output on right.
@@ -288,7 +288,7 @@ Blockly.Blocks['class_function_declaration'] = {
                 [
                     ["", ""],
                     ["const", "const"],
-					["virtual", "virtual"]
+                    ["virtual", "virtual"]
                 ]),
                 'const')
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "myFuncReturn")
@@ -300,7 +300,7 @@ Blockly.Blocks['class_function_declaration'] = {
 
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(includeHUE);
+        this.setColour(ClassIncludeHUE);
         this.setTooltip("Creates a new function.\nLeft const - The value of this function will be constant.\nType - Choose the return type of the function. Non voids must return this data type. Voids do not return values.\nInput - The parameters of the function.)");
         this.setHelpUrl("");
 
@@ -353,11 +353,11 @@ Blockly.Blocks['class_function_declaration'] = {
     onchange: function () {
         this.allocateValues();
     },
-	
+
     allocateDropdown: function () {
         var options = [
-			["", ""],
-			["void", "void"],
+            ["", ""],
+            ["void", "void"],
             ["int", "int"],
             ["size_t", "size_t"],
             ["double", "double"],
@@ -368,13 +368,13 @@ Blockly.Blocks['class_function_declaration'] = {
             ["long", "long"],
             ["long long", "long long"]];
 
-		/** add list of declared classes to dropdown*/
+        /** add list of declared classes to dropdown*/
         let ptr = this.parentBlock_;
         while (ptr) {
             if (ptr.getDataStr() === 'isClass') {
                 /** Add class name to dropdown list. */
                 const className = ptr.getVar_;
-                if(!C_Var.get.dropdownCheck(options,className)) {
+                if (C_Var.get.dropdownCheck(options, className)) {
                     options.push([className, className]);
                 }
             }
@@ -383,8 +383,8 @@ Blockly.Blocks['class_function_declaration'] = {
 
 
         return options;
-		
-	},
+
+    },
 
     allocateValues: function () {
         // Modified by David Hazell (SP21)
@@ -395,9 +395,9 @@ Blockly.Blocks['class_function_declaration'] = {
         this.isConst_ = (this.getFieldValue('const'));
         this.type_ = this.getFieldValue('myFuncReturn');
         this.identifier_ = this.getFieldValue('identifier');
-		this.ptr_ = this.getFieldValue('pointer');
+        this.ptr_ = this.getFieldValue('pointer');
 
-		
+
         // Old variables names - left in place so as not to break existing code that uses these variables
         this.typeName_ = this.getFieldValue('myFuncReturn');
         this.getVar_ = this.getFieldValue('identifier');
@@ -440,17 +440,17 @@ Blockly.Blocks['class_function_declaration'] = {
                 case 'isClass':
                     if (this.getVar_ === inputBlock.getVar_) {
                         this.isConstructor_ = true;
-						
+
                     }
                     if (this.getVar_ === ('~' + inputBlock.getVar_)) {
                         this.isDestructor_ = true;
                     }
-					
+
                     break;
             }
             inputBlock = inputBlock.getSurroundParent();
         }
-		
+
     }
 };
 
@@ -465,29 +465,25 @@ Blockly.C['class_function_declaration'] = function (block) {
     let statementInput = Blockly.C.statementToCode(block, 'statementInput');
     let code = '';
 
-    
-    if (block.isConst_ === 'const')
-	{
+
+    if (block.isConst_ === 'const') {
         code += "const ";
+    } else if (block.isConst_ === 'virtual') {
+        code += "virtual "
     }
-	else if (block.isConst_ === 'virtual')
-	{
-		code += "virtual "
-	}
 
     if (block.type_ === "string" && !C_Include.using.std(block)) {
         code += "std::";
     }
-    
-	
-	if (block.type_ === "")
-	{
-		code += block.identifier_ + "(" + valueInput + ");\n";
-		return code;
-	}
-	
+
+
+    if (block.type_ === "") {
+        code += block.identifier_ + "(" + valueInput + ");\n";
+        return code;
+    }
+
     code += block.type_ + block.funcProp_[2] + " " + block.identifier_ + "(" + valueInput + ");\n";
-	
+
     return code;
 };
 
@@ -498,9 +494,9 @@ Blockly.Blocks['class_function_definition'] = {
         this.appendValueInput("valueInput")
             .appendField('const', 'const')
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "type")
-            .appendField('ptr' , "pointer")
+            .appendField('ptr', "pointer")
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown2.bind(this)), 'class_name')
-			.appendField(' :: ')
+            .appendField(' :: ')
             .appendField(new Blockly.FieldDropdown(this.allocateDropdown3.bind(this)), 'identifier')
             .appendField('(');
         this.appendDummyInput()
@@ -511,7 +507,7 @@ Blockly.Blocks['class_function_definition'] = {
 
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(includeHUE);
+        this.setColour(ClassIncludeHUE);
         this.setTooltip("Creates a new function.\nLeft const - The value of this function will be constant.\nType - Choose the return type of the function. Non voids must return this data type. Voids do not return values.\nInput - The parameters of the function.)");
         this.setHelpUrl("");
 
@@ -554,112 +550,109 @@ Blockly.Blocks['class_function_definition'] = {
          * [1] = [true, "string", "&", "myParam2", false]
          */
         this.funcParam_ = [];
-		
-		this.className_ = 'none';
+
+        this.className_ = 'none';
 
     },
 
     onchange: function () {
         this.allocateValues();
     },
-	
-	//dropdown for function type
-    allocateDropdown: function () {
-        var options = [["",""]];
-		
-		//go up
-		let ptr = this.parentBlock_;
-        while (ptr)
-		{
-			//find the include file block
-            if (ptr.type === 'include_file') {
-				//match the include block to the selected class
-				if (ptr.getVar_ === (this.getFieldValue('class_name')))
-				{
-					//find the selected function
-					for (var i = 0; i < ptr.classFuncProp_.length; i++) {
-						if (ptr.classFuncProp_[i][3] === this.getFieldValue('identifier'))
-						{
-							options.push([ptr.classFuncProp_[i][1], ptr.classFuncProp_[i][1]]);
-						}
-					}
-				}
-			}
-        ptr = ptr.parentBlock_;
-		}
-		return options;
-	},
-	
-	//dropdown for class ::
-	allocateDropdown2: function () {
-		var options = [["", ""]];
-			
-        let ptr = this.parentBlock_;
-        while (ptr) {
-            if (ptr.type === 'include_file') {
-				/** Add class name to dropdown list. */
-                options.push([ptr.getVar_, ptr.getVar_]);
-            }
-            ptr = ptr.parentBlock_;
-        }
-		return options;
-	},
-	
-	//dropdown for function name
-	allocateDropdown3: function () {
-		var options = [["", ""]];
-			
-        let ptr = this.parentBlock_;
-        while (ptr) {
-            if (ptr.type === 'include_file') {
-				/** Add functions to dropdown list. */
 
-				if (ptr.getVar_ === (this.getFieldValue('class_name')))
-				{
-					for (var i = 0; i < ptr.classFuncProp_.length; i++) {
-						options.push([ptr.classFuncProp_[i][3], ptr.classFuncProp_[i][3]]);
-					
-					}
-				}
+    //dropdown for function type
+    allocateDropdown: function () {
+        const options = [["", ""]];
+
+        //go up
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            //find the include file block
+            if (ptr.type === 'include_file') {
+                //match the include block to the selected class
+                if (ptr.getVar_ === (this.getFieldValue('class_name'))) {
+                    //find the selected function
+                    for (let i = 0; i < ptr.classFuncProp_.length; i++) {
+                        if (ptr.classFuncProp_[i][3] === this.getFieldValue('identifier')) {
+                            const optionName = ptr.classFuncProp_[i][1];
+                            if (C_Var.get.dropdownCheck(options, optionName)) {
+                                options.push([optionName, optionName]);
+                            }
+                        }
+                    }
+                }
             }
             ptr = ptr.parentBlock_;
         }
-		return options;
-	},
+        return options;
+    },
+
+    //dropdown for class ::
+    allocateDropdown2: function () {
+        const options = [["", ""]];
+
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            if (ptr.type === 'include_file') {
+                /** Add class name to dropdown list. */
+                if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                    options.push([ptr.getVar_, ptr.getVar_]);
+                }
+            }
+            ptr = ptr.parentBlock_;
+        }
+        return options;
+    },
+
+    //dropdown for function name
+    allocateDropdown3: function () {
+        const options = [["", ""]];
+
+        let ptr = this.parentBlock_;
+        while (ptr) {
+            if (ptr.type === 'include_file') {
+                /** Add functions to dropdown list. */
+
+                if (ptr.getVar_ === (this.getFieldValue('class_name'))) {
+                    for (let i = 0; i < ptr.classFuncProp_.length; i++) {
+                        const functionName = ptr.classFuncProp_[i][3];
+                        if (C_Var.get.dropdownCheck(options, functionName)) {
+                            options.push([functionName, functionName]);
+                        }
+                    }
+                }
+            }
+            ptr = ptr.parentBlock_;
+        }
+        return options;
+    },
 
     allocateValues: function () {
-		let ptr = this.parentBlock_;
+        let ptr = this.parentBlock_;
         while (ptr) {
-			//find the include file block
+            //find the include file block
             if (ptr.type === 'include_file') {
-				//match the include block to the selected class
-				if (ptr.getVar_ === (this.getFieldValue('class_name')))
-				{
-					//go through each function
-					for (var i = 0; i < ptr.classFuncProp_.length; i++) {
-						//match the functions by name
-						if (ptr.classFuncProp_[i][3] === this.getFieldValue('identifier'))
-						{
-							//match by type selected in case theres 2 functions with diff types
-							if (ptr.classFuncProp_[i][1] === this.getFieldValue('type'))
-							{
-								if (ptr.classFuncProp_[i][0] === 'true')
-								{
-									this.setFieldValue('const', 'const');
-								}
-								else
-								{
-									this.setFieldValue('', 'const');
-								}
-								this.setFieldValue(ptr.classFuncProp_[i][2], 'pointer');
-							}
-						}
-					}
-				}
-			}
-        ptr = ptr.parentBlock_;
-		}
-		
+                //match the include block to the selected class
+                if (ptr.getVar_ === (this.getFieldValue('class_name'))) {
+                    //go through each function
+                    for (let i = 0; i < ptr.classFuncProp_.length; i++) {
+                        //match the functions by name
+                        if (ptr.classFuncProp_[i][3] === this.getFieldValue('identifier')) {
+                            //match by type selected in case theres 2 functions with diff types
+                            if (ptr.classFuncProp_[i][1] === this.getFieldValue('type')) {
+                                if (ptr.classFuncProp_[i][0] === 'true') {
+                                    this.setFieldValue('const', 'const');
+                                } else {
+                                    this.setFieldValue('', 'const');
+                                }
+                                this.setFieldValue(ptr.classFuncProp_[i][2], 'pointer');
+                            }
+                        }
+                    }
+                }
+            }
+            ptr = ptr.parentBlock_;
+        }
+
         // Modified by David Hazell (SP21)
         // - Normalized variable names (type_, identifier_, etc)
         // - Got rid of funProp[] ... this is just storing existing variables
@@ -668,9 +661,9 @@ Blockly.Blocks['class_function_definition'] = {
         this.isConst_ = (this.getFieldValue('const') === "const");
         this.type_ = this.getFieldValue('type');
         this.identifier_ = this.getFieldValue('identifier');
-		this.ptr_ = this.getFieldValue('pointer');
-		this.className_ = this.getFieldValue('class_name');
-		
+        this.ptr_ = this.getFieldValue('pointer');
+        this.className_ = this.getFieldValue('class_name');
+
         // Old variables names - left in place so as not to break existing code that uses these variables
         this.typeName_ = this.getFieldValue('type');
         this.getVar_ = this.getFieldValue('identifier');
@@ -682,7 +675,7 @@ Blockly.Blocks['class_function_definition'] = {
         this.funcProp_[2] = this.ptr_;
         this.funcProp_[3] = this.getVar_;
         this.funcProp_[4] = false;
-		
+
 
         //Allocate function parameters
         this.funcParam_ = [];
@@ -712,81 +705,76 @@ Blockly.C['class_function_definition'] = function (block) {
     let statementInput = Blockly.C.statementToCode(block, 'statementInput');
     let code = '';
 
-    if (block.isConst_ === 'const')
-	{
+    if (block.isConst_ === 'const') {
         code += "const ";
     }
 
     if (block.type_ === "string" && !C_Include.using.std(block)) {
         code += "std::";
     }
-	
-	if (block.type_ !== "")
-	{
-		code += block.type_ + block.funcProp_[2] + " ";
-	}
-	
+
+    if (block.type_ !== "") {
+        code += block.type_ + block.funcProp_[2] + " ";
+    }
+
     code += block.className_ + "::" + block.identifier_ + "(" + valueInput + ") {\n"
         + statementInput
         + "}\n";
-		
+
     return code;
 };
 
 Blockly.Blocks['delete_block'] = {
     init: function () {
-		this.setPreviousStatement(true, null);
-		this.setNextStatement(true, null);
-		this.setOutput(false);
-		
-		this.setColour(includeHUE);
-		this.setTooltip("");
-		this.setHelpUrl("");
-		
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setOutput(false);
+
+        this.setColour(ClassIncludeHUE);
+        this.setTooltip("");
+        this.setHelpUrl("");
+
         this.appendValueInput("valinp1")
             .setCheck(null)
             .appendField("delete")
             .appendField("");
-	},
-	
-    onchange: function () {
-       this.allocateWarnings();
     },
-	
-	allocateWarnings: function () {
+
+    onchange: function () {
+        this.allocateWarnings();
+    },
+
+    allocateWarnings: function () {
         var TT = "";
-		
-        if (this.childBlocks_[0])
-		{
-			ptr = this.childBlocks_[0];
-			if (ptr.type === 'ds_member')
-			{
-				if (ptr.isNew !== true)
-				{
-					TT += "Error, must use delete on object created with new.\n";
-				}
-			}
-		}
+
+        if (this.childBlocks_[0]) {
+            ptr = this.childBlocks_[0];
+            if (ptr.type === 'ds_member') {
+                if (ptr.isNew !== true) {
+                    TT += "Error, must use delete on object created with new.\n";
+                }
+            }
+        }
 
         if (TT.length > 0) {
             this.setWarningText(TT);
         } else {
             this.setWarningText(null);
         }
-	}
+    }
 };
 
 Blockly.C['delete_block'] = function (block) {
-	var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
     var code = '';
 
     code += 'delete';
 
-	
-	if (val1 != 0) {
-		code += ' ' + val1;
-	}
-    
+
+    if (val1 != 0) {
+        code += ' ' + val1;
+    }
+
     code += ';\n';
 
     return code;

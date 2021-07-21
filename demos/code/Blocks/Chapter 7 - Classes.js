@@ -465,9 +465,7 @@ Blockly.Blocks['class_parameters'] = {
 				for (var i = 0; i < ptr.includedClasses_.length; i++)
 				{
 					//includedClasses_[i][classname:getvar][funcprop][funcparam]
-						if (this.typeName_ === ptr.includedClasses_[i][0])
-						{
-							
+						if (this.typeName_ === ptr.includedClasses_[i][0]) {
 							this.classFuncProp_ = ptr.includedClasses_[i][1];
 							this.classFuncParam_ = ptr.includedClasses_[i][2];
 						}
@@ -479,21 +477,20 @@ Blockly.Blocks['class_parameters'] = {
 	
 	/** The allocateDropdown function is where we add options to the dropdown menu. */
     allocateDropdown: function () {
-        var options = [["", ""]];
+        const options = [["", ""]];
 
-		/** parentBlock_ looks at block above it. */
+        /** parentBlock_ looks at block above it. */
         let ptr = this.parentBlock_;
         while (ptr) {
             if (ptr.getDataStr() === 'isClass') {
                 /** Add class name to dropdown list. */
-                if(!C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                if(C_Var.get.dropdownCheck(options, ptr.getVar_)) {
                     options.push([ptr.getVar_, ptr.getVar_]);
                 }
             }
 			if (ptr.type === 'include_file')
 			{
-				for (var i = 0; i < ptr.includedClasses_.length; i++)
-				{
+				for (var i = 0; i < ptr.includedClasses_.length; i++) {
 					options.push([ptr.includedClasses_[i][0],ptr.includedClasses_[i][0]]);
 				}
 			}

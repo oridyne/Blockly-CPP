@@ -1,19 +1,19 @@
-var compileList = [];
-var compOptimLevels = ["0", "1", "2", "3", "s"];
-var setOptimLevels = ["s"];
-var cppVersions = ["99", "11", "14", "17", "20"];
-var setVersion = ["11"];
-var miscCompileOpts = ["-Wall", "-Werror", "-g", "-dryrun"];
-var setMiscOpts = [];
-var divList = [];
+let compileList = [];
+const compOptimLevels = ["0", "1", "2", "3", "s"];
+let setOptimLevels = ["s"];
+const cppVersions = ["99", "11", "14", "17", "20"];
+let setVersion = ["11"];
+const miscCompileOpts = ["-Wall", "-Werror", "-g", "-dryrun"];
+let setMiscOpts = [];
+let divList = [];
 
-$(function () {
-    function list(list, setList, sectionName, type, radioName) {
+;(function($) {
+    function List(list, setList, sectionName, type, radioName) {
         this.list = list;
         this.setList=setList;
-        this.sectionName=sectionName,
+        this.sectionName=sectionName;
         this.type=type;
-        this.radioName=radioName;
+        this.radioName = radioName;
         this.createList = function() {
             this.list.forEach((item) => {
                 $(`#compOptForm #${this.sectionName}`).append(`<label for=\'${item.replace(".", "_").replace("=", "+")}\'>${item}</label>`);
@@ -43,10 +43,10 @@ $(function () {
         }
     }
 
-    let fileCheckboxes = new list(allFiles, compileList, "fileCheckboxes", "checkbox");
-    let compilerOptimRadios = new list(compOptimLevels, setOptimLevels, "compilerOptimRadios", "radio", "optimRadio");
-    let compilerVersionRadios = new list(cppVersions, setVersion, "compilerVersionRadios", "radio", "versionRadio");
-    let miscCompilerCheckboxes = new list(miscCompileOpts, setMiscOpts, "miscCompilerOptsCheckboxes", "checkbox");
+    let fileCheckboxes = new List(allFiles, compileList, "fileCheckboxes", "checkbox");
+    let compilerOptimRadios = new List(compOptimLevels, setOptimLevels, "compilerOptimRadios", "radio", "optimRadio");
+    let compilerVersionRadios = new List(cppVersions, setVersion, "compilerVersionRadios", "radio", "versionRadio");
+    let miscCompilerCheckboxes = new List(miscCompileOpts, setMiscOpts, "miscCompilerOptsCheckboxes", "checkbox");
 
     ///Options Button
     $("#compOptBtn").click(function () {
@@ -85,4 +85,4 @@ $(function () {
         $("#terminal").css("display","block");
         $(this).parent().parent().hide();
     });
-})();
+})(jQuery);

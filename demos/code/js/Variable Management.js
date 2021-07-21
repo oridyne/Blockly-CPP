@@ -34,7 +34,7 @@ C_Var.get.parameters = function(block){
  */
 C_Var.get.classParameterMembers = function(block){
 	let ptr = block;
-	var options = [];
+	const options = [];
 	while (ptr)
 	{
 		/// Check that the block is a class parameter block.
@@ -54,20 +54,13 @@ C_Var.get.classParameterMembers = function(block){
 	return options;
 };
 
-//Save information from define block, include block copies that information
-C_Var.get.saveClassInfo = function(block) {
-	if(!classList.has(block.className_) || classList.get(block.className_) === null) {
-		classList.set(block.className_, block);
-	}
-}
-
 C_Var.get.dropdownCheck = function(options, optionName) {
-	var hasOption = false;
-	for(var i = 0; i < options.length; i++) {
+	let doesNotHaveOption = true;
+	for(let i = 0; i < options.length; i++) {
 		if(options[i][0] === optionName){
-			hasOption = true;
+			doesNotHaveOption = false;
 			break;
 		}
 	}
-	return hasOption;
+	return doesNotHaveOption;
 }

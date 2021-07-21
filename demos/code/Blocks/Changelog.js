@@ -5,7 +5,6 @@ function updateLog() {
     document.getElementById('code').value = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
 }
 
-
 //Function to download code
 function downloadCode() {
     const code = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
@@ -20,7 +19,7 @@ let yesNoCancelLoadBtn = 'Cancel';
 
 //function to load
 function readFile(input) {
-    let wasFileDeleted;
+    let wasFileDeleted = 0;
     let filesToRead;
     let i;
     let fileName;
@@ -34,7 +33,7 @@ function readFile(input) {
         filesToRead = 0;
     } else if (yesNoCancelLoadBtn === 'No') {
         // Checks if workspace names are already in use and removes existing if true.
-        do {
+        while (wasFileDeleted !== 0) {
             wasFileDeleted = 0;
             for (i = 0; i < files.length; i++) {
                 for (let j = 0; j < allFiles.length; j++) {
@@ -48,7 +47,7 @@ function readFile(input) {
                     }
                 }
             }
-        } while (wasFileDeleted !== 0);
+        }
         filesToRead = allFiles.length;
     }
     for (i = 0; i < files.length; i++) {
@@ -61,29 +60,29 @@ function readFile(input) {
         /// Reads files contents into new workspaces.
         reader.onload = function () {
             filesToRead++
-            Code.workspace = allWorkspaces.get(allFiles[filesToRead - 1]);
+            let currFile = allFiles[filesToRead - 1];
+            Code.workspace = allWorkspaces.get(currFile);
+            currentFile = currFile;
             let saveXML = reader.result;
             let textToDom = Blockly.Xml.textToDom(saveXML.toString());
             Blockly.Xml.domToWorkspace(textToDom, Code.workspace);
             input.value = '';
-            // let currFile = allFiles[filesToRead - 1];
-            // console.log("current file is " + currFile);
-            // const nodeList = textToDom.getElementsByTagName("block");
-            // for(let i = 0; i < nodeList.length; i++) {
-            //     let currItem = nodeList.item(i);
-            //     const typeName = currItem.getAttribute("type");
-            //     if (typeName === "define_file") {
-            //         if (!classList.has(currFile)) {
-            //             nodeList.item(i).className = currFile;
-            //             allWorkspaces.get(currFile).getBlockById(currItem.id).allocateValues(currFile);
-            //             currItem = nodeList.item(i);
-            //             console.log(currItem);
-            //         }
-            //     }
-            //     else if (typeName === "include_file") {
-            //         allWorkspaces.get(currFile).getBlockById(currItem.id).allocateValues();
-            //     }
-            // }
+            console.log("current file is " + currFile);
+            const nodeList = textToDom.getElementsByTagName("block");
+            for(let i = 0; i < nodeList.length; i++) {
+                let currItem = nodeList.item(i);
+                const typeName = currItem.getAttribute("type");
+                if (typeName === "define_file") {
+                    if (!classList.has(currFile)) {
+                        nodeList.item(i).className = currFile;
+                        currItem = nodeList.item(i);
+                        allWorkspaces.get(currFile).getBlockById(currItem.id).onchange();
+                    }
+                }
+                else if(typeName === "include_file") {
+                    allWorkspaces.get(currFile).getBlockById(currItem.id).onchange();
+                }
+            }
         }
         reader.onerror = function () {
             console.log(reader.error);
