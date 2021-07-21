@@ -1,3 +1,9 @@
+/*
+  Author: Noah Plasse
+  Email: nplasse@qmail.qcc.edu
+  Version: 1.0
+  2021
+*/
 "use strict";
 const  WebSocket = require("ws"),
   http = require('http'),
@@ -8,7 +14,6 @@ const cppService = require("./service/cppService");
 module.exports = function () {
   let server,
     wss = new WebSocket.Server({
-      //noServer:true,
       port:3001,
     }),
     create;
@@ -18,11 +23,6 @@ module.exports = function () {
       let routes = require("./routes");
       routes.requestHandler(req, res);
     });
-    // server.on("upgrade", function upgrade(request, socket, head) {
-    //       wss.handleUpgrade(request, socket, head, function done(ws) {
-    //         wss.emit("connection", ws, request);
-    //       });
-    //     });
     let port = config.localConfig.port,
         hostname = config.localConfig.hostname;
     cppService.wsInit(wss);

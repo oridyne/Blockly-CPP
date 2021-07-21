@@ -1,3 +1,9 @@
+/*
+  Author: Noah Plasse
+  Email: nplasse@qmail.qcc.edu
+  Version: 1.0
+  2021
+*/
 process.env.NODE_ENV = "test";
 const chai = require("chai"),
   chaiHttp = require("chai-http"),

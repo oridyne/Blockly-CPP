@@ -189,7 +189,7 @@ Code.changeLanguage = function () {
  * @param {!Function} func Event handler to bind.
  */
 Code.bindClick = function (el, func) {
-    if (typeof el == 'string') {
+    if (typeof el === 'string') {
         el = document.getElementById(el);
     }
     el.addEventListener('click', func, true);
@@ -291,15 +291,13 @@ Code.tabClick = function (clickedName) {
     if (clickedName === 'c') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
-        document.getElementById('content_' + clickedName).style.visibility =
-            'visible';
-    } else if (clickedName === 'term') {
+        document.getElementById('content_' + clickedName).style.visibility = 'visible'; 
+    }
+    else if (clickedName === 'term') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         // Show the selected pane.
-        document.getElementById('content_' + clickedName).style.visibility =
-            'visible';
+        document.getElementById('content_' + clickedName).style.visibility = 'visible';      
     }
-  
     if (clickedName == 'blocks') {
         document.getElementById('tab_' + clickedName).className = 'tabon';
         Code.workspace.setVisible(true);
@@ -334,7 +332,7 @@ Code.renderContent = function () {
     if (content.id === 'content_c') {
         Code.attemptCodeGeneration(Blockly.C);
     }
-    if (typeof PR == 'object') {
+    if (typeof PR === 'object') {
         PR.prettyPrint();
     }
 };
@@ -344,7 +342,6 @@ Code.renderContent = function () {
  * @param generator {!Blockly.Generator} The generator to use.
  */
 Code.attemptCodeGeneration = function (generator) {
-
     let code;
     if (Code.checkAllGeneratorFunctionsDefined(generator) && Code.selected === 'c') {
         const content = document.getElementById('content_' + Code.selected);
@@ -363,7 +360,6 @@ Code.attemptCodeGeneration = function (generator) {
         c_text.textContent = code;
         c_text.className = c_text.className.replace('prettyprinted', '');
     }
-
 };
 
 /**
@@ -396,7 +392,6 @@ Code.checkAllGeneratorFunctionsDefined = function (generator) {
  */
 Code.init = function () {
     Code.initLanguage();
-
     const rtl = Code.isRtl();
     const container = document.getElementById('content_area');
     const onresize = function (e) {
@@ -546,9 +541,6 @@ Code.init = function () {
     // move the block to the right and down by 20,50 pixels
     newBlock.moveBy(30, 50);
     // Hao Loi: simulate click on the tab_c
-
-
-    //
     // Lazy-load the syntax-highlighting.
     window.setTimeout(Code.importPrettify, 1);
 };
@@ -610,27 +602,6 @@ Code.initLanguage = function () {
     document.getElementById('linkButton').title = MSG['linkTooltip'];
     document.getElementById('runButton').title = MSG['runTooltip'];
     document.getElementById('trashButton').title = MSG['trashTooltip'];
-};
-
-/**
- * Execute the user's code.
- * Just a quick and dirty eval.  Catch infinite loops.
- */
-Code.runJS = function () {
-    Blockly.C.INFINITE_LOOP_TRAP = 'checkTimeout();\n';
-    let timeouts = 0;
-    const checkTimeout = function () {
-        if (timeouts++ > 1000000) {
-            throw MSG['timeout'];
-        }
-    };
-    const code = Blockly.C.workspaceToCode(Code.workspace);
-    Blockly.C.INFINITE_LOOP_TRAP = null;
-    try {
-        eval(code);
-    } catch (e) {
-        alert(MSG['badCode'].replace('%1', e));
-    }
 };
 
 /**
@@ -797,6 +768,7 @@ function makeFileVisible(fileName) {
 }
 
 // Checks to see if User-Entered File Name is valid.
+//Repeated code
 function checkFileName(newEntry) {
     let i;
     let fileToCheck;
@@ -807,7 +779,7 @@ function checkFileName(newEntry) {
         for (i = 0; i < allFiles.length; i++) {
             fileToCheck = allFiles[i];
             // User entered nothing.
-            if (projectedName == null) {
+            if (projectedName === null) {
                 return true;
             }
             if (projectedName.substring(projectedName.length - 2, projectedName.length) === ".h") {
@@ -830,7 +802,7 @@ function checkFileName(newEntry) {
     } else {
         fileToCheck = allFiles[i];
         // User entered nothing.
-        if (projectedName == null) {
+        if (projectedName === null) {
             return true;
         }
         // User entered file name that already exists.

@@ -1,17 +1,19 @@
+/*
+    Author: Noah Plasse
+    Email: nplasse@qmail.qcc.edu
+    Version: 1.0
+    2021
+*/
 process.env.NODE_ENV = "test";
 const chai = require("chai"),
   chaiHttp = require("chai-http"),
   server = require("../server")(),
   fs = require("fs"),
-  path = require("path"),
   config = require("../config"),
-  assert = require("assert"),
   ws = require('ws'),
   chalk = require('chalk');
 server.create(config);
 const address = "http://localhost:3000";
-const expect = chai.expect;
-let should = chai.should();
 chai.use(chaiHttp);
 const testFileDir = `${__dirname}\\TestFiles`;
 
@@ -47,7 +49,6 @@ function startWebsocket(id, exeName) {
 
     websocket.on('message', (m) => {
         let resObj = JSON.parse(m);
-        //console.log(chalk.keyword('orange')(`${id} recieved msg:  + ${m}`));
         console.log(chalk.underline.keyword('orange')(resObj.output));
     });
 
