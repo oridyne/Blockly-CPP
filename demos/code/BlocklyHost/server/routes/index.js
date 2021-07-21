@@ -1,9 +1,10 @@
-/*
-  Author: Noah Plasse
-  Email: nplasse@qmail.qcc.edu
-  Version: 1.0 
-  2021
-*/
+/**
+ * @author Noah Plasse
+ * @email nplasse@qmail.qcc.edu
+ * @version 1.0
+ * @copyright 2021
+ **/
+
 const 
     url = require('url'),
     chalk = require('chalk'),

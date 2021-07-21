@@ -1,9 +1,10 @@
-/*
-    Author: Noah Plasse
-    Email: nplasse@qmail.qcc.edu
-    Version: 1.0
-    2021
-*/
+/**
+ * @author Noah Plasse
+ * @email nplasse@qmail.qcc.edu
+ * @version 1.0
+ * @copyright 2021
+ **/
+
 'use strict';
 
 let localConfig = {

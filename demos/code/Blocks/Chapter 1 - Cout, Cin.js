@@ -1,5 +1,5 @@
-var coutHUE = 25;
-var cinHUE = 50;
+const coutHUE = 25;
+const cinHUE = 50;
 
 Blockly.Blocks['cout'] = {
     init: function () {

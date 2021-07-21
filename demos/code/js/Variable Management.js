@@ -1,5 +1,6 @@
-/** Author: Joseph Pauplis
- * 	Version: 0.1
+/**
+ * 	@author Joseph Pauplis
+ * 	@version 0.1
  */
 
 C_Var = {};
@@ -8,7 +9,9 @@ C_Var.get = {};
 
 const classList = new Map();
 
-/// A function for returning the data of parameter blocks.
+/**
+ * 	A function for returning the data of parameter blocks.
+ */
 C_Var.get.parameters = function(block){
 	let ptr = block;
 	const options = [];
@@ -28,9 +31,11 @@ C_Var.get.parameters = function(block){
 	return options;
 };
 
-/** A function for returning the data of class parameter blocks,
+/**
+ * A function for returning the data of class parameter blocks,
  *	allowing the copy constructor to pass in a class object,
- *	and be able to call that object's public member functions. 
+ *	and be able to call that object's public member functions.
+ * @param block
  */
 C_Var.get.classParameterMembers = function(block){
 	let ptr = block;
@@ -54,6 +59,12 @@ C_Var.get.classParameterMembers = function(block){
 	return options;
 };
 
+/**
+ * Checks dropdown options for duplicates
+ * @param options the list of options to search
+ * @param optionName the option to search for
+ * @returns {boolean} __True__ if no duplicates
+ */
 C_Var.get.dropdownCheck = function(options, optionName) {
 	let doesNotHaveOption = true;
 	for(let i = 0; i < options.length; i++) {

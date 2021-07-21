@@ -1,9 +1,10 @@
-/*
-  Author: Noah Plasse
-  Email: nplasse@qmail.qcc.edu
-  Version: 1.0
-  2021
-*/
+/**
+ * @author Noah Plasse
+ * @email nplasse@qmail.qcc.edu
+ * @version 1.0
+ * @copyright 2021
+ **/
+
 let term;
 let uid;
 let codeRunning = false;
@@ -18,6 +19,7 @@ $(function () {
 * Starts the code running and compilation process 
 */
 async function runCode() {
+  let res;
   let request;
   if (codeRunning) return;
   if(compileList.length === 0) {
@@ -54,7 +56,7 @@ async function runCode() {
         const message = `An error has occurred: ${response.status}`;
         throw new Error(message);
     }
-    var res = await response.json();
+    res = await response.json();
     if(res.status !== "success") {
         console.log("sending file failed");
         return;
@@ -106,7 +108,7 @@ async function stopCodeRun() {
   if (!uid || !codeRunning) {
     term.echo("No code running");
     return;
-  };
+  }
   const response = await fetch("http://localhost:3000/cppCompile/stop" , {
     method: "POST",
     body: JSON.stringify({ id: uid.toString() }),

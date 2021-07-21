@@ -1,5 +1,6 @@
-/** Author: Joseph Pauplis
- *    Version: 0.1
+/**
+ * @author Joseph Pauplis
+ * @version 0.1
  */
 
 /*TODO:
@@ -7,8 +8,17 @@
 */
 
 let ClassIncludeHUE = 140;
-//Define a header file
+/**
+ * ##define_file
+ * Defines a header file
+ *   <br>
+ *   \#ifndef FILE_H<br>
+ *   \#define FILE_H<br>
+ *   ...<br>
+ *   \#endif<br>
+ **/
 Blockly.Blocks['define_file'] = {
+
     init: function () {
         /** Adds a notch to connect up. */
         this.setPreviousStatement(true, null);
@@ -146,7 +156,7 @@ Blockly.Blocks['define_file'] = {
     }
 };
 
-//c code
+/// C code for define_file
 Blockly.C['define_file'] = function (block) {
     const statementCode =
         Blockly.C.statementToCode(block, "statementInput");

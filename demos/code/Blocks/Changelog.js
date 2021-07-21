@@ -1,11 +1,15 @@
 'use strict';
 
-//Function for readme button
+/**
+ *Function for readme button
+ */
 function updateLog() {
     document.getElementById('code').value = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
 }
 
-//Function to download code
+/**
+ * Function to download code
+ */
 function downloadCode() {
     const code = Blockly.C.workspaceToCode(Blockly.getMainWorkspace());
     const codeArray = [];
@@ -17,8 +21,11 @@ function downloadCode() {
 
 let yesNoCancelLoadBtn = 'Cancel';
 
-//function to load
-function readFile(input) {
+/**
+ * Reads input files and adds them to active workspaces
+ * @param input
+ */
+function readFiles(input) {
     let wasFileDeleted = 0;
     let filesToRead;
     let i;
@@ -91,7 +98,9 @@ function readFile(input) {
 }
 
 
-// Reads code from workspace into XML.
+/**
+ * Reads code from workspace into XML.
+ */
 function downloadXML() {
     //Grab the workspace XML
     for (let i = 0; i < allFiles.length; i++) {
@@ -108,7 +117,11 @@ function downloadXML() {
     }
 }
 
-// Saves XML blob
+/**
+ * Saves XML blob
+ * @param Blob blob to save
+ * @param fName filename
+ */
 function saveAs(Blob, fName) {
     if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveOrOpenBlob(Blob, fName);

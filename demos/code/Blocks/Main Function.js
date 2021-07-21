@@ -20,7 +20,7 @@ Blockly.Blocks['pointer_null'] = {
     },
 
     allocateWarnings() {
-        var TT = "";
+        let TT = "";
 
         if (!this.parentBlock_) {
             TT += "Block warning, this block as a return and must be connected.\n";

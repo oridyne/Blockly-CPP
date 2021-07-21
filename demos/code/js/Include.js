@@ -16,10 +16,10 @@ C_Include = {
 			if(ptr){
 				//traverse through the array to find
 				//the include block
-				for(var i = 0; i < incArr.length; ++i){
+				for(let i = 0; i < incArr.length; ++i){
 					//if the name of the block
 					//is an element in the array
-					if(ptr.type == incArr[i]){
+					if(ptr.type === incArr[i]){
 						//it is found, return true
 						return true;
 					}
@@ -40,7 +40,7 @@ C_Include.using = {
 		while(ptr){
 			ptr = ptr.parentBlock_;
 			
-			if(ptr && ptr.type == "using_namespace_std"){
+			if(ptr && ptr.type === "using_namespace_std"){
 				return true;
 			}
 			

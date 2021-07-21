@@ -1,3 +1,10 @@
+/**
+ * @author Noah Plasse
+ * @email nplasse@qmail.qcc.edu
+ * @version 1.0
+ * @copyright 2021
+ **/
+
 let compileList = [];
 const compOptimLevels = ["0", "1", "2", "3", "s"];
 let setOptimLevels = ["s"];
@@ -16,7 +23,8 @@ let divList = [];
         this.radioName = radioName;
         this.createList = function() {
             this.list.forEach((item) => {
-                $(`#compOptForm #${this.sectionName}`).append(`<label for=\'${item.replace(".", "_").replace("=", "+")}\'>${item}</label>`);
+                const sectionSelector = $(`#compOptForm #${this.sectionName}`);
+                sectionSelector.append(`<label for=\'${item.replace(".", "_").replace("=", "+")}\'>${item}</label>`);
                 let check = !!this.setList.find(currItem => item === currItem);
                 let name = "";
                 if(this.type === "radio"){
@@ -24,7 +32,7 @@ let divList = [];
                     name = `name=\'${radioName}\'`
                 }
                 const newItem = $(`<input id=\'${item.replace(".", "_").replace("=", "+")}\' type=\"${this.type}\" ${name}>  </input>`).attr("checked", check);
-                $(`#compOptForm #${this.sectionName}`).append(newItem);
+                sectionSelector.append(newItem);
                 divList.push(this.sectionName);
             });
         }

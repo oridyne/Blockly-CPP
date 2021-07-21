@@ -10,11 +10,11 @@ C_Logic.logic = {
 	
 	/**
 	 * A function to regulate the syntax of a user inputted variable
-	 * @param {variable} - The string to check
-	 * 
+	 *
 	 * @return - An array of errors:
-	 * [0] is boolean, 
+	 * [0] is boolean,
 	 * if [0] is false, all other elements will be error messages.
+	 * @param variable
 	 */
 	variable_format: function(variable){
 		var correctSyntax = [true];
@@ -41,8 +41,8 @@ C_Logic.logic = {
 	
 	/**
 	 * A function to regulate the syntax of a user inputted variable
-	 * @param {ch} - The string to check
-	 * 
+	 *
+	 * @param ch - The string to check
 	 * @return - A string of errors
 	 */
 	char_format: function(ch){
@@ -206,9 +206,9 @@ C_Logic.logic = {
 	/**
 	 * A function to regulate the syntax of a user inputted pointer
 	 * @param {Blockly.Block} - The block
-	 * 
+	 *
 	 * @return - A string of errors:
-	 * [0] is boolean, 
+	 * [0] is boolean,
 	 * if [0] is false, all other elements will be error messages.
 	 */
 	ptr_warnings: function(node1, node2){
