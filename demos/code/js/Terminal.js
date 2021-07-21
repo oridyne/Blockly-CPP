@@ -1,3 +1,9 @@
+/*
+  Author: Noah Plasse
+  Email: nplasse@qmail.qcc.edu
+  Version: 1.0
+  2021
+*/
 let term;
 let uid;
 let codeRunning = false;
@@ -8,7 +14,9 @@ $(function () {
   );
 });
 
-//TODO add notif if code already running and add error reporting for user
+/**
+* Starts the code running and compilation process 
+*/
 async function runCode() {
   let request;
   if (codeRunning) return;
@@ -91,7 +99,9 @@ async function runCode() {
   }
 }
 
-// Stop Code //
+/**
+* Stops user program execution on the server 
+*/
 async function stopCodeRun() {
   if (!uid || !codeRunning) {
     term.echo("No code running");
@@ -111,8 +121,11 @@ async function stopCodeRun() {
   codeRunning = res.code ? false : codeRunning;
 }
 
-//msgType
-//1 id | 2 input
+/**
+* Starts the websocket connection to the server to recieve and send program data 
+* msgType of 1 are for initializing a program execution
+* msgType of 2 are for sending program input
+*/
 function startWebSocket() {
   const ws = new WebSocket(`ws://localhost:3001`, ["json", "xml"]);
   ws.addEventListener("open", () => {
