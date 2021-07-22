@@ -14,7 +14,7 @@ const miscCompileOpts = ["-Wall", "-Werror", "-g", "-dryrun"];
 let setMiscOpts = [];
 let divList = [];
 
-;(function($) {
+$(function(){
     function List(list, setList, sectionName, type, radioName) {
         this.list = list;
         this.setList=setList;

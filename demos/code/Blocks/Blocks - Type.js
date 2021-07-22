@@ -143,9 +143,10 @@ Blockly.Blocks['get_var'] = {
     },
 
     allocateVariables: function () {
+        let i;
         let C = C_Logic;
 
-        var options = [];
+        const options = [];
         options.push(["", ""]);
 
         //Previous declaration
@@ -169,7 +170,7 @@ Blockly.Blocks['get_var'] = {
 		{
 			if (ptr.type === 'include_file')
 			{
-                for (var i = 0; i < ptr.classVarPublic_.length; i++)
+                for (i = 0; i < ptr.classVarPublic_.length; i++)
 				{
                     options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
                         if (this.getVar_ === ptr.classVarPublic_[i][3]) {
@@ -178,7 +179,7 @@ Blockly.Blocks['get_var'] = {
                             this.ptrType_ = ptr.classVarPublic_[i][2];
                         }
 				}
-                for (var i = 0; i < ptr.classVarPrivate_.length; i++)
+                for (i = 0; i < ptr.classVarPrivate_.length; i++)
 				{
                     options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
                         if (this.getVar_ === ptr.classVarPrivate_[i][3]) {
@@ -205,7 +206,7 @@ Blockly.Blocks['get_var'] = {
                     }
                     break;
                 case 'ds_member':
-                    for (var i = 0; i < ptr.classVarPublic_.length; i++) {
+                    for (i = 0; i < ptr.classVarPublic_.length; i++) {
                         options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
                         if (this.getVar_ === ptr.classVarPublic_[i][3]) {
                             this.isConst_ = ptr.classVarPublic_[i][0];
@@ -216,7 +217,7 @@ Blockly.Blocks['get_var'] = {
 					break;
 					
                 case 'class_constructor':
-                    for (var i = 0; i < ptr.funcParam_.length; i++) {
+                    for (i = 0; i < ptr.funcParam_.length; i++) {
                         options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
                         if (this.getVar_ === ptr.funcParam_[i][3]) {
                             this.isConst_ = ptr.funcParam_[i][0];
@@ -231,20 +232,20 @@ Blockly.Blocks['get_var'] = {
             switch (ptr.getDataStr()) {
                 case 'isStruct':
 
-                    for (var i = 0; i < ptr.classVarPublic_.length; ++i) {
+                    for (i = 0; i < ptr.classVarPublic_.length; ++i) {
                         options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
                     }
 
                     break;
 
                 case 'isClass':
-                    for (var i = 0; i < ptr.classVarPublic_.length; ++i) {
+                    for (i = 0; i < ptr.classVarPublic_.length; ++i) {
                         options.push([ptr.classVarPublic_[i][3], ptr.classVarPublic_[i][3]]);
                     }
-                    for (var i = 0; i < ptr.classVarPrivate_.length; ++i) {
+                    for (i = 0; i < ptr.classVarPrivate_.length; ++i) {
                         options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);
                     }
-                    for (var i = 0; i < ptr.classVarProtected_.length; ++i) {
+                    for (i = 0; i < ptr.classVarProtected_.length; ++i) {
                         options.push([ptr.classVarProtected_[i][3], ptr.classVarProtected_[i][3]]);
                     }
                     break;
@@ -257,7 +258,7 @@ Blockly.Blocks['get_var'] = {
         }
 
 
-        for (var i = 0; i < options.length; ++i) {
+        for (i = 0; i < options.length; ++i) {
             this.paramNames_.push(options[i]);
         }
     },
@@ -638,7 +639,7 @@ Blockly.Blocks['get_func'] = {
         if (!this.paramCount_) {
             return null;
         }
-        var container = document.createElement('mutation');
+        const container = document.createElement('mutation');
 
         if (this.paramCount_) {
             container.setAttribute('param_add', this.paramCount_);
@@ -650,7 +651,7 @@ Blockly.Blocks['get_func'] = {
     domToMutation: function (xmlElement) {
         this.paramCount_ = parseInt(xmlElement.getAttribute('param_add'), 10);
 
-        for (var i = 1; i <= this.paramCount_; ++i) {
+        for (let i = 1; i <= this.paramCount_; ++i) {
 
             this.appendValueInput('valinp' + i).setCheck(null).appendField('').setAlign(Blockly.ALIGN_RIGHT);
 
@@ -659,13 +660,13 @@ Blockly.Blocks['get_func'] = {
     },
 
     decompose: function (workspace) {
-        var containerBlock = workspace.newBlock('get_func_mutator');
+        const containerBlock = workspace.newBlock('get_func_mutator');
         containerBlock.initSvg();
 
-        var connection = containerBlock.getInput('STACK').connection;
+        let connection = containerBlock.getInput('STACK').connection;
 
-        for (var i = 1; i <= this.paramCount_; ++i) {
-            var add = workspace.newBlock('get_func_add');
+        for (let i = 1; i <= this.paramCount_; ++i) {
+            const add = workspace.newBlock('get_func_add');
             add.initSvg();
 
             connection.connect(add.previousConnection);
@@ -677,20 +678,20 @@ Blockly.Blocks['get_func'] = {
 
     compose: function (containerBlock) {
 
-        for (var i = this.paramCount_; i > 0; --i) {
+        for (let i = this.paramCount_; i > 0; --i) {
             this.removeInput('valinp' + i);
         }
 
         this.paramCount_ = 0;
 
-        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        let clauseBlock = containerBlock.getInputTargetBlock('STACK');
 
         while (clauseBlock) {
             switch (clauseBlock.type) {
                 case 'get_func_add':
                     this.paramCount_++;
 
-                    var paramInput = this.appendValueInput('valinp' + this.paramCount_).setCheck(null).appendField('').setAlign(Blockly.ALIGN_RIGHT);
+                    const paramInput = this.appendValueInput('valinp' + this.paramCount_).setCheck(null).appendField('').setAlign(Blockly.ALIGN_RIGHT);
 
                     if (clauseBlock.valueConnection_) {
                         paramInput.connection.connect(clauseBlock.valueConnection_);
@@ -708,13 +709,13 @@ Blockly.Blocks['get_func'] = {
     },
 
     saveConnections: function (containerBlock) {
-        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
-        var i = 1;
+        let clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        let i = 1;
 
         while (clauseBlock) {
             switch (clauseBlock.type) {
                 case 'get_func_add':
-                    var paramInput = this.getInput('valinp' + i);
+                    const paramInput = this.getInput('valinp' + i);
 
                     clauseBlock.valueConnection_ = paramInput && paramInput.connection.targetConnection;
 
@@ -732,7 +733,7 @@ Blockly.Blocks['get_func'] = {
 
     onchange: function () {
         if (!this.getField('funcVar')) {
-            this.setFieldValue('', 'funcVar')
+           this.setFieldValue('', 'funcVar')
         }
 
         this.allocateValues();
@@ -754,13 +755,12 @@ Blockly.Blocks['get_func'] = {
 
                 //If it's any other block
                 default:
-                    //this.allocateVariables();
+                    this.allocateVariables();
                     break;
             }
         } else {
             this.paramNames_ = [["", ""]];
         }
-
         this.allocateWarnings();
     },
 
@@ -768,7 +768,8 @@ Blockly.Blocks['get_func'] = {
         this.isConst_ = false;
         this.typeName_ = "";
         this.ptrType_ = "";
-        this.getVar_ = this.getField('funcVar').getText();
+        let funcVarField = this.getField("funcVar");
+        this.getVar_ =  funcVarField ? '' : funcVarField.getText();
         this.value_ = "";
 
         this.isConstructor_ = false;
@@ -842,7 +843,7 @@ Blockly.Blocks['get_func'] = {
     },
 
     allocateVariables: function () {
-        var options = [];
+        let options = [];
         options.push(["", ""]);
 
         //Previous declaration
@@ -852,21 +853,35 @@ Blockly.Blocks['get_func'] = {
         while (ptr) {
             switch (ptr.getDataStr()) {
                 case 'isFunc':
-
                     if (ptr.getVar_) {
-                        options.push([ptr.getVar_, ptr.getVar_])
+                        if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
+                            options.push([ptr.getVar_, ptr.getVar_])
+                        }
                     }
-
                     break;
             }
-
             ptr = ptr.parentBlock_;
         }
 
         this.paramNames_ = options;
     },
-
+// TODO fix dropdown handling (maybe apply to more options?)
     allocateDropdown: function () {
+        if(this.paramNames_.length <= 0) {
+            this.paramNames_ = [["", ""]];
+        }
+        let fieldVal = this.getFieldValue("funcVar");
+        if(fieldVal) {
+            let fieldIsNotPresent = true;
+            this.paramNames_.map((item, index, array) => {
+                if(item[0] === fieldVal) {
+                    fieldIsNotPresent = false;
+                }
+            });
+            if (fieldIsNotPresent) {
+                this.setFieldValue('',"funcVar");
+            }
+        }
         return this.paramNames_;
     },
 
@@ -876,26 +891,24 @@ Blockly.Blocks['get_func'] = {
      * and grab function information
      *
      */
-    allocateMembers: function (block) {
+    allocateMembers: function(block) {
+        let i;
         //Temp variable for options
-        var options = [];
-        options.push(["", ""]);
-
+        let options = [['','']];
         //Stream the function and parameter
-		
+
         this.classFuncProp_ = block.classFuncProp_;
         this.classFuncParam_ = block.classFuncParam_;
-		
-		
-		
-        for (var i = 0; i < block.classFuncProp_.length; ++i) {
-            options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
+
+        for (i = 0; i < block.classFuncProp_.length; ++i) {
+            if(C_Var.get.dropdownCheck(options, block.classFuncProp_[i][3])) {
+                options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
+            }
         }
-		
 
         this.paramNames_ = options;
 
-        for (var i = 0; i < block.classFuncProp_.length; ++i) {
+        for (i = 0; i < block.classFuncProp_.length; ++i) {
             if (this.getFieldValue('funcVar') === block.classFuncProp_[i][3]) {
 
                 this.isConst_ = block.classFuncProp_[i][0];
@@ -907,7 +920,7 @@ Blockly.Blocks['get_func'] = {
             }
         }
 
-        for (var i = 0; i < this.classFuncProp_.length; ++i) {
+        for (i = 0; i < this.classFuncProp_.length; ++i) {
             if (this.classFuncProp_[i][3] === this.getVar_) {
                 this.funcParam_ = this.classFuncParam_[i];
             }
@@ -916,7 +929,8 @@ Blockly.Blocks['get_func'] = {
 
     allocateClassFunctions: function () {
 
-        var options = [];
+        let i;
+        let options = [];
         options.push(["", ""]);
 
 
@@ -936,21 +950,23 @@ Blockly.Blocks['get_func'] = {
             ptr = ptr.getSurroundParent();
         }
 
-        for (var i = 0; i < this.classFuncProp_.length; ++i) {
-            options.push([this.classFuncProp_[i][3], this.classFuncProp_[i][3]]);
+        for (i = 0; i < this.classFuncProp_.length; ++i) {
+            if(C_Var.get.dropdownCheck(options, this.classFuncProp_[i][3])) {
+                options.push([this.classFuncProp_[i][3], this.classFuncProp_[i][3]]);
+            }
 
         }
 
-        for (var i = 0; i < this.classFuncPropPrivate_.length; ++i) {
-            options.push([this.classFuncPropPrivate_[i][3], this.classFuncPropPrivate_[i][3]]);
-
+        for (i = 0; i < this.classFuncPropPrivate_.length; ++i) {
+            if(C_Var.get.dropdownCheck(options, this.classFuncPropPrivate_[i][3])) {
+                options.push([this.classFuncPropPrivate_[i][3], this.classFuncPropPrivate_[i][3]]);
+            }
         }
-
         this.paramNames_ = options;
 
-        var types = [];
+        const types = [];
 
-        for (var i = 1; i <= this.paramCount_; ++i) {
+        for (i = 1; i <= this.paramCount_; ++i) {
             ptr = this.getInputTargetBlock('valinp' + i);
             if (ptr) {
                 types.push(ptr.typeName_);
@@ -961,11 +977,11 @@ Blockly.Blocks['get_func'] = {
         }
         
 
-        for (var i = 0; i < this.classFuncParam_.length; ++i) {
+        for (i = 0; i < this.classFuncParam_.length; ++i) {
             if (this.getVar_ === this.classFuncProp_[i][3] &&
                 types.length === this.classFuncParam_[i].length) {
-                var allEqual = true;
-                for (var j = 0; j < types.length; ++j) {
+                let allEqual = true;
+                for (let j = 0; j < types.length; ++j) {
                     if (types[j] !== this.classFuncParam_[i][j][1]) {
                         allEqual = false;
                     }
@@ -981,20 +997,23 @@ Blockly.Blocks['get_func'] = {
     },
 
     allocateConstructors: function (block) {
-		//initialize empty dropdown
-        var options = [];
+		let i;
+    //initialize empty dropdown
+        const options = [];
         options.push(["", ""]);
 		
 		//populate with class name for constructor
         if (block.getField('DS').getText().length > 0) {
-            options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
+            if(C_Var.get.dropdownCheck(options, block.getField('DS').getText())) {
+                options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
+            }
         }
 
 		//array for holding the # of params, and allows for checking type
-        var types = [];
+        const types = [];
 
-        for (var i = 1; i <= this.paramCount_; ++i) {
-            var ptr = this.getInputTargetBlock('valinp' + i);
+        for (i = 1; i <= this.paramCount_; ++i) {
+            const ptr = this.getInputTargetBlock('valinp' + i);
 
             if (ptr) {
                 types.push(ptr.typeName_);
@@ -1003,10 +1022,10 @@ Blockly.Blocks['get_func'] = {
 
 		
 		
-        for (var i = 0; i < block.classConParam_.length; ++i) {
+        for (i = 0; i < block.classConParam_.length; ++i) {
             if (types.length === block.classConParam_[i].length) {
-                var allEqual = true;
-                for (var j = 0; j < types.length; ++j) {
+                let allEqual = true;
+                for (let j = 0; j < types.length; ++j) {
                     if (types[j] !== block.classConParam_[i][j][1]) {
                         allEqual = false;
                     }
@@ -1028,7 +1047,7 @@ Blockly.Blocks['get_func'] = {
     allocateWarnings: function () {
         let C = C_Logic;
 
-        var TT = "";
+        let TT = "";
 
         if (this.parentBlock_ == null) {
             TT += "Block warning, this block has a return and must be connected.\n";
@@ -1059,8 +1078,8 @@ Blockly.Blocks['get_func'] = {
         //Check if the function has the correct amount of inputs
 
         //Loop through all the parameter inputs to check the correct types
-        for (var i = 0; i < this.funcParam_.length; ++i) {
-            var val = Blockly.C.valueToCode(this, 'valinp' + (i + 1), Blockly.C.ORDER_ATOMIC);
+        for (let i = 0; i < this.funcParam_.length; ++i) {
+            const val = Blockly.C.valueToCode(this, 'valinp' + (i + 1), Blockly.C.ORDER_ATOMIC);
             let block = this.getInputTargetBlock('valinp' + (i + 1));
 
             if (block) {
@@ -1084,7 +1103,7 @@ Blockly.Blocks['get_func'] = {
     },
 };
 Blockly.C['get_func'] = function (block) {
-    var code = '';
+    let code = '';
 
     if (this.getVar_.length > 0) {
         if (!this.isConstructor_) {
@@ -1092,8 +1111,8 @@ Blockly.C['get_func'] = function (block) {
         }
         code += '(';
 
-        for (var i = 1; i <= this.paramCount_; ++i) {
-            var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+        for (let i = 1; i <= this.paramCount_; ++i) {
+            const arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
 
             code += arg;
 

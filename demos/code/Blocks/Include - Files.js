@@ -82,7 +82,7 @@ Blockly.Blocks['define_file'] = {
 
         let headerNameArr = classFile.split(".");
         let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
-        console.log(headerName);
+        //console.log(headerName);
         /// TODO: Get the workspace's current file name to replace default <file name>
         this.setFieldValue(headerName, "ifndefText");
         this.setFieldValue(headerName, "defineText");
@@ -148,7 +148,6 @@ Blockly.Blocks['define_file'] = {
         for (let i = 0; i < nodeList.length; i++) {
             const typeName = nodeList.item(i).getAttribute("type");
             if (typeName === "define_file") {
-                classList.delete(this.className_);
                 classList.set(this.className_, this);
             }
         }
@@ -218,6 +217,13 @@ Blockly.Blocks['include_file'] = {
 
     onchange: function () {
         this.allocateValues();
+        if(allWorkspaces.has(this.className_)) {
+            allWorkspaces.get(this.className_).getAllBlocks().forEach(block => {
+                if(block.type === 'define_file' || block.type === 'include_file') {
+                    block.onchange();
+                }
+            });
+        }
     },
 
     allocateValues: function () {

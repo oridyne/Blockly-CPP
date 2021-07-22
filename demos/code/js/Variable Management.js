@@ -75,3 +75,6 @@ C_Var.get.dropdownCheck = function(options, optionName) {
 	}
 	return doesNotHaveOption;
 }
+ C_Var.get.arrayCheckDuplicates = function (array) {
+	return array.some((val, i) => array.indexOf(val) !== i)
+ }

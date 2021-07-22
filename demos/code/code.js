@@ -879,6 +879,7 @@ function deleteFileConfirm(fileToBeDeleted) {
             deletedFile.remove();
             allWorkspaces.delete(fileTracker);
             document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
+            classList.remove(fileToBeDeleted);
             if (allFiles.length !== 0) {
                 makeFileVisible(currentFile);
             }
@@ -900,6 +901,7 @@ function deleteAllFiles() {
     }
     currentFile = "";
     allFiles = [];
+    classList.clear();
     document.getElementById('c_text').style.visibility = 'hidden';
     document.getElementById("fileDisplayName").innerHTML = "Current File:   None";
 }
@@ -978,6 +980,8 @@ function renameFile(newName) {
     newFileTag.removeEventListener('click', makeFileVisible);
     newFileTag.addEventListener('click', function () { makeFileVisible(newName) });
     allWorkspaces.set(newName, Code.workspace);
+    const classBlock = classList.get(oldFileName);
+    classList.set(newName, classBlock);
     makeFileVisible(newName);  
 }
 function populateDropDowns(ddName) {

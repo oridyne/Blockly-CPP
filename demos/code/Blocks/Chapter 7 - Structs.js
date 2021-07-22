@@ -183,7 +183,9 @@ Blockly.Blocks['ds_object'] = {
         while (ptr) {
             if (ptr.type === 'include_file') {
                 for (let i = 0; i < ptr.includedClasses_.length; i++) {
-                    options.push([ptr.includedClasses_[i][0], ptr.includedClasses_[i][0]]);
+                    if(C_Var.get.dropdownCheck(options, ptr.includedClasses_[i][0])) {
+                        options.push([ptr.includedClasses_[i][0], ptr.includedClasses_[i][0]]);
+                    }
                 }
             }
             ptr = ptr.parentBlock_;
@@ -256,13 +258,14 @@ Blockly.Blocks['ds_object'] = {
     },
 
     allocateWarnings: function () {
-        var TT = "";
+        let TT = "";
 
         //If there is no option selected
         if (this.getFieldValue('DS').length < 1) {
             TT += 'Error, type class needed.\n';
         }
 
+        let ptr;
         if (this.childBlocks_[0]) {
             ptr = this.childBlocks_[0];
             if (ptr.type === 'ds_member') {
@@ -529,11 +532,13 @@ Blockly.Blocks['ds_member'] = {
         while (ptr) {
             if (ptr.type === 'class_function_definition') {
                 for (i = 0; i < ptr.funcParam_.length; i++) {
-                    if (!classList.has(ptr.funcParam_[i][3])) {
-                        options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
-                    }
+                    classList.forEach( block => {
+                        const blockName = block.className_.substring(0, block.className_.indexOf('.'));
+                        if (ptr.funcParam_[i][1] === blockName) {
+                            options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
+                        }
+                    });
                 }
-                console.log(ptr);
             }
             ptr = ptr.getSurroundParent();
         }
@@ -549,7 +554,7 @@ Blockly.Blocks['ds_member'] = {
     },
 
     allocateWarnings: function () {
-        var TT = "";
+        const TT = "";
         let block = this.getInputTargetBlock('valinp1');
 
         if (block) {

@@ -227,7 +227,7 @@ Blockly.Blocks['ds_member2'] = {
 	/** The allocateWarnings function adds "!" and text popup when hovored with warning text. */
     allocateWarnings: function () {
 		//TODO: add warnings
-        var TT = "";
+        const TT = "";
 
         let block = this.getInputTargetBlock('valinp1');
 
@@ -243,13 +243,13 @@ Blockly.Blocks['ds_member2'] = {
 
 /** Class object block #2 C code. */
 Blockly.C['ds_member2'] = function (block) {
-	/** Generate C code with helper function */
-    var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    /** Generate C code with helper function */
+    const val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
 
-	/** Initialize variable */
-    var code = "";
+    /** Initialize variable */
+    let code = "";
 
-	/** Add C code to variable */
+    /** Add C code to variable */
     code += val1 + ';\n';
 
     return code;
@@ -313,8 +313,8 @@ Blockly.Blocks['class_constructor'] = {
 
 	/** The allocateValues function is where we stream values into arrays. */
     allocateValues: function () {
-		/** Utilizing prototype helper function to simplify allocateValues function. */
-        var CV_manage = C_Var;
+        /** Utilizing prototype helper function to simplify allocateValues function. */
+        const CV_manage = C_Var;
         this.funcParam_ = CV_manage.get.parameters(this.getInputTargetBlock('valinp1'));
         this.funcParamClassMembers_ = CV_manage.get.classParameterMembers(this.getInputTargetBlock('valinp1'));
 		
@@ -345,15 +345,15 @@ Blockly.Blocks['class_constructor'] = {
 
 /** Class constructor C code. */
 Blockly.C['class_constructor'] = function (block) {
-	/** Generate constructor C code with helper function. */
-    var stateinp1 = Blockly.C.statementToCode(block, 'stateinp1');
-	/** Generate parameters C code with helper function. */
-    var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    /** Generate constructor C code with helper function. */
+    const stateinp1 = Blockly.C.statementToCode(block, 'stateinp1');
+    /** Generate parameters C code with helper function. */
+    const val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
 
-	/** Initialize variable. */
-    var code = "";
+    /** Initialize variable. */
+    let code = "";
 
-	/** Constructor or destructor. */
+    /** Constructor or destructor. */
     code += block.constructorType_;
 
 	/** Name of class. */
@@ -490,7 +490,7 @@ Blockly.Blocks['class_parameters'] = {
             }
 			if (ptr.type === 'include_file')
 			{
-				for (var i = 0; i < ptr.includedClasses_.length; i++) {
+				for (let i = 0; i < ptr.includedClasses_.length; i++) {
 					options.push([ptr.includedClasses_[i][0],ptr.includedClasses_[i][0]]);
 				}
 			}
