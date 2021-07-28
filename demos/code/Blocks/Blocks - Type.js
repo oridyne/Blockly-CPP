@@ -200,7 +200,6 @@ Blockly.Blocks['get_var'] = {
                 case 'loop_for':
                 case 'loop_range':
                     options.push([ptr.getVar_, ptr.getVar_]);
-
                     if (this.getVar_ === ptr.getVar_) {
                         this.typeName_ = ptr.typeName_;
                     }
@@ -412,24 +411,25 @@ Blockly.Blocks['get_var'] = {
     },
 
     allocateDropdown: function () {
-        //Delete any repeating elements in the 2d array
-        var temp = [];
-        var temp2 = [];
+        let i;
+//Delete any repeating elements in the 2d array
+        const temp = [];
+        const temp2 = [];
 
         //grab the data from the matrix
-        for (var i = 0; i < this.paramNames_.length; ++i) {
+        for (i = 0; i < this.paramNames_.length; ++i) {
             temp.push(this.paramNames_[i][1]);
         }
 
         this.paramNames_ = [];
 
-        for (var i = 0; i < temp.length; ++i) {
-            if (temp2.indexOf(temp[i]) == -1) {
+        for (i = 0; i < temp.length; ++i) {
+            if (temp2.indexOf(temp[i]) === -1) {
                 temp2.push(temp[i]);
             }
         }
 
-        for (var i = 0; i < temp2.length; ++i) {
+        for (i = 0; i < temp2.length; ++i) {
             this.paramNames_.push([temp2[i], temp2[i]]);
         }
 
@@ -437,8 +437,8 @@ Blockly.Blocks['get_var'] = {
     },
 
     allocateWarnings: function () {
-        var TT = "";
-        C = C_Logic;
+        let TT = "";
+        let C = C_Logic;
 
         if (!this.parentBlock_) {
             TT += "Block warning, this block has a return and must be connected.\n";
@@ -447,9 +447,10 @@ Blockly.Blocks['get_var'] = {
         //Errors if a variable exists
         if (this.getVar_.length > 0) {
 
-            var currentVarFound = false;
+            let i;
+            let currentVarFound = false;
 
-            for (var i = 1; i < this.paramNames_.length; ++i) {
+            for (i = 1; i < this.paramNames_.length; ++i) {
                 if (this.getFieldValue('VAR') === this.paramNames_[i][1]) {
                     currentVarFound = true;
                     break;
@@ -463,7 +464,7 @@ Blockly.Blocks['get_var'] = {
                     switch (ptr.getDataStr()) {
                         case 'isStruct':
 
-                            for (var i = 0; i < ptr.classVarPublic_.length; ++i) {
+                            for (i = 0; i < ptr.classVarPublic_.length; ++i) {
                                 if (this.getVar_ === ptr.classVarPublic_[i][3]) {
                                     currentVarFound = true;
                                     break;
@@ -492,9 +493,9 @@ Blockly.Blocks['get_var'] = {
 
 };
 Blockly.C['get_var'] = function (block) {
-    var code = '';
+    let code = '';
 
-    for (var i = 0; i < this.ptrLevel_; ++i) {
+    for (let i = 0; i < this.ptrLevel_; ++i) {
         code += '*';
     }
 
@@ -762,6 +763,7 @@ Blockly.Blocks['get_func'] = {
             this.paramNames_ = [["", ""]];
         }
         this.allocateWarnings();
+        //C_Var.get.updateDropdownText(this.paramNames_, 'funcVar', this);
     },
 
     allocateValues: function () {
@@ -769,7 +771,7 @@ Blockly.Blocks['get_func'] = {
         this.typeName_ = "";
         this.ptrType_ = "";
         let funcVarField = this.getField("funcVar");
-        this.getVar_ =  funcVarField ? '' : funcVarField.getText();
+        this.getVar_ =  funcVarField ? this.getFieldValue('funcVar') : '';
         this.value_ = "";
 
         this.isConstructor_ = false;
@@ -854,9 +856,7 @@ Blockly.Blocks['get_func'] = {
             switch (ptr.getDataStr()) {
                 case 'isFunc':
                     if (ptr.getVar_) {
-                        if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
-                            options.push([ptr.getVar_, ptr.getVar_])
-                        }
+                        options.push([ptr.getVar_, ptr.getVar_])
                     }
                     break;
             }
@@ -867,22 +867,7 @@ Blockly.Blocks['get_func'] = {
     },
 // TODO fix dropdown handling (maybe apply to more options?)
     allocateDropdown: function () {
-        if(this.paramNames_.length <= 0) {
-            this.paramNames_ = [["", ""]];
-        }
-        let fieldVal = this.getFieldValue("funcVar");
-        if(fieldVal) {
-            let fieldIsNotPresent = true;
-            this.paramNames_.map((item, index, array) => {
-                if(item[0] === fieldVal) {
-                    fieldIsNotPresent = false;
-                }
-            });
-            if (fieldIsNotPresent) {
-                this.setFieldValue('',"funcVar");
-            }
-        }
-        return this.paramNames_;
+        return C_Var.get.checkDropdown(this.paramNames_, "funcVar", this);
     },
 
     /**
@@ -901,9 +886,7 @@ Blockly.Blocks['get_func'] = {
         this.classFuncParam_ = block.classFuncParam_;
 
         for (i = 0; i < block.classFuncProp_.length; ++i) {
-            if(C_Var.get.dropdownCheck(options, block.classFuncProp_[i][3])) {
-                options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
-            }
+            options.push([block.classFuncProp_[i][3], block.classFuncProp_[i][3]]);
         }
 
         this.paramNames_ = options;
@@ -951,16 +934,11 @@ Blockly.Blocks['get_func'] = {
         }
 
         for (i = 0; i < this.classFuncProp_.length; ++i) {
-            if(C_Var.get.dropdownCheck(options, this.classFuncProp_[i][3])) {
-                options.push([this.classFuncProp_[i][3], this.classFuncProp_[i][3]]);
-            }
-
+            options.push([this.classFuncProp_[i][3], this.classFuncProp_[i][3]]);
         }
 
         for (i = 0; i < this.classFuncPropPrivate_.length; ++i) {
-            if(C_Var.get.dropdownCheck(options, this.classFuncPropPrivate_[i][3])) {
-                options.push([this.classFuncPropPrivate_[i][3], this.classFuncPropPrivate_[i][3]]);
-            }
+            options.push([this.classFuncPropPrivate_[i][3], this.classFuncPropPrivate_[i][3]]);
         }
         this.paramNames_ = options;
 
@@ -1004,9 +982,7 @@ Blockly.Blocks['get_func'] = {
 		
 		//populate with class name for constructor
         if (block.getField('DS').getText().length > 0) {
-            if(C_Var.get.dropdownCheck(options, block.getField('DS').getText())) {
-                options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
-            }
+            options.push([block.getField('DS').getText(), block.getField('DS').getText()]);
         }
 
 		//array for holding the # of params, and allows for checking type
@@ -1168,7 +1144,7 @@ Blockly.Blocks['get_num'] = {
         //A container can never be 0 unless it is
         //uncreated or uninitialized.
 
-        if (valueInt % 1 == 0) {
+        if (valueInt % 1 === 0) {
             this.typeName_ = "int";
         } else {
             this.typeName_ = "double";

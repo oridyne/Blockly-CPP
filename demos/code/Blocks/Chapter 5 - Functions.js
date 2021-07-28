@@ -2,7 +2,7 @@ var funcHUE = 90;
 
 Blockly.Blocks['function_declaration'] = {
     init: function () {
-      
+
 
         this.appendValueInput("valueInput")
             .appendField(new Blockly.FieldDropdown(
@@ -76,10 +76,10 @@ Blockly.Blocks['function_declaration'] = {
         this.allocateValues();
         this.allocateWarnings();
     },
-	
+
     allocateDropdown: function () {
         var options = [
-			["void", "void"],
+            ["void", "void"],
             ["int", "int"],
             ["size_t", "size_t"],
             ["double", "double"],
@@ -90,11 +90,11 @@ Blockly.Blocks['function_declaration'] = {
             ["long", "long"],
             ["long long", "long long"]];
 
-		/** add list of declared classes to dropdown*/
+        /** add list of declared classes to dropdown*/
         let ptr = this.parentBlock_;
         while (ptr) {
             if (ptr.getDataStr() === 'isClass') {
-				/** Add class name to dropdown list. */
+                /** Add class name to dropdown list. */
                 options.push([ptr.getVar_, ptr.getVar_]);
             }
             ptr = ptr.parentBlock_;
@@ -102,8 +102,8 @@ Blockly.Blocks['function_declaration'] = {
 
 
         return options;
-		
-	},
+
+    },
 
     allocateValues: function () {
         // Modified by David Hazell (SP21)
@@ -397,7 +397,7 @@ Blockly.Blocks['function_parameters'] = {
         this.paramProp_[3] = this.getVar_;
         //Default initialization to true
         this.paramProp_[4] = true;
-		
+
     },
 
     allocateWarnings: function () {
@@ -576,6 +576,7 @@ Blockly.Blocks['function_return'] = {
 
     }
 };
+
 Blockly.C['function_return'] = function (block) {
     let code = '';
 
@@ -612,6 +613,7 @@ Blockly.Blocks['func_parameters_call'] = {
         this.setHelpUrl("");
     }
 };
+
 Blockly.C['func_parameters_call'] = function (block) {
     const variable_myparamname = Blockly.C.variableDB_.getName(block.getFieldValue('myParamName'), Blockly.Variables.NAME_TYPE);
     const value_valueInput = Blockly.C.valueToCode(block, 'valueInput', Blockly.C.ORDER_ATOMIC);

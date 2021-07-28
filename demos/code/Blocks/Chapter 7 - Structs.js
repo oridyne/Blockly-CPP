@@ -102,10 +102,10 @@ Blockly.Blocks['ds_struct'] = {
 };
 
 Blockly.C['ds_struct'] = function (block) {
-    var variable_mystructdec = Blockly.C.variableDB_.getName(block.getFieldValue('myStructDec'), Blockly.Variables.NAME_TYPE);
-    var statements_state1 = Blockly.C.statementToCode(block, 'stateinp1');
+    const variable_mystructdec = Blockly.C.variableDB_.getName(block.getFieldValue('myStructDec'), Blockly.Variables.NAME_TYPE);
+    const statements_state1 = Blockly.C.statementToCode(block, 'stateinp1');
     // TODO: Assemble C into code variable.
-    code = '';
+    let code = '';
 
     code += 'struct ' + variable_mystructdec + '{\n';
 
@@ -171,9 +171,7 @@ Blockly.Blocks['ds_object'] = {
             switch (ptr.getDataStr()) {
                 case 'isStruct':
                 case 'isClass':
-                    if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
-                        options.push([ptr.getVar_, ptr.getVar_]);
-                    }
+                    options.push([ptr.getVar_, ptr.getVar_]);
                     break;
             }
             ptr = ptr.parentBlock_;
@@ -183,9 +181,7 @@ Blockly.Blocks['ds_object'] = {
         while (ptr) {
             if (ptr.type === 'include_file') {
                 for (let i = 0; i < ptr.includedClasses_.length; i++) {
-                    if(C_Var.get.dropdownCheck(options, ptr.includedClasses_[i][0])) {
-                        options.push([ptr.includedClasses_[i][0], ptr.includedClasses_[i][0]]);
-                    }
+                    options.push([ptr.includedClasses_[i][0], ptr.includedClasses_[i][0]]);
                 }
             }
             ptr = ptr.parentBlock_;
@@ -238,7 +234,7 @@ Blockly.Blocks['ds_object'] = {
                 this.classConProp_ = ptr.classConProp_;
                 this.classConParam_ = ptr.classConParam_;
             } else if (ptr.type === 'include_file') {
-                for (var i = 0; i < ptr.includedClasses_.length; i++) {
+                for (let i = 0; i < ptr.includedClasses_.length; i++) {
                     //includedClasses_[i][classname:getvar][funcprop][funcparam]
                     if (this.typeName_ === ptr.includedClasses_[i][0]) {
                         this.classFuncProp_ = ptr.includedClasses_[i][1];
@@ -254,7 +250,7 @@ Blockly.Blocks['ds_object'] = {
     },
 
     allocateDropdown: function () {
-        return this.paramNames_;
+        return C_Var.get.checkDropdown(this.paramNames_, 'DS', this);
     },
 
     allocateWarnings: function () {
@@ -284,14 +280,14 @@ Blockly.Blocks['ds_object'] = {
 };
 
 Blockly.C['ds_object'] = function (block) {
-    var val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_NONE);
+    const val1 = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_NONE);
     let nextBlock = block.getInputTargetBlock('valinp1');
 
-    var DS = block.getFieldValue('DS');
-    var ptr = block.getFieldValue('ptr');
-    var obj = block.getFieldValue('obj');
+    const DS = block.getFieldValue('DS');
+    const ptr = block.getFieldValue('ptr');
+    const obj = block.getFieldValue('obj');
 
-    var code = "";
+    let code = "";
 
     if (nextBlock && nextBlock.type === "ds_member") {
 
@@ -356,13 +352,14 @@ Blockly.Blocks['ds_member'] = {
         this.allocateValues();
         this.allocateVariables();
         this.allocateWarnings();
-
+        // C_Var.get.updateDropdownText(this.paramNames_, 'DS', this);
     },
 
     allocateValues: function () {
-        var val1 = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_NONE);
-
-        this.getVar_ = this.getField("DS").getText();
+        let i;
+        const val1 = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_NONE);
+        let dropField = this.getField("DS");
+        this.getVar_ = dropField ? this.getFieldValue('DS') : '' ;
         this.typeName_ = "";
         this.ptrType_ = '';
         this.isNew = true;
@@ -393,7 +390,7 @@ Blockly.Blocks['ds_member'] = {
                     }
                     break;
                 case 'include_file':
-                    for (var i = 0; i < ptr.classObjPrivate_.length; i++) {
+                    for (i = 0; i < ptr.classObjPrivate_.length; i++) {
                         if (this.getVar_ === ptr.classObjPrivate_[i][2]) {
                             this.typeName_ = ptr.classObjPrivate_[i][0];
                             this.ptrType_ = ptr.classObjPrivate_[i][1];
@@ -410,7 +407,7 @@ Blockly.Blocks['ds_member'] = {
             if (ptr.type === 'class_function_definition') {
 
                 //iterate through param blocks
-                for (var i = 0; i < ptr.funcParam_.length; i++) {
+                for (i = 0; i < ptr.funcParam_.length; i++) {
                     //check if type = function class name to make sure its class param block
                     if (ptr.funcParam_[i][3] === this.getVar_) {
                         //match values
@@ -459,18 +456,18 @@ Blockly.Blocks['ds_member'] = {
     allocateVariables: function () {
 
         //Only adding class names for the left dropdown list
-        var options = [];
+        const options = [];
         options.push(["", ""],
             ["this", "this"]);
 
         //checks function parameters
-        ptr = this.getSurroundParent();
+        let ptr = this.getSurroundParent();
         while (ptr) {
             if (ptr.type === 'function_declaration' || ptr.type === 'class_constructor') {
                 if (ptr.funcParamClassMembers_) {
                     this.funcParamClassMembers_ = ptr.funcParamClassMembers_;
                     //this.allocateMemberProperties();
-                    for (var i = 0; i < ptr.funcParamClassMembers_.length; ++i) {
+                    for (let i = 0; i < ptr.funcParamClassMembers_.length; ++i) {
                         options.push([ptr.funcParamClassMembers_[i][3], ptr.funcParamClassMembers_[i][3]]);
 
                     }
@@ -487,8 +484,8 @@ Blockly.Blocks['ds_member'] = {
 
     //doesnt work
     allocateMemberProperties: function () {
-        for (var i = 0; i < this.funcParamClassMembers_.length; ++i) {
-            for (var j = 0; j < this.funcParamClassMembers_[i].length; ++j) {
+        for (let i = 0; i < this.funcParamClassMembers_.length; ++i) {
+            for (let j = 0; j < this.funcParamClassMembers_[i].length; ++j) {
                 if (this.funcParamClassMembers_[i][j]) {
                     //this.classVarPublic_.push(this.funcParamClassMembers_[i][j]);
                 }
@@ -506,8 +503,7 @@ Blockly.Blocks['ds_member'] = {
         while (ptr) {
             if (ptr.type === "ds_object") {
                 options.push([ptr.getVar_, ptr.getVar_]);
-            }
-            else if (ptr.type === 'include_file') {
+            } else if (ptr.type === 'include_file') {
                 for (i = 0; i < ptr.classObj_.length; i++) {
                     options.push([ptr.classObj_[i][2], ptr.classObj_[i][2]]);
                 }
@@ -532,7 +528,7 @@ Blockly.Blocks['ds_member'] = {
         while (ptr) {
             if (ptr.type === 'class_function_definition') {
                 for (i = 0; i < ptr.funcParam_.length; i++) {
-                    classList.forEach( block => {
+                    classList.forEach(block => {
                         const blockName = block.className_.substring(0, block.className_.indexOf('.'));
                         if (ptr.funcParam_[i][1] === blockName) {
                             options.push([ptr.funcParam_[i][3], ptr.funcParam_[i][3]]);
@@ -550,7 +546,7 @@ Blockly.Blocks['ds_member'] = {
             }
             ptr = ptr.getSurroundParent();
         }
-        return options;
+        return C_Var.get.checkDropdown(options, 'DS', this);
     },
 
     allocateWarnings: function () {

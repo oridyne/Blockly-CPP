@@ -62,7 +62,7 @@ Blockly.Blocks['define_file'] = {
         this.classObjPrivate_ = [];
 
         this.className_ = currentFile;
-        this.getVar_;
+        this.getVar_ = '';
 
         this.includedClasses_ = [];
     },
@@ -371,7 +371,7 @@ Blockly.Blocks['class_function_declaration'] = {
     },
 
     allocateDropdown: function () {
-        var options = [
+        const options = [
             ["", ""],
             ["void", "void"],
             ["int", "int"],
@@ -390,15 +390,13 @@ Blockly.Blocks['class_function_declaration'] = {
             if (ptr.getDataStr() === 'isClass') {
                 /** Add class name to dropdown list. */
                 const className = ptr.getVar_;
-                if (C_Var.get.dropdownCheck(options, className)) {
-                    options.push([className, className]);
-                }
+                options.push([className, className]);
             }
             ptr = ptr.parentBlock_;
         }
 
 
-        return options;
+        return C_Var.get.checkDropdown(options, 'myFuncReturn', this);
 
     },
 
@@ -590,16 +588,14 @@ Blockly.Blocks['class_function_definition'] = {
                     for (let i = 0; i < ptr.classFuncProp_.length; i++) {
                         if (ptr.classFuncProp_[i][3] === this.getFieldValue('identifier')) {
                             const optionName = ptr.classFuncProp_[i][1];
-                            if (C_Var.get.dropdownCheck(options, optionName)) {
-                                options.push([optionName, optionName]);
-                            }
+                            options.push([optionName, optionName]);
                         }
                     }
                 }
             }
             ptr = ptr.parentBlock_;
         }
-        return options;
+        return C_Var.get.checkDropdown(options, 'type',this);
     },
 
     //dropdown for class ::
@@ -610,13 +606,12 @@ Blockly.Blocks['class_function_definition'] = {
         while (ptr) {
             if (ptr.type === 'include_file') {
                 /** Add class name to dropdown list. */
-                if (C_Var.get.dropdownCheck(options, ptr.getVar_)) {
-                    options.push([ptr.getVar_, ptr.getVar_]);
-                }
+                options.push([ptr.getVar_, ptr.getVar_]);
+
             }
             ptr = ptr.parentBlock_;
         }
-        return options;
+        return C_Var.get.checkDropdown(options, 'class_name', this);
     },
 
     //dropdown for function name
@@ -631,15 +626,13 @@ Blockly.Blocks['class_function_definition'] = {
                 if (ptr.getVar_ === (this.getFieldValue('class_name'))) {
                     for (let i = 0; i < ptr.classFuncProp_.length; i++) {
                         const functionName = ptr.classFuncProp_[i][3];
-                        if (C_Var.get.dropdownCheck(options, functionName)) {
-                            options.push([functionName, functionName]);
-                        }
+                        options.push([functionName, functionName]);
                     }
                 }
             }
             ptr = ptr.parentBlock_;
         }
-        return options;
+        return C_Var.get.checkDropdown(options, 'identifier', this);
     },
 
     allocateValues: function () {

@@ -752,13 +752,14 @@ function makeFileVisible(fileName) {
     for (let i = 0; i < allFiles.length; i++) {
         const showOrHide = document.getElementById(allFiles[i]);
         if (allFiles[i] === fileName) {
-            showOrHide.style.visibility = 'visible';
             currentFile = fileName;
             document.getElementById("fileDisplayName").innerHTML = "Current File:   " + currentFile;
             Code.workspace = allWorkspaces.get(allFiles[i]);
             Code.attemptCodeGeneration(Blockly.C);
             Code.workspace.addChangeListener(Code.generateCode);
             Blockly.svgResize(Code.workspace);
+            showOrHide.style.visibility = 'visible';
+
         } else {
             showOrHide.visibility = 'hidden';
         }

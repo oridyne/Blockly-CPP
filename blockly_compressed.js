@@ -21556,7 +21556,12 @@ Blockly.FieldDropdown.prototype.render_ = function() {
 
 	this.imageElement_.style.display = "none";
 
-	var a = this.getOptions(!0);
+	let a = this.getOptions(!0);
+	if(this.selectedIndex_ > a.length || !a[this.selectedIndex_]) {
+		console.log("error at " + this.selectedIndex_);
+		this.setValue('');
+		this.selectedIndex_ = 0;
+	}
 
 	(a = 0 <= this.selectedIndex_ && a[this.selectedIndex_][0]) && "object" == typeof a ? this.renderSelectedImage_(a) : this.renderSelectedText_();
 
