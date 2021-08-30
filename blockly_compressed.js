@@ -21560,28 +21560,9 @@ Blockly.FieldDropdown.prototype.render_ = function() {
 
 	let a = this.getOptions(!0);
 
-	if (this.selectedIndex_ !== 0 && this.getValue() !== this.getDisplayText_()) {
-
-		console.log(`Error: "${this.getDisplayText_()}" !== "${this.getValue()}"\nSetting text to "${this.getValue()}"`);
-
-		const b = this.getOptions(!0);
-
-		const d = (c) => {
-			for (let i = 0; i < b.length; i++) {
-				if (b[i][0] === c) {
-					return i;
-				}
-			}
-			return 0;
-		};
-
-		this.selectedIndex_ = d(this.getValue());
-
-	}
-
 	if (this.selectedIndex_ > a.length || !a[this.selectedIndex_]) {
 
-		console.log(`Error: Selected index ${this.selectedIndex_} is invalid\nOption length: ${a.length}`)
+		console.log(`Selected index ${this.selectedIndex_} is invalid\nOption length: ${a.length}`)
 
 		if (a[this.selectedIndex_ - (a.length - 1)]) {
 
@@ -21598,6 +21579,27 @@ Blockly.FieldDropdown.prototype.render_ = function() {
 		}
 
 	}
+
+	if (this.selectedIndex_ !== 0 && this.getValue() !== this.getDisplayText_()) {
+
+		console.log(`"${this.getDisplayText_()}" !== "${this.getValue()}"\nSetting text to "${this.getValue()}"`);
+
+		const b = this.getOptions(!0);
+
+		const d = (c) => {
+			for (let i = 0; i < b.length; i++) {
+				if (b[i][0] === c) {
+					return i;
+				}
+			}
+			return 0;
+		};
+
+		this.selectedIndex_ = d(this.getValue());
+
+	}
+
+
 
 	(a = 0 <= this.selectedIndex_ && a[this.selectedIndex_][0]) && "object" == typeof a ? this.renderSelectedImage_(a) : this.renderSelectedText_();
 
@@ -21649,7 +21651,29 @@ Blockly.FieldDropdown.prototype.getText_ = function() {
 
 	if (0 > this.selectedIndex_) return null;
 
-	var a = this.getOptions(!0)[this.selectedIndex_][0];
+	let a = this.getOptions(!0);
+
+	if (this.selectedIndex_ > a.length || !a[this.selectedIndex_]) {
+
+		console.log(`Selected index ${this.selectedIndex_} is invalid\nOption length: ${a.length}`)
+
+		if (a[this.selectedIndex_ - (a.length - 1)]) {
+
+			this.selectedIndex_ -= a.length - 1;
+
+			this.setValue(a[this.selectedIndex_][0]);
+
+		} else {
+
+			this.selectedIndex_ = 0;
+
+			this.setValue('');
+
+		}
+
+	}
+
+	a = a[this.selectedIndex_][0];
 
 	return "object" == typeof a ? a.alt : a
 
@@ -21672,6 +21696,7 @@ Blockly.FieldDropdown.validateOptions_ = function(a) {
 	}
 
 	if (b) throw TypeError("Found invalid FieldDropdown options.");
+
 
 };
 

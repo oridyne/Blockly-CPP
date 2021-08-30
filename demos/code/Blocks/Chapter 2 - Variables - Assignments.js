@@ -21,7 +21,7 @@ Blockly.Blocks['math_arith'] = {
 
         this.appendValueInput("valinp2")
             .setCheck(null)
-            .appendField(new Blockly.FieldDropdown([["+", "math_add"], ["-", "math_min"], ["*", "math_mul"], ["/", "math_div"], ["%", "math_mod"]]), "arith_op");
+            .appendField(new Blockly.FieldDropdown([["+", "+"], ["-", "-"], ["*", "*"], ["/", "/"], ["%", "%"]]), "arith_op");
 
         this.appendDummyInput()
             .appendField("", "paren2")

@@ -249,18 +249,12 @@ Blockly.Blocks['include_file'] = {
                 options.push([key, key]);
             }
         }
-        return options;
+
+        return C_Var.get.checkDropdown(options, "classDropdown", this);
     },
 
     onchange: function () {
         this.allocateValues();
-        if(allWorkspaces.has(this.className_)) {
-            allWorkspaces.get(this.className_).getAllBlocks().forEach(block => {
-                if(block.type === 'define_file' || block.type === 'include_file') {
-                    block.onchange();
-                }
-            });
-        }
     },
 
     allocateValues: function () {
@@ -288,11 +282,9 @@ Blockly.Blocks['include_file'] = {
         this.includedClasses_ = [];
         this.includedClassesProps_ = [];
         let includeDropdownText = "";
-        try {
-            includeDropdownText = this.getField('classDropdown').getText();
-        } catch (e) {
-            console.log("Selected dropdown undefined");
-            includeDropdownText = "";
+        let checkField = this.getField('classDropdown');
+        if(checkField) {
+            includeDropdownText = checkField.getText();
         }
         this.className_ = includeDropdownText;
         let ptr;
