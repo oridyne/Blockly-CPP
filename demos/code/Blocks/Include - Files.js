@@ -239,7 +239,7 @@ Blockly.Blocks['include_file'] = {
         this.includedClassesProps_ = [];
         let includeDropdownText = "";
         let checkField = this.getField('classDropdown');
-        if (checkField) {
+        if(checkField) {
             includeDropdownText = checkField.getText();
         }
         this.className_ = includeDropdownText;
