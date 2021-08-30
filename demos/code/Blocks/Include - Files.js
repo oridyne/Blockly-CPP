@@ -59,7 +59,6 @@ Blockly.Blocks['define_file'] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
-<<<<<<< Updated upstream
         this.classObjPrivate_ = [];
 
         this.className_ = currentFile;
@@ -96,6 +95,13 @@ Blockly.Blocks['define_file'] = {
         this.classConParam_ = [];
         this.classObj_ = [];
 
+        this.classVarProtected_ = [];
+        this.classFuncPropProtected_ = [];
+        this.classFuncParamProtected_ = [];
+        this.classConPropProtected_ = [];
+        this.classConParamProtected_ = [];
+        this.classObjProtected_ = [];
+
         this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
         this.classFuncParamPrivate_ = [];
@@ -104,43 +110,6 @@ Blockly.Blocks['define_file'] = {
         this.classObjPrivate_ = [];
 
         /**
-=======
-		this.classObjPrivate_ = [];
-		
-		this.className_ = currentFile;
-		this.getVar_;
-		
-		this.includedClasses_ = [];
-	},
-	
-	onchange: function () {
-		this.allocateValues();
-	},
-	
-	allocateValues: function () {
-		let headerNameArr = currentFile.split(".");
-		let headerName = `${headerNameArr[0].toUpperCase()}_${headerNameArr[1].toUpperCase()}`;
-		//TODO: Get the workspace's current file name to replace default <file name>
-		this.setFieldValue(headerName, "ifndefText");
-		this.setFieldValue(headerName, "defineText");
-		this.className_ = currentFile;
-
-		this.classVarPublic_ = [];
-		this.classFuncProp_ = [];
-		this.classFuncParam_ = [];
-		this.classConProp_ = [];
-		this.classConParam_ = [];
-		this.classObj_ = [];
-
-		this.classVarPrivate_ = [];
-		this.classFuncPropPrivate_ = [];
-		this.classFuncParamPrivate_ = [];
-		this.classConPropPrivate_ = [];
-		this.classConParamPrivate_ = [];
-		this.classObjPrivate_ = [];
-
-		/**
->>>>>>> Stashed changes
          * OtherFiles Properties
          *
          * [0] - getVar_ | name of included class selected
@@ -161,6 +130,30 @@ Blockly.Blocks['define_file'] = {
                 this.classConProp_ = (ptr.classConProp_);
                 this.classConParam_ = (ptr.classConParam_);
                 this.classObj_ = (ptr.classObjPublic_);
+
+                this.classVarPrivate_ = (ptr.classVarPrivate_);
+                this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
+                this.classFuncParamPrivate_ = (ptr.classFuncParamPrivate_);
+                this.classConPropPrivate_ = (ptr.classConPropPrivate_);
+                this.classConParamPrivate_ = (ptr.classConParamPrivate_);
+                this.classObjPrivate_ = (ptr.classObjPrivate_);
+
+                this.getVar_ = ptr.getVar_;
+            }
+            if (ptr.type === "ds_superclass") {
+                this.classVarPublic_ = (ptr.classVarPublic_);
+                this.classFuncProp_ = (ptr.classFuncProp_);
+                this.classFuncParam_ = (ptr.classFuncParam_);
+                this.classConProp_ = (ptr.classConProp_);
+                this.classConParam_ = (ptr.classConParam_);
+                this.classObj_ = (ptr.classObjPublic_);
+				
+                this.classVarProtected_ = (ptr.classVarProtected_);
+                this.classFuncPropProtected_ = (ptr.classFuncPropProtected_);
+                this.classFuncParamProtected_ = (ptr.classFuncParamProtected_);
+                this.classConPropProtected_ = (ptr.classConPropProtected_);
+                this.classConParamProtected_ = (ptr.classConParamProtected_);
+                this.classObjProtected_ = (ptr.classObjProtected_);
 
                 this.classVarPrivate_ = (ptr.classVarPrivate_);
                 this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);
@@ -228,6 +221,12 @@ Blockly.Blocks['include_file'] = {
         this.classConParam_ = [];
         this.classObj_ = [];
 
+        this.classVarProtected_ = [];
+        this.classFuncPropProtected_ = [];
+        this.classFuncParamProtected_ = [];
+        this.classConPropProtected_ = [];
+        this.classConParamProtected_ = [];
+        this.classObjProtected_ = [];
 
         this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
@@ -272,6 +271,13 @@ Blockly.Blocks['include_file'] = {
         this.classConParam_ = [];
         this.classObj_ = [];
 
+        this.classVarProtected_ = [];
+        this.classFuncPropProtected_ = [];
+        this.classFuncParamProtected_ = [];
+        this.classConPropProtected_ = [];
+        this.classConParamProtected_ = [];
+        this.classObjProtected_ = [];
+
         this.classVarPrivate_ = [];
         this.classFuncPropPrivate_ = [];
         this.classFuncParamPrivate_ = [];
@@ -302,6 +308,13 @@ Blockly.Blocks['include_file'] = {
             this.classConProp_ = (ptr.classConProp_);
             this.classConParam_ = (ptr.classConParam_);
             this.classObj_ = (ptr.classObj_);
+
+            this.classVarProtected_ = (ptr.classVarProtected_);
+            this.classFuncPropProtected_ = (ptr.classFuncPropProtected_);
+            this.classFuncParamProtected_ = (ptr.classFuncParamProtected_);
+            this.classConPropProtected_ = (ptr.classConPropProtected_);
+            this.classConParamProtected_ = (ptr.classConParamProtected_);
+            this.classObjProtected_ = (ptr.classObjProtected_);
 
             this.classVarPrivate_ = (ptr.classVarPrivate_);
             this.classFuncPropPrivate_ = (ptr.classFuncPropPrivate_);

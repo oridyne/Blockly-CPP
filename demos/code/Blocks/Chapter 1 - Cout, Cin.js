@@ -12,12 +12,6 @@ Blockly.Blocks['cout'] = {
         this.setColour(coutHUE);
         this.setTooltip("Outputs the input into the output stream. \nRequires - <iostream>");
         this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/basic_io/");
-		
-		this.appendDummyInput();
-        this.appendDummyInput()
-            .appendField("public:");
-        this.appendStatementInput("statePublic")
-            .setCheck(null);
 
         this.setMutator(new Blockly.Mutator(['cout_stream_add']));
 

@@ -179,6 +179,15 @@ Blockly.Blocks['get_var'] = {
                             this.ptrType_ = ptr.classVarPublic_[i][2];
                         }
 				}
+                for (i = 0; i < ptr.classVarProtected_.length; i++)
+				{
+                    options.push([ptr.classVarProtected_[i][3], ptr.classVarProtected_[i][3]]);
+                        if (this.getVar_ === ptr.classVarProtected_[i][3]) {
+                            this.isConst_ = ptr.classVarProtected_[i][0];
+                            this.typeName_ = ptr.classVarProtected_[i][1];
+                            this.ptrType_ = ptr.classVarProtected_[i][2];
+                        }
+				}
                 for (i = 0; i < ptr.classVarPrivate_.length; i++)
 				{
                     options.push([ptr.classVarPrivate_[i][3], ptr.classVarPrivate_[i][3]]);

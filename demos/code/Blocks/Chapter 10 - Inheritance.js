@@ -198,15 +198,14 @@ Blockly.Blocks["ds_superclass"] = {
         }
 		
 		let block1 = this.getInputTargetBlock('valueInput');
-		console.log(block1);
 		
 		//get parent classes from right block, then add the data to this one
-		this.parentClass_ = block1.parentClass_;
+		if (block1) {
+			this.parentClass_ = block1.parentClass_;
+		}
 		
-		console.log(this);
-		console.log(this.parentBlock_);
 		ptr = this.parentBlock_;
-		/*while (ptr) {
+		while (ptr) {
 			for (var i = 0; i < this.parentClass_.length; i++)
 			{
 				if (ptr.getVar_ === this.parentClass_[i])
@@ -246,16 +245,16 @@ Blockly.Blocks["ds_superclass"] = {
 						this.classConParam_.push(ptr.classConParam_[i]);
 					}
 					
-					for (var i = 0; i < ptr.classObjProtected_.length; i++) {
+					/*for (var i = 0; i < ptr.classObjProtected_.length; i++) {
 						this.classObjPublic_.push(ptr.classObjProtected_[i]);
 					}
 					for (var i = 0; i < ptr.classObjPublic_.length; i++) {
 						this.classObjPublic_.push(ptr.classObjPublic_[i]);
-					}
+					}*/
 				}
 			}
 			ptr = ptr.parentBlock_;
-		}*/
+		}
     }
 };
 
@@ -470,6 +469,10 @@ Blockly.Blocks["ds_subclass"] = {
                
                     options.push([ptr.getVar_, ptr.getVar_]);
             }
+            if (ptr.type === "include_file"){
+               
+                    options.push([ptr.getVar_, ptr.getVar_]);
+            }
             ptr = ptr.parentBlock_;
         }
         return options;
@@ -490,7 +493,6 @@ Blockly.Blocks["ds_subclass"] = {
 			this.parentClass_.push(this.getField("DS").getText());
 		}
 		
-		console.log(this.type);
     }
 };
 
