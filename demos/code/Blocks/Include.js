@@ -175,4 +175,24 @@ Blockly.C['using_namespace_std'] = function (block) {
     return code;
 };
 
+Blockly.Blocks['include_fstream'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("#include <fstream>");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(includeHUE);
+        this.setTooltip("Use #include <vector> if you are using file streams");
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+        this.setDeletable(true);
+
+    }
+
+};
+
+Blockly.C['include_fstream'] = function (block) {
+    var code = "#include <fstream>\n";
+    return code;
+};
+
 
