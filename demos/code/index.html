@@ -1517,7 +1517,7 @@
             <!-- Author:   Joseph Pauplis                                             	 -->
             <!-- Semester: Spring 2021                                                   -->
 
-            <category name="Chapter 7" colour="#134796">
+            <category name="Chapter 7" colour="#A6885C">
 
                 <label text="Class Declaration" web-class="labelClass"></label>
 
@@ -1555,25 +1555,27 @@
             <!-- Author:   Jacob Patzer                                             	 -->
             <!-- Semester: Spring 2022                                                   -->
 
-            <category name="Chapter 9" colour="#451396">
+            <category name="Chapter 9" colour="#835CA6">
 
-                <label text="Input File Stream Declaration" web-class="labelClass"></label>
+                <label text="File Stream Declaration" web-class="labelFile"></label>
 
                 <block type="inFS"></block>
 
-                <label text="Open / Close" web-class="labelClass"></label>
+                <block type="outFS"></block>
 
-                <block type="class_parameters"></block>
+                <label text="Open / Close" web-class="labelFile"></label>
 
-                <label text="File Read / Write" web-class="labelClass"></label>
+                <block type="FS_Open"></block>
 
-                <block type="ds_object"></block>
+                <block type="FS_Close"></block>
+
+                <label text="File Input / Output" web-class="labelFile"></label>
 
                 <block type="FS_input"></block>
 
             </category>
 			
-			<category name="Chapter 10" colour="#134796">
+			<category name="Chapter 10" colour="#A6885C">
 			
 				<label text="Base / Parent / Superclass" web-class="labelClass"></label>
 				
@@ -1667,6 +1669,11 @@
     .labelClass > .blocklyFlyoutLabelText {
         font-weight: bold;
         fill: #A5925B
+    }
+
+    .labelFile > .blocklyFlyoutLabelText {
+        font-weight: bold;
+        fill: #835CA6
     }
 
 </style>
