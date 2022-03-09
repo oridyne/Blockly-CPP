@@ -190,8 +190,28 @@ Blockly.Blocks['include_fstream'] = {
 
 };
 
-Blockly.C['include_fstream'] = function (block) {
-    var code = "#include <fstream>\n";
+Blockly.C['include_ostream'] = function (block) {
+    var code = "#include <ostream>\n";
+    return code;
+};
+
+Blockly.Blocks['include_ostream'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("#include <ostream>");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(includeHUE);
+        this.setTooltip("Use #include <vector> if you are using file streams");
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+        this.setDeletable(true);
+
+    }
+
+};
+
+Blockly.C['include_ostream'] = function (block) {
+    var code = "#include <ostream>\n";
     return code;
 };
 
