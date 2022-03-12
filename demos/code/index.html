@@ -273,7 +273,7 @@
         <!-- Hao: re-categorize the blocks 9/8/2020 -->
         <xml xmlns="" id="toolbox" style="display: none">
 
-            <category name="Class Files" colour="#134796">
+            <category name="Class Files" colour="#70C277">
 
                 <block type="define_file"></block>
                 <block type="include_file"></block>
@@ -1566,7 +1566,13 @@
 
                 <label text="Open / Close" web-class="labelFile"></label>
 
-                <block type="FS_Open"></block>
+                <block type="FS_Open">
+                    <value name="valinp1">
+                        <shadow type="get_str">
+                            <field name="myStr">name</field>
+                        </shadow>
+                    </value>
+                </block>
 
                 <block type="FS_Close"></block>
 

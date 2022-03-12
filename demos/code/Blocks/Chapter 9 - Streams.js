@@ -94,10 +94,10 @@ Blockly.Blocks["FS_Open"] = {
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
             .appendField(new Blockly.FieldDropdown([['', ''], ['~', '~']]), 'con_type')
-            .appendField('.open', 'con_name')
-            .appendField('("')
-            this.appendDummyInput()
-            .appendField('")')
+            .appendField('.open')
+            .appendField('(')
+        this.appendDummyInput()
+            .appendField(')')
 
         /** Blocks will appear connected across one line. */
         this.setInputsInline(true);
@@ -112,7 +112,7 @@ Blockly.Blocks["FS_Open"] = {
 }
 
 Blockly.C["FS_Open"] = function(block) {
-    return 123;
+    return "123";
 }
 
 Blockly.Blocks["FS_Close"] = {
@@ -300,7 +300,7 @@ Blockly.Blocks['FS_input'] = {
         if (!libFound) {
 
             automate_library_string = {
-                text: "include <iostream>",
+                text: "include <fstream>",
                 enabled: true,
 
                 callback: function () {
