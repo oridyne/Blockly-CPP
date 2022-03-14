@@ -21,11 +21,8 @@ Blockly.Blocks["inFS"] = {
 
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
-            .appendField('ifstream', 'con_name')
-        this.appendDummyInput()
-
-        /** Blocks will appear connected across one line. */
-        this.setInputsInline(true);
+            .setCheck("String")
+            .appendField('ifstream');
 
     },
 
@@ -34,10 +31,19 @@ Blockly.Blocks["inFS"] = {
         this.allocateValues();
     },
 
+    allocateValues: function () {
+        let block = this.getInputTargetBlock('valinp1');
+
+    },
+
 }
 
 Blockly.C["inFS"] = function(block) {
-    return "ifstream " + code;
+    var value_name = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
+    var code ='ifstream ' + value_name + ';\n';
+
+    return code;
 }
 
 /** output-Filestream initialization block */
@@ -56,12 +62,8 @@ Blockly.Blocks["outFS"] = {
 
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
-            .appendField('ofstream', 'con_name')
-        this.appendDummyInput()
-        
-
-        /** Blocks will appear connected across one line. */
-        this.setInputsInline(true);
+            .setCheck("String")
+            .appendField('ofstream');
 
     },
 
@@ -70,11 +72,20 @@ Blockly.Blocks["outFS"] = {
         this.allocateValues();
     },
 
+    allocateValues: function () {
+
+    },
+
 }
 
 Blockly.C["outFS"] = function(block) {
-    return "ostream " + code;
+    var value_name = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
+    var code ='ofstream ' + value_name + ';\n';
+
+    return code;
 }
+
 
 
 
@@ -91,28 +102,49 @@ Blockly.Blocks["FS_Open"] = {
         /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
         this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
 
-        /** parameter area */
-        this.appendValueInput('valinp1') /** name of filestream */
-            .appendField(new Blockly.FieldDropdown([['', ''], ['~', '~']]), 'con_type')
-            .appendField('.open')
-            .appendField('(')
-        this.appendDummyInput()
-            .appendField(')')
-
-        /** Blocks will appear connected across one line. */
         this.setInputsInline(true);
 
+        /** parameter area */
+        this.appendValueInput('valinp1') /** name of filestream */
+            .appendField(new Blockly.FieldDropdown([['myFS', 'myFS'], ['myFS2', 'myFS2']]), 'fsName')
+            .appendField('.open(');
+        this.appendDummyInput()
+            .appendField(')');
     },
 
     /** The onchange function is called when a block is moved or updated. */
     onchange: function () {
-        this.allocateValues();
+        this.allocateWarnings;
     },
+
+    allocateWarnings: function () {
+        var TT = "";
+        
+        let librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
+
+        if (!libFound) {
+            TT += "Error, <fstream> library must be included.\n";
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    }
 
 }
 
 Blockly.C["FS_Open"] = function(block) {
-    return "123";
+    var fsNameVar = this.getFieldValue('fsName');
+    var value_name = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
+    var code = fsNameVar + '.open(' + value_name + ')';
+
+    return code + ';\n';
 }
 
 Blockly.Blocks["FS_Close"] = {
@@ -130,11 +162,11 @@ Blockly.Blocks["FS_Close"] = {
 
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
-            .appendField(new Blockly.FieldDropdown([['', ''], ['~', '~']]), 'con_type')
-            .appendField('.close', 'con_name')
-            .appendField('("')
-            this.appendDummyInput()
-            .appendField('")')
+            .appendField(new Blockly.FieldDropdown([['myFS', 'myFS'], ['myFS2', 'myFS2']]), 'fsName')
+            .appendField('.close(');
+        this.appendDummyInput()
+            .appendField(')');
+
     
         /** Blocks will appear connected across one line. */
         this.setInputsInline(true);
@@ -143,13 +175,28 @@ Blockly.Blocks["FS_Close"] = {
 
     /** The onchange function is called when a block is moved or updated. */
     onchange: function () {
-        this.allocateValues();
+        this.allocateWarnings;
     },
+
+    allocateWarnings: function () {
+        let librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
+
+        if (!libFound) {
+            TT += "Error, <fstream> library must be included.\n";
+        }
+    }
 
 }
 
 Blockly.C["FS_Close"] = function(block) {
-    return 123;
+    var fsNameVar = this.getFieldValue('fsName');
+    var value_name = Blockly.C.valueToCode(block, 'valinp1', Blockly.C.ORDER_ATOMIC);
+
+    var code = fsNameVar + '.close(' + value_name + ')';
+
+    return code + ';\n';
 }
 
 
@@ -276,10 +323,10 @@ Blockly.Blocks['FS_input'] = {
 
         var librarySearch = C_Include;
 
-        var libFound = librarySearch.search_library(this, ['include_iostream']);
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
 
         if (!libFound) {
-            TT += "Error, <iostream> library must be included.\n";
+            TT += "Error, <fstream> library must be included.\n";
         }
 
         if (TT.length > 0) {
@@ -294,7 +341,7 @@ Blockly.Blocks['FS_input'] = {
         let BlockScope = this;
 
         var librarySearch = C_Include;
-        var libFound = librarySearch.search_library(this, ['include_iostream']);
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
 
         //create an initialization block
         if (!libFound) {
@@ -304,7 +351,7 @@ Blockly.Blocks['FS_input'] = {
                 enabled: true,
 
                 callback: function () {
-                    var newBlock = BlockScope.workspace.newBlock('include_iostream');
+                    var newBlock = BlockScope.workspace.newBlock('include_fstream');
                     let ptr = BlockScope;
 
                     while (ptr) {
@@ -380,6 +427,231 @@ Blockly.C['FS_input'] = function (block) {
     return code;
 };
 
+Blockly.Blocks['FS_output'] = {
+    init: function () {
+
+        this.appendValueInput("valinp0")
+            .setCheck(this.setFSCheck)
+            .appendField("outFS >>")
+            .setAlign(Blockly.ALIGN_RIGHT);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(fileHue);
+        this.setTooltip("Grabs input from file.\nRequires - <fstream>");
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+
+        this.setMutator(new Blockly.Mutator(['FS_stream_add']));
+
+        this.FSStreamCount_ = 0;
+
+        this.setFSCheck = 'Variable';
+
+    },
+
+    mutationToDom: function () {
+        if (!this.FSStreamCount_) {
+            return null;
+        }
+        var container = document.createElement('mutation');
+
+        if (this.FSStreamCount_) {
+            container.setAttribute('printadd', this.FSStreamCount_);
+        }
+
+        return container;
+    },
+
+    domToMutation: function (xmlElement) {
+        this.FSStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
+        for (var i = 1; i <= this.FSStreamCount_; i++) {
+            this.appendValueInput('valinp' + i).setCheck(this.setFSCheck).appendField('inFS >> ').setAlign(Blockly.ALIGN_RIGHT);
+        }
+    },
+
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('FS_stream_mutator');
+        containerBlock.initSvg();
+
+        var connection = containerBlock.getInput('STACK').connection;
+
+        for (var i = 1; i <= this.FSStreamCount_; ++i) {
+            var add = workspace.newBlock('FS_stream_add');
+            add.initSvg();
+
+            console.log(this.FSStreamCount_);
+            connection.connect(add.previousConnection);
+            connection = add.nextConnection;
+        }
+        return containerBlock;
+    },
+
+    compose: function (containerBlock) {
+        for (var i = this.FSStreamCount_; i > 0; i--) {
+            this.removeInput('valinp' + i);
+        }
+        this.FSStreamCount_ = 0;
+
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        while (clauseBlock) {
+
+            switch (clauseBlock.type) {
+
+                case 'FS_stream_add':
+                    this.FSStreamCount_++;
+                    var printInput = this.appendValueInput('valinp' + this.FSStreamCount_)
+                        .setCheck(this.setFSCheck).appendField('inFS >> ').setAlign(Blockly.ALIGN_RIGHT);
+
+                    if (clauseBlock.valueConnection_) {
+                        printInput.connection.connect(clauseBlock.valueConnection_);
+                    }
+
+                    break;
+
+                default:
+                    throw 'Unknown block type.';
+            }
+
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    saveConnections: function (containerBlock) {
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 1;
+        while (clauseBlock) {
+
+            switch (clauseBlock.type) {
+
+                case 'FS_stream_add':
+                    var inputPrint = this.getInput('valinp' + i);
+                    clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
+                    clauseBlock.statementConnection_ = i++;
+                    break;
+
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection &&
+                clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    onchange: Blockly.Blocks.requireInFunction,
+
+    onchange: function () {
+
+        this.allocateWarnings();
+    },
+
+    allocateWarnings: function () {
+        var TT = "";
+
+        var librarySearch = C_Include;
+
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
+
+        if (!libFound) {
+            TT += "Error, <fstream> library must be included.\n";
+        }
+
+        if (TT.length > 0) {
+            this.setWarningText(TT);
+        } else {
+            this.setWarningText(null);
+        }
+
+    },
+    customContextMenu: function (options) {
+        //save the current scope
+        let BlockScope = this;
+
+        var librarySearch = C_Include;
+        var libFound = librarySearch.search_library(this, ['include_fstream']);
+
+        //create an initialization block
+        if (!libFound) {
+
+            automate_library_string = {
+                text: "include <fstream>",
+                enabled: true,
+
+                callback: function () {
+                    var newBlock = BlockScope.workspace.newBlock('include_fstream');
+                    let ptr = BlockScope;
+
+                    while (ptr) {
+                        //if we're at the top
+                        if (!ptr.parentBlock_) {
+                            newBlock.previousConnection.connect(ptr.previousConnection.targetConnection);
+                            newBlock.nextConnection.connect(ptr.previousConnection);
+                            newBlock.initSvg();
+                            newBlock.render();
+
+                            return;
+                        }
+
+                        ptr = ptr.parentBlock_;
+                    }
+
+                }
+
+            }
+            options.push(automate_library_string);
+
+        }
+    }
+
+};
+
+Blockly.C['FS_output'] = function (block) {
+    var val = Blockly.C.valueToCode(block, 'valinp0', Blockly.C.ORDER_NONE);
+    // TODO: Assemble C into code variable.
+    var code = '';
+    var std = '';
+    var WT = false;
+    //tooltip for warning text
+
+    C = C_Include;
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
+
+    if (this.FSStreamCount_ < 1 && !val) {
+        WT = true;
+    } else if (this.FSStreamCount_ < 1 && val) {
+        code += std + 'inFS >> ' + val;
+    } else if (this.FSStreamCount_ > 0 && !val) {
+        WT = true;
+    } else {
+
+        code += std + 'inFS >> ' + val;
+
+        for (var i = 1; i <= this.FSStreamCount_; ++i) {
+            var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+            var childConnection = this.inputList[i].connection;
+            var childBlock = childConnection.targetBlock();
+
+
+            if (childBlock) {
+                code += ' >> ' + arg;
+            } else {
+                WT = true;
+            }
+        }
+    }
+
+    this.setWarningText(null);
+    if (WT == true) {
+        this.setWarningText("Block warning: all FS inputs must be attached to a variable block.");
+    }
+
+    if (code.length > 0) {
+        code += ';\n';
+    }
+
+    return code;
+};
 
 
     

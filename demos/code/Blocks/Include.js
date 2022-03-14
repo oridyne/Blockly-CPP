@@ -190,8 +190,8 @@ Blockly.Blocks['include_fstream'] = {
 
 };
 
-Blockly.C['include_ostream'] = function (block) {
-    var code = "#include <ostream>\n";
+Blockly.C['include_fstream'] = function (block) {
+    var code = "#include <fstream>\n";
     return code;
 };
 

@@ -300,7 +300,7 @@
 
             </category>
 
-            <category name="Main Function" colour="#134796">
+            <category name="Main Function" colour="#C27070">
 
                 <block type="main"></block>
                 <block type="system_pause"></block>
@@ -378,7 +378,7 @@
             </category>
             <!-- end of Input/Output blocks -->
 
-            <category name="Strings" colour="#134796">
+            <category name="Strings" colour="#70C2A7">
 
                 <label text="Char Input" web-class="labelString"></label>
                 <block type="get_char"></block>
@@ -524,7 +524,7 @@
             </category>
             <!-- end of String blocks -->
 
-            <category name="Math" colour="#134796">
+            <category name="Math" colour="#707EC2">
 
                 <label text="String npos" web-class="labelString"></label>
                 <block type="string_npos"></block>
@@ -655,7 +655,7 @@
             </category>
             <!-- end of Math blocks -->
 
-            <category name="Logic" colour="#134796">
+            <category name="Logic" colour="#7099C2">
 
                 <label text="Conditional Statements" web-class="labelSwitch"></label>
 
@@ -682,7 +682,7 @@
             </category>
             <!-- end of Logic blocks -->
 
-            <category name="Loops" colour="#134796">
+            <category name="Loops" colour="#70C285">
 
                 <label text="Loops" web-class="labelLoops"></label>
 
@@ -715,7 +715,7 @@
             </category>
             <!-- end of Loops blocks -->
 
-            <category name="Functions" colour="#134796">
+            <category name="Functions" colour="#99C270">
 
                 <label text="Function Declaration" web-class="labelFunction"></label>
 
@@ -1560,25 +1560,45 @@
 
                 <label text="File Stream Declaration" web-class="labelFile"></label>
 
-                <block type="inFS"></block>
+                <block type="inFS">
+                    <value name="valinp1">
+                        <shadow type="get_str">
+                            <field name="myStr">myFS</field>
+                        </shadow>
+                    </value>
+                </block>
 
-                <block type="outFS"></block>
+                <block type="outFS">
+                    <value name="valinp1">
+                        <shadow type="get_str">
+                            <field name="myStr">myFS</field>
+                        </shadow>
+                    </value>
+                </block>
 
                 <label text="Open / Close" web-class="labelFile"></label>
 
                 <block type="FS_Open">
                     <value name="valinp1">
                         <shadow type="get_str">
-                            <field name="myStr">name</field>
+                            <field name="myStr">filename</field>
                         </shadow>
                     </value>
                 </block>
 
-                <block type="FS_Close"></block>
+                <block type="FS_Close">
+                    <value name="valinp1">
+                        <shadow type="get_str">
+                            <field name="myStr">filename</field>
+                        </shadow>
+                    </value>
+                </block>
 
                 <label text="File Input / Output" web-class="labelFile"></label>
 
                 <block type="FS_input"></block>
+
+                <block type="FS_output"></block>
 
             </category>
 
