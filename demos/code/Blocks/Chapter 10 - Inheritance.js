@@ -24,7 +24,7 @@ Blockly.Blocks["ds_superclass"] = {
         this.classConProp_ = [];
         this.classConParam_ = [];
 		this.classObjPublic_ = [];
-		
+
 
 		/** Initializing variables to pass in private variable, function, function parameter, class constructor, and class constructor parameter blocks. */
         this.classVarPrivate_ = [];
@@ -33,7 +33,7 @@ Blockly.Blocks["ds_superclass"] = {
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
 		this.classObjPrivate_ = [];
-		
+
         this.classVarProtected_ = [];
         this.classFuncPropProtected_ = [];
         this.classFuncParamProtected_ = [];
@@ -52,25 +52,26 @@ Blockly.Blocks["ds_superclass"] = {
             .appendField("public:");
         this.appendStatementInput("statePublic")
             .setCheck(null);
-			
+
         this.appendDummyInput()
             .appendField("protected:");
         this.appendStatementInput("stateProtected")
-            .setCheck(null);			
-			
+            .setCheck(null);
+
 
 		/** Area for blocks to be defined in private class section. */
         this.appendDummyInput()
             .appendField("private:");
         this.appendStatementInput("statePrivate")
             .setCheck(null);
-			
+
 		this.parentClass_ = [];
     },
 
 	/** The onchange function is called when a block is moved or updated. */
     onchange: function () {
         this.allocateValues();
+        this.allocateWarnings();
     },
 
 	/** The allocateValues function is where we stream values into arrays. */
@@ -89,10 +90,10 @@ Blockly.Blocks["ds_superclass"] = {
         this.classFuncParamPrivate_ = [];
         this.classConPropPrivate_ = [];
         this.classConParamPrivate_ = [];
-		
+
 		this.classObjPublic_ = [];
 		this.classObjPrivate_ = [];
-		
+
         this.classVarProtected_ = [];
         this.classFuncPropProtected_ = [];
         this.classFuncParamProtected_ = [];
@@ -108,7 +109,7 @@ Blockly.Blocks["ds_superclass"] = {
                 case "isVar":
                     this.classVarPublic_.push(ptr.varProp_);
                     break;
-					
+
 				/** If the block is a function then push data. */
                 case 'isFunc':
 					if (ptr.type === 'class_function_declaration')
@@ -119,13 +120,13 @@ Blockly.Blocks["ds_superclass"] = {
 							this.classConProp_.push(ptr.funcProp_);
 							this.classConParam_.push(ptr.funcParam_);
 						}
-					} 
+					}
                     this.classFuncProp_.push(ptr.funcProp_);
                     this.classFuncParam_.push(ptr.funcParam_);
-					
+
                     break;
             }
-			
+
 			/** If the block is a constructor then push data (including attached parameters). */
             switch (ptr.type) {
                 case "class_constructor":
@@ -134,13 +135,13 @@ Blockly.Blocks["ds_superclass"] = {
                     break;
 				case "ds_object":
 					this.classObjPublic_.push(ptr.objProp_);
-					break;	
+					break;
             }
-			
+
             ptr = ptr.nextConnection.targetBlock();
-			
+
         }
-		
+
 		/** Protected. */
         ptr = this.getInputTargetBlock("stateProtected");
         while (ptr) {
@@ -155,7 +156,7 @@ Blockly.Blocks["ds_superclass"] = {
                     this.classFuncParamProtected_.push(ptr.funcParam_);
                     break;
             }
-			
+
 			/** If the block is a constructor then push data (including attached parameters). */
             switch (ptr.type) {
                 case "class_constructor":
@@ -164,7 +165,7 @@ Blockly.Blocks["ds_superclass"] = {
                     break;
 				case "ds_object":
 					this.classObjProtected_.push(ptr.objProp_);
-					break;				
+					break;
             }
             ptr = ptr.nextConnection.targetBlock();
         }
@@ -183,7 +184,7 @@ Blockly.Blocks["ds_superclass"] = {
                     this.classFuncParamPrivate_.push(ptr.funcParam_);
                     break;
             }
-			
+
 			/** If the block is a constructor then push data (including attached parameters). */
             switch (ptr.type) {
                 case "class_constructor":
@@ -192,18 +193,18 @@ Blockly.Blocks["ds_superclass"] = {
                     break;
 				case "ds_object":
 					this.classObjPrivate_.push(ptr.objProp_);
-					break;				
+					break;
             }
             ptr = ptr.nextConnection.targetBlock();
         }
-		
+
 		let block1 = this.getInputTargetBlock('valueInput');
-		
+
 		//get parent classes from right block, then add the data to this one
 		if (block1) {
 			this.parentClass_ = block1.parentClass_;
 		}
-		
+
 		ptr = this.parentBlock_;
 		while (ptr) {
 			for (var i = 0; i < this.parentClass_.length; i++)
@@ -216,35 +217,35 @@ Blockly.Blocks["ds_superclass"] = {
 					for (var i = 0; i < ptr.classVarPublic_.length; i++) {
 						this.classVarPublic_.push(ptr.classVarPublic_[i]);
 					}
-					
+
 					for (var i = 0; i < ptr.classFuncPropProtected_.length; i++) {
 						this.classFuncProp_.push(ptr.classFuncPropProtected_[i]);
 					}
 					for (var i = 0; i < ptr.classFuncProp_.length; i++) {
 						this.classFuncProp_.push(ptr.classFuncProp_[i]);
 					}
-					
+
 					for (var i = 0; i < ptr.classFuncParamProtected_.length; i++) {
 						this.classFuncParam_.push(ptr.classFuncParamProtected_[i]);
 					}
 					for (var i = 0; i < ptr.classFuncParam_.length; i++) {
 						this.classFuncParam_.push(ptr.classFuncParam_[i]);
 					}
-		
+
 					for (var i = 0; i < ptr.classConPropProtected_.length; i++) {
 						this.classConProp_.push(ptr.classConPropProtected_[i]);
 					}
 					for (var i = 0; i < ptr.classConProp_.length; i++) {
 						this.classConProp_.push(ptr.classConProp_[i]);
 					}
-					
+
 					for (var i = 0; i < ptr.classConParamProtected_.length; i++) {
 						this.classConParam_.push(ptr.classConParamProtected_[i]);
 					}
 					for (var i = 0; i < ptr.classConParam_.length; i++) {
 						this.classConParam_.push(ptr.classConParam_[i]);
 					}
-					
+
 					/*for (var i = 0; i < ptr.classObjProtected_.length; i++) {
 						this.classObjPublic_.push(ptr.classObjProtected_[i]);
 					}
@@ -255,6 +256,22 @@ Blockly.Blocks["ds_superclass"] = {
 			}
 			ptr = ptr.parentBlock_;
 		}
+    },
+
+    //making a warning so that it only wants a subclass block and nothing else
+    allocateWarnings: function () {
+        let warn = "";//the warning
+        let ptr = this.getInputTargetBlock('valueInput');//the block connected to the superclass
+
+        if ((ptr) && (ptr.getDataStr() !== "isClass")) {
+            warn += "Error, the connected block is not a subclass block."
+        }
+
+        if (warn.length > 0) {
+            this.setWarningText(warn);
+        } else {
+            this.setWarningText(null);
+        }
     }
 };
 
@@ -264,33 +281,34 @@ Blockly.C["ds_superclass"] = function (block) {
     var codeStatePublic =
         Blockly.C.statementToCode(block, "statePublic");
 	/** Generate private C code with helper function. */
-    var codestatePrivate =
+    var codeStatePrivate =
         Blockly.C.statementToCode(block, "statePrivate");
-	var codestateProtected =
+	var codeStateProtected =
         Blockly.C.statementToCode(block, "stateProtected");
-	
-	
+
+    var inheritType = Blockly.C.valueToCode(block, "valueInput", Blockly.C.ORDER_ATOMIC);
+
 	/** Initialize variable. */
     var code = "";
-	
+
 	/** Begin class declaration with user input text; class myClass{ */
-    code += "class " + this.getVar_ + " {\n";
+    code += "class " + this.getVar_ + " " + inheritType + " {\n";
 
 	/** Formate public code. */
 	if (codeStatePublic) {
     code += "public:\n";
     code += codeStatePublic;
 	}
-	
-	if (codestateProtected) {
+
+	if (codeStateProtected) {
 	code += "protected:\n";
-	code += codestateProtected;
+	code += codeStateProtected;
 	}
 
 	/** Format private code. */
-	if (codestatePrivate) {
+	if (codeStatePrivate) {
     code += "private:\n";
-    code += codestatePrivate;
+    code += codeStatePrivate;
 	}
 
 	/** End class declaration. */
@@ -342,16 +360,16 @@ Blockly.Blocks["ds_subclass"] = {
         this.setTooltip("This block inherits from a superclass.");
 		/** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
         this.setHelpUrl("http://www.cplusplus.com/doc/tutorial/classes/");
-		
+
         this.setInputsInline(true);
         this.setOutput(true, null);
-		
+
 		this.parentClass_ = [];
-		
+
         this.appendDummyInput()
 			.appendField(": public ")
-            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "inheritVar");		
-			
+            .appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), "inheritVar");
+
 		//mutator stuff
         this.setMutator(new Blockly.Mutator(['inherit_add']));
 
@@ -365,17 +383,17 @@ Blockly.Blocks["ds_subclass"] = {
         var container = document.createElement('mutation');
 
         if (this.inheritCount_) {
-            container.setAttribute('inheritadd', this.inheritCount_);
+            container.setAttribute('inherit_add', this.inheritCount_);//added _ to inheritadd
         }
 
         return container;
     },
 
     domToMutation: function (xmlElement) {
-        this.inheritCount_ = parseInt(xmlElement.getAttribute('inheritadd'), 10);
+        this.inheritCount_ = parseInt(xmlElement.getAttribute('inherit_add'), 10);//added _ to inheritadd
 
         for (var i = 1; i <= this.inheritCount_; ++i) {
-            this.appendDummyInput('valinp' + i)
+            this.appendDummyInput('valueInput' + i)
                 .appendField('+')
                 .setAlign(Blockly.ALIGN_RIGHT);
         }
@@ -401,7 +419,7 @@ Blockly.Blocks["ds_subclass"] = {
     compose: function (containerBlock) {
 
         for (var i = this.inheritCount_; i > 0; i--) {
-            this.removeInput('valinp' + i);
+            this.removeInput('valueInput' + i);//valinp???
         }
 
         this.inheritCount_ = 0;
@@ -413,7 +431,7 @@ Blockly.Blocks["ds_subclass"] = {
                 case 'inherit_add':
                     this.inheritCount_++;
 
-                    var printInput = this.appendDummyInput('valinp' + this.inheritCount_)
+                    var printInput = this.appendDummyInput('valueInput' + this.inheritCount_)//valinp???
 						.appendField(', public ')
 						.appendField(new Blockly.FieldDropdown(this.allocateDropdown.bind(this)), 'DS' + this.inheritCount_)
 						.setAlign(Blockly.ALIGN_RIGHT);
@@ -441,7 +459,7 @@ Blockly.Blocks["ds_subclass"] = {
         while (clauseBlock) {
             switch (clauseBlock.type) {
                 case 'inherit_add':
-                    var inputPrint = this.getInput('valinp' + i);
+                    var inputPrint = this.getInput('valueInput' + i);//valinp???
                     clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
                     clauseBlock.statementConnection_ = i++;
                     break;
@@ -458,19 +476,24 @@ Blockly.Blocks["ds_subclass"] = {
 		this.allocateDropdown();
         this.allocateValues();
     },
-	
+
 	//just adding name of classes to the dropdown
     allocateDropdown: function () {
         var options = [["",""]];
-		
+
         let ptr = this.parentBlock_;
+
+        if (ptr !== null) {
+          ptr = ptr.parentBlock_;
+        }
+
         while (ptr) {
-            if (ptr.type === "ds_superclass"){
-               
+            if (ptr.getDataStr() === "isClass"){
+
                     options.push([ptr.getVar_, ptr.getVar_]);
             }
             if (ptr.type === "include_file"){
-               
+
                     options.push([ptr.getVar_, ptr.getVar_]);
             }
             ptr = ptr.parentBlock_;
@@ -481,30 +504,32 @@ Blockly.Blocks["ds_subclass"] = {
 	/** The allocateValues function is where we stream values into arrays. */
     allocateValues: function () {
 		this.parentClass_ = [];
-		
+
 		/** first one selected */
         this.getVar_ = this.getField("inheritVar").getText();
 		this.parentClass_.push(this.getVar_);
-		
+
 		//mutator, multiple inheritance
 		for (var i = 0; i <= this.inheritCount_.length; i++)
 		{
 			console.log('hi');
 			this.parentClass_.push(this.getField("DS").getText());
 		}
-		
+
     }
 };
 
 /** Class definition C code. */
 Blockly.C['ds_subclass'] = function (block) {
+  console.log(this);
     var code = '';
 
     if (this.getVar_.length > 0) {
+            code += ": public ";
             code += this.getVar_;
 
         for (var i = 1; i <= this.inheritCount_; ++i) {
-            var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+            var arg = Blockly.C.valueToCode(block, 'valueInput' + i, Blockly.C.ORDER_NONE);
 
             code += arg;
 
@@ -512,11 +537,71 @@ Blockly.C['ds_subclass'] = function (block) {
                 code += ", ";
             }
         }
-        code += ')';
+        // code += ' ';
     }
 
     return [code, Blockly.C.ORDER_NONE];
 };
 
+/** Virtual block for overloading */
+Blockly.Blocks["virtual"] = {
+  init: function() {
+    /** Adds a notch to connect up. */
+    this.setPreviousStatement(true, null);
+    /** Adds a notch to connect down. */
+    this.setNextStatement(true, null);
+    /** Sets color of the block. */
+    this.setColour(classHue);
+    /** This tooltip text appears when hovering block. */
+    this.setTooltip("This block is for overloading a block.");
+    /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
+    this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/polymorphism/");
 
+    /** allowing blocks to be put in the virtual block */
+    this.appendDummyInput()
+      .appendField("virtual");
+    this.appendStatementInput("stateVirtual")
+      .setCheck(null);
+  }
+};
 
+/** virtual C code. */
+Blockly.C["virtual"] = function (block) {
+  let code = 'virtual';
+
+  return code;
+};
+
+/** friend block */
+Blockly.Blocks["friend"] = {
+  init: function() {
+    /** Adds a notch to connect up. */
+    this.setPreviousStatement(true, null);
+    /** Adds a notch to connect down. */
+    this.setNextStatement(true, null);
+    /** Sets color of the block. */
+    this.setColour(classHue);
+    /** This tooltip text appears when hovering block. */
+    this.setTooltip("This block is for creating friends :)");
+    /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
+    this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/inheritance/");
+
+    /** allowing blocks to be put in the virtual block */
+    this.appendDummyInput()
+      .appendField("friend");
+    this.appendStatementInput("stateFriend")
+      .setCheck(null);
+  }
+};
+
+/** friend C code. */
+Blockly.C["friend"] = function (block) {
+  let code = 'friend';
+
+  return code;
+};
+/**
+  bug: subclass block crashes after getting added class and removed from a superclass block
+  bug: when superclass is connected to top of a class it does not add the name of the superclass
+ block to the code on the right
+*/

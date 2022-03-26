@@ -21,9 +21,9 @@ Blockly.Blocks["inFS"] = {
 
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
-            .setCheck("String")
-            .appendField('ifstream');
-
+            .appendField('ifstream ')
+            .appendField(new Blockly.FieldTextInput('name'), 'myStream')
+            .setCheck(null);
     },
 
     /** The onchange function is called when a block is moved or updated. */
@@ -32,17 +32,13 @@ Blockly.Blocks["inFS"] = {
     },
 
     allocateValues: function () {
-        let block = this.getInputTargetBlock('valinp1');
-
+        this.streamName = (this.getFieldValue('myStream'));
     },
 
 }
 
 Blockly.C["inFS"] = function(block) {
-    var value_name = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
-
-    var code ='ifstream ' + value_name + ';\n';
-
+    var code ='ifstream ' + this.myStream + ';\n';
     return code;
 }
 
@@ -62,8 +58,9 @@ Blockly.Blocks["outFS"] = {
 
         /** parameter area */
         this.appendValueInput('valinp1') /** name of filestream */
-            .setCheck("String")
-            .appendField('ofstream');
+            .appendField('ofstream ')
+            .appendField(new Blockly.FieldTextInput('name'), 'myStream')
+            .setCheck(null);
 
     },
 
@@ -73,15 +70,88 @@ Blockly.Blocks["outFS"] = {
     },
 
     allocateValues: function () {
-
+        this.streamName = (this.getFieldValue('myStream'));
     },
 
 }
 
 Blockly.C["outFS"] = function(block) {
-    var value_name = Blockly.C.valueToCode(this, 'valinp1', Blockly.C.ORDER_ATOMIC);
+    var code ='ofstream ' + this.myStream + ';\n';
+    return code;
+}
 
-    var code ='ofstream ' + value_name + ';\n';
+/** Input String-stream initialization block */
+Blockly.Blocks["iStream"] = {
+    init: function () {
+        /** Adds a notch to connect up. */
+        this.setPreviousStatement(true, null);
+        /** Adds a notch to connect down. */
+        this.setNextStatement(true, null);
+        /** Sets color of the block. */
+        this.setColour(fileHue);
+        /** This tooltip text appears when hovering block. */
+        this.setTooltip("This block declares an file output stream.");
+        /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+
+        /** parameter area */
+        this.appendValueInput('valinp1') /** name of filestream */
+        .appendField('istringstream ')
+        .appendField(new Blockly.FieldTextInput('name'), 'myStream')
+        .setCheck(null);
+
+    },
+
+    /** The onchange function is called when a block is moved or updated. */
+    onchange: function () {
+        this.allocateValues();
+    },
+
+    allocateValues: function () {
+        this.streamName = (this.getFieldValue('myStream'));
+    },
+
+}
+
+Blockly.C["iStream"] = function(block) {
+    var code ='istringstream ' + this.streamName + ';\n';
+    return code;
+}
+
+Blockly.Blocks["oStream"] = {
+    init: function () {
+        /** Adds a notch to connect up. */
+        this.setPreviousStatement(true, null);
+        /** Adds a notch to connect down. */
+        this.setNextStatement(true, null);
+        /** Sets color of the block. */
+        this.setColour(fileHue);
+        /** This tooltip text appears when hovering block. */
+        this.setTooltip("This block declares an file output stream.");
+        /** The Help URL directs to hyperlink when a block is right clicked and Help is selected. */
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+
+        /** parameter area */
+        this.appendValueInput('valinp1') /** name of filestream */
+            .appendField('ostringstream ')
+            .appendField(new Blockly.FieldTextInput('name'), 'myStream')
+            .setCheck(null);
+
+    },
+
+    /** The onchange function is called when a block is moved or updated. */
+    onchange: function () {
+        this.allocateValues();
+    },
+
+    allocateValues: function () {
+        this.streamName = (this.getFieldValue('myStream'));
+    },
+
+}
+
+Blockly.C["oStream"] = function(block) {
+    var code = 'ostringstream ' + this.streamName + ';\n';
 
     return code;
 }
@@ -650,6 +720,276 @@ Blockly.C['FS_output'] = function (block) {
         code += ';\n';
     }
 
+    return code;
+};
+
+Blockly.Blocks['outSS'] = {
+    init: function () {
+        this.appendValueInput("valinp0")
+            .setCheck(null)
+            .appendField("outSS <<");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(fileHue);
+
+        this.setMutator(new Blockly.Mutator(['outSS_stream_add']));
+
+        //count of added outSS's in the stream
+        this.outSStreamCount_ = 0;
+    },
+
+    mutationToDom: function () {
+        if (!this.outSStreamCount_) {
+            return null;
+        }
+        var container = document.createElement('mutation');
+
+        if (this.outSStreamCount_) {
+            container.setAttribute('printadd', this.outSStreamCount_);
+        }
+
+        return container;
+    },
+
+    domToMutation: function (xmlElement) {
+        this.OutSStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
+        for (var i = 1; i <= this.outSStreamCount_; ++i) {
+            this.appendValueInput('valinp' + i).setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+        }
+    },
+
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('outSS_mutator');
+        containerBlock.initSvg();
+
+        var connection = containerBlock.getInput('STACK').connection;
+        for (var i = 1; i <= this.outSStreamCount_; ++i) {
+            var add = workspace.newBlock('outSS_add');
+            add.initSvg();
+
+            connection.connect(add.previousConnection);
+            connection = add.nextConnection;
+        }
+
+        return containerBlock;
+    },
+
+    compose: function (containerBlock) {
+        for (var i = this.outSStreamCount_; i > 0; i--) {
+            this.removeInput('valinp' + i);
+        }
+        this.outSStreamCount_ = 0;
+
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'outSS_add':
+                    this.outSStreamCount_++;
+
+                    var printInput = this.appendValueInput('valinp' + this.outSStreamCount_)
+                        .setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+
+                    if (clauseBlock.valueConnection_) {
+                        printInput.connection.connect(clauseBlock.valueConnection_);
+                    }
+                    break;
+
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    saveConnections: function (containerBlock) {
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 1;
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'outSS_add':
+                    var inputPrint = this.getInput('valinp' + i);
+
+                    clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
+
+                    clauseBlock.statementConnection_ = i++;
+
+                    break;
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    onchange: function () {
+    },
+
+};
+
+Blockly.C['outSS'] = function (block) {
+    var code = '';
+    var std = '';
+
+    C = C_Include;
+
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
+    
+    code += 'outSS';
+
+    for (var i = 0; i <= block.outSStreamCount_; ++i) {
+        var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+
+        if (arg.length > 0) {
+            code += ' << ' + arg;
+        } else {
+            code += ' << ' + std + 'endl';
+        }
+
+    }
+
+
+    code += ';\n';
+    return code;
+};
+
+Blockly.Blocks['inSS'] = {
+    init: function () {
+        this.appendValueInput("valinp0")
+            .setCheck(null)
+            .appendField("inSS <<");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(fileHue);
+
+        this.setMutator(new Blockly.Mutator(['inSS_stream_add']));
+
+        //count of added inSS's in the stream
+        this.inSStreamCount_ = 0;
+    },
+
+    mutationToDom: function () {
+        if (!this.inSStreamCount_) {
+            return null;
+        }
+        var container = document.createElement('mutation');
+
+        if (this.inSStreamCount_) {
+            container.setAttribute('printadd', this.inSStreamCount_);
+        }
+
+        return container;
+    },
+
+    domToMutation: function (xmlElement) {
+        this.inSStreamCount_ = parseInt(xmlElement.getAttribute('printadd'), 10);
+        for (var i = 1; i <= this.inSStreamCount_; ++i) {
+            this.appendValueInput('valinp' + i).setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+        }
+    },
+
+    decompose: function (workspace) {
+        var containerBlock = workspace.newBlock('inSS_mutator');
+        containerBlock.initSvg();
+
+        var connection = containerBlock.getInput('STACK').connection;
+        for (var i = 1; i <= this.inSStreamCount_; ++i) {
+            var add = workspace.newBlock('inSS_add');
+            add.initSvg();
+
+            connection.connect(add.previousConnection);
+            connection = add.nextConnection;
+        }
+
+        return containerBlock;
+    },
+
+    compose: function (containerBlock) {
+        for (var i = this.inSStreamCount_; i > 0; i--) {
+            this.removeInput('valinp' + i);
+        }
+        this.inSStreamCount_ = 0;
+
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'inSS_add':
+                    this.inSStreamCount_++;
+
+                    var printInput = this.appendValueInput('valinp' + this.inSStreamCount_)
+                        .setCheck(null).appendField(' << ').setAlign(Blockly.ALIGN_RIGHT);
+
+                    if (clauseBlock.valueConnection_) {
+                        printInput.connection.connect(clauseBlock.valueConnection_);
+                    }
+                    break;
+
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    saveConnections: function (containerBlock) {
+        var clauseBlock = containerBlock.getInputTargetBlock('STACK');
+        var i = 1;
+        while (clauseBlock) {
+            switch (clauseBlock.type) {
+                case 'inSS_add':
+                    var inputPrint = this.getInput('valinp' + i);
+
+                    clauseBlock.valueConnection_ = inputPrint && inputPrint.connection.targetConnection;
+
+                    clauseBlock.statementConnection_ = i++;
+
+                    break;
+                default:
+                    throw 'Unknown block type.';
+            }
+            clauseBlock = clauseBlock.nextConnection
+                && clauseBlock.nextConnection.targetBlock();
+        }
+    },
+
+    onchange: function () {
+    },
+
+};
+
+Blockly.C['inSS'] = function (block) {
+    var code = '';
+    var std = '';
+
+    C = C_Include;
+
+    if (!C.using.std(block)) {
+        std = 'std::';
+    }
+
+    code += 'inSS';
+
+    for (var i = 0; i <= block.inSStreamCount_; ++i) {
+        var arg = Blockly.C.valueToCode(block, 'valinp' + i, Blockly.C.ORDER_NONE);
+
+        if (arg.length > 0) {
+            code += ' << ' + arg;
+        } else {
+            code += ' << ' + std + 'endl';
+        }
+
+    }
+
+
+    code += ';\n';
     return code;
 };
 

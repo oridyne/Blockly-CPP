@@ -295,6 +295,7 @@
                 <block type="include_vector"></block>
                 <block type="include_fstream"></block>
                 <block type="include_ostream"></block>
+                <block type="include_sstream"></block>
 
                 <block type="using_namespace_std"></block>
 
@@ -1484,7 +1485,7 @@
                 <!--                                                                         -->
                 <!-- Author:   David J. Hazell                                               -->
                 <!-- Semester: Spring 2021                                                   -->
-                <category name="Pointers" colour="#C270A7">
+                <category name="Pointers" colour="#70a7c2">
 
                     <label text="Pointer Declaration" web-class="labelPointer"></label>
                     <block type="pointer_declare"></block>
@@ -1550,6 +1551,44 @@
 
             <!-- end of Chapter 7 blocks -->
 			
+            <!-- Chapter 8                                                               -->
+            <!-- Pointers 																 -->
+            <!--                                                                         -->
+            <!-- Author:   Jacob Patzer                                             	 -->
+            <!-- Semester: Spring 2022                                                   -->
+
+            <category name="Chapter 8" colour="#70a7c2">
+
+                <label text="Pointer Declaration" web-class="labelPointer"></label>
+
+                    <block type="pointer_declare"></block>
+
+                    <label text="Pointer Initialization" web-class="labelPointer"></label>
+
+                    <block type="pointer_getter"></block>
+
+                    <block type="pointer_reference"></block>
+
+                    <block type="pointer_null"></block>
+
+                    <block type="pointer_nullptr"></block>
+
+                    <label text="Pointer Assignment" web-class="labelPointer"></label>
+
+                    <block type="pointer_assignment">
+                        <value name="valinp1">
+                            <shadow type="pointer_getter">
+                                <field name="VAR"></field>
+                            </shadow>
+                        </value>
+                    </block>
+
+                    <label text="Pointer Operators" web-class="labelPointer"></label>
+
+                    <block type="pointer_operator"></block>
+
+            </category>
+
             <!-- Chapter 9                                                               -->
             <!-- Streams 																 -->
             <!--                                                                         -->
@@ -1560,21 +1599,9 @@
 
                 <label text="File Stream Declaration" web-class="labelFile"></label>
 
-                <block type="inFS">
-                    <value name="valinp1">
-                        <shadow type="get_str">
-                            <field name="myStr">myFS</field>
-                        </shadow>
-                    </value>
-                </block>
+                <block type="inFS"> </block>
 
-                <block type="outFS">
-                    <value name="valinp1">
-                        <shadow type="get_str">
-                            <field name="myStr">myFS</field>
-                        </shadow>
-                    </value>
-                </block>
+                <block type="outFS"></block>
 
                 <label text="Open / Close" web-class="labelFile"></label>
 
@@ -1600,6 +1627,20 @@
 
                 <block type="FS_output"></block>
 
+                <label text="String Streams" web-class="labelFile"></label>
+
+                <block type="iStream"></block>
+
+                <block type="oStream"></block>
+
+                <block type="outSS"></block>
+
+                <block type="inSS"></block>
+
+                <label text="Overloading Operator" web-class="labelFile"></label>
+
+                
+
             </category>
 
             <!-- end of Chapter 9 blocks -->
@@ -1611,15 +1652,23 @@
             <!-- Semester: Spring 2022                                                  -->
 			
 			<category name="Chapter 10" colour="#A6885C">
-			
+
 				<label text="Base / Parent / Superclass" web-class="labelClass"></label>
-				
+
 				<block type="ds_superclass"></block>
-			
+
 				<label text="Derived / Child / Subclass" web-class="labelClass"></label>
-				
+
 				<block type="ds_subclass"></block>
-			
+
+                <label text="Polymorphism" web-class="labelClass"></label>
+
+                <block type="virtual"></block>
+
+                <label text="Friend" web-class="labelClass"></label>
+
+                <block type="friend"></block>
+
 			</category>
 
         </xml> <!-- toolbox -->

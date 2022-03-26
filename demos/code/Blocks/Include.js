@@ -182,7 +182,7 @@ Blockly.Blocks['include_fstream'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(includeHUE);
-        this.setTooltip("Use #include <vector> if you are using file streams");
+        this.setTooltip("Use #include <fstream> if you are using file streams");
         this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
         this.setDeletable(true);
 
@@ -202,7 +202,7 @@ Blockly.Blocks['include_ostream'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(includeHUE);
-        this.setTooltip("Use #include <vector> if you are using file streams");
+        this.setTooltip("Use #include <ostream> if you are using file streams");
         this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
         this.setDeletable(true);
 
@@ -212,6 +212,26 @@ Blockly.Blocks['include_ostream'] = {
 
 Blockly.C['include_ostream'] = function (block) {
     var code = "#include <ostream>\n";
+    return code;
+};
+
+Blockly.Blocks['include_sstream'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("#include <sstream>");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(includeHUE);
+        this.setTooltip("Use #include <sstream> if you are using file streams");
+        this.setHelpUrl("https://www.cplusplus.com/doc/tutorial/files/");
+        this.setDeletable(true);
+
+    }
+
+};
+
+Blockly.C['include_sstream'] = function (block) {
+    var code = "#include <sstream>\n";
     return code;
 };
 
